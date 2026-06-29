@@ -8,6 +8,8 @@
  * This file does NOT touch the upstream catalog — it only produces scores.
  */
 
+import { sha256, type FetchStat } from "./provenance";
+
 const ARENA_BASE = "https://api.wulong.dev/arena-ai-leaderboards/v1/leaderboard";
 const CATEGORIES = ["text", "code"] as const;
 type Category = (typeof CATEGORIES)[number];
@@ -93,21 +95,44 @@ function stripVersion(id: string): string {
   return id.replace(/[.-]\d+(?:\.\d+)*$/, "");
 }
 
-async function fetchArenaLeaderboards(): Promise<Record<Category, RawArenaResponse>> {
-  const out: Partial<Record<Category, RawArenaResponse>> = {};
+async function fetchArenaLeaderboards(): Promise<{
+  data: Record<Category, RawArenaResponse>;
+  stats: Record<Category, FetchStat>;
+}> {
+  const data: Partial<Record<Category, RawArenaResponse>> = {};
+  const stats: Partial<Record<Category, FetchStat>> = {};
   for (const cat of CATEGORIES) {
+    const url = `${ARENA_BASE}?name=${cat}`;
+    const t0 = performance.now();
     try {
-      const res = await fetch(`${ARENA_BASE}?name=${cat}`, {
-        signal: AbortSignal.timeout(30_000),
-      });
-      if (!res.ok) { console.warn(`[arena] ${cat} failed: HTTP ${res.status}`); continue; }
-      out[cat] = (await res.json()) as RawArenaResponse;
-      console.log(`[arena] ${cat}: ${out[cat]?.models.length ?? 0} models`);
+      const res = await fetch(url, { signal: AbortSignal.timeout(30_000) });
+      if (!res.ok) {
+        console.warn(`[arena] ${cat} failed: HTTP ${res.status}`);
+        stats[cat] = {
+          url, fetched_at: new Date().toISOString(),
+          duration_ms: Math.round(performance.now() - t0),
+          bytes: 0, sha256: "", ok: false, error: `HTTP ${res.status}`,
+        };
+        continue;
+      }
+      const text = await res.text();
+      data[cat] = JSON.parse(text) as RawArenaResponse;
+      stats[cat] = {
+        url, fetched_at: new Date().toISOString(),
+        duration_ms: Math.round(performance.now() - t0),
+        bytes: text.length, sha256: sha256(text), ok: true,
+      };
+      console.log(`[arena] ${cat}: ${data[cat]?.models.length ?? 0} models (${text.length}B)`);
     } catch (e) {
       console.warn(`[arena] ${cat} error: ${e}`);
+      stats[cat] = {
+        url, fetched_at: new Date().toISOString(),
+        duration_ms: Math.round(performance.now() - t0),
+        bytes: 0, sha256: "", ok: false, error: String(e),
+      };
     }
   }
-  return out as Record<Category, RawArenaResponse>;
+  return { data: data as Record<Category, RawArenaResponse>, stats: stats as Record<Category, FetchStat> };
 }
 
 function normalizeAlpacaKey(raw: string): string {
@@ -125,20 +150,38 @@ function normalizeAlpacaKey(raw: string): string {
   return n;
 }
 
-async function fetchAlpacaLC(): Promise<Map<string, { winrate: number; lcWinrate: number; n: number }>> {
-  const out = new Map<string, { winrate: number; lcWinrate: number; n: number }>();
+async function fetchAlpacaLC(): Promise<{
+  data: Map<string, { winrate: number; lcWinrate: number; n: number }>;
+  stat: FetchStat;
+}> {
+  const data = new Map<string, { winrate: number; lcWinrate: number; n: number }>();
+  const t0 = performance.now();
+  const baseStat = (overrides: Partial<FetchStat> = {}): FetchStat => ({
+    url: ALPACA_LC_URL,
+    fetched_at: new Date().toISOString(),
+    duration_ms: Math.round(performance.now() - t0),
+    bytes: 0, sha256: "", ok: false, ...overrides,
+  });
   try {
     const res = await fetch(ALPACA_LC_URL, { signal: AbortSignal.timeout(30_000) });
-    if (!res.ok) { console.warn(`[alpaca] failed: HTTP ${res.status}`); return out; }
+    if (!res.ok) {
+      console.warn(`[alpaca] failed: HTTP ${res.status}`);
+      return { data, stat: baseStat({ error: `HTTP ${res.status}` }) };
+    }
     const text = await res.text();
     const lines = text.split(/\r?\n/).filter((l) => l.trim().length > 0);
-    if (lines.length < 2) return out;
+    if (lines.length < 2) {
+      return { data, stat: baseStat({ bytes: text.length, sha256: sha256(text), ok: false, error: "no rows" }) };
+    }
 
     const header = lines[0].split(",").map((c) => c.trim());
     const lcCol = header.indexOf("length_controlled_winrate");
     const winrateCol = header.indexOf("win_rate");
     const nTotalCol = header.indexOf("n_total");
-    if (lcCol < 0) { console.warn("[alpaca] missing length_controlled_winrate column"); return out; }
+    if (lcCol < 0) {
+      console.warn("[alpaca] missing length_controlled_winrate column");
+      return { data, stat: baseStat({ bytes: text.length, sha256: sha256(text), ok: false, error: "missing lc column" }) };
+    }
 
     let count = 0;
     for (let i = 1; i < lines.length; i++) {
@@ -149,19 +192,27 @@ async function fetchAlpacaLC(): Promise<Map<string, { winrate: number; lcWinrate
       if (!Number.isFinite(lc) || lc <= 0) continue;
       const wr = winrateCol >= 0 ? Number(cols[winrateCol]) / 100 : lc / 100;
       const n = nTotalCol >= 0 ? Number(cols[nTotalCol]) || 0 : 0;
-      out.set(normalizeAlpacaKey(rawKey), { winrate: wr, lcWinrate: lc / 100, n });
+      data.set(normalizeAlpacaKey(rawKey), { winrate: wr, lcWinrate: lc / 100, n });
       count++;
     }
     console.log(`[alpaca] parsed ${count} entries`);
+    return {
+      data,
+      stat: baseStat({ bytes: text.length, sha256: sha256(text), ok: true }),
+    };
   } catch (e) {
     console.warn(`[alpaca] error: ${e}`);
+    return { data, stat: baseStat({ error: String(e) }) };
   }
-  return out;
 }
 
-export async function buildArenaSupplement(): Promise<{ arena: ArenaData; meta: Record<string, unknown> }> {
-  const leaderboards = await fetchArenaLeaderboards();
-  const alpaca = await fetchAlpacaLC();
+export async function buildArenaSupplement(): Promise<{
+  arena: ArenaData;
+  meta: Record<string, unknown>;
+  fetch_stats: FetchStat[];
+}> {
+  const { data: leaderboards, stats: leaderStats } = await fetchArenaLeaderboards();
+  const { data: alpaca, stat: alpacaStat } = await fetchAlpacaLC();
 
   const result: ArenaData = {};
 
@@ -254,5 +305,13 @@ export async function buildArenaSupplement(): Promise<{ arena: ArenaData; meta: 
   };
 
   console.log(`[arena] total: ${Object.keys(result).length} entries (${alpacaOnly} alpaca-only)`);
-  return { arena: result, meta };
+  return {
+    arena: result,
+    meta,
+    fetch_stats: [
+      { name: `arena:${CATEGORIES[0]}`, ...leaderStats.text },
+      { name: `arena:${CATEGORIES[1]}`, ...leaderStats.code },
+      { name: "alpaca_lc", ...alpacaStat },
+    ],
+  };
 }

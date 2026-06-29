@@ -32,6 +32,15 @@ jobs:
       - name: Build supplement
         run: bun src/build.ts
 
+      - name: Diff against previous build (regression gate)
+        run: |
+          if git cat-file -e HEAD:supplement.json; then
+            git show HEAD:supplement.json > /tmp/prev-supplement.json
+            bun src/diff.ts /tmp/prev-supplement.json supplement.json 30
+          else
+            echo "No previous supplement.json in HEAD — skipping regression gate."
+          fi
+
       - name: Commit supplement.json
         run: |
           git config user.email "github-actions[bot]@users.noreply.github.com"

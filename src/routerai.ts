@@ -10,6 +10,7 @@
  */
 
 import { getUsdRubRate } from "./currency";
+import { sha256, type FetchStat } from "./provenance";
 
 const ROUTERAI_BASE = "https://routerai.ru/api/v1";
 
@@ -58,20 +59,27 @@ function isLLM(m: RawRouterAIModel): boolean {
   return out.includes("text") && !out.includes("video") && !out.includes("image");
 }
 
-export async function buildRouterAISupplement(): Promise<RouterAISupplement> {
+export async function buildRouterAISupplement(): Promise<RouterAISupplement & { fetch_stats: FetchStat[] }> {
   const fx = await getUsdRubRate();
   console.log(`[routerai] USD/RUB: ${fx.rate} (${fx.source})`);
 
-  const res = await fetch(`${ROUTERAI_BASE}/models`, {
+  const url = `${ROUTERAI_BASE}/models`;
+  const t0 = performance.now();
+  const res = await fetch(url, {
     headers: { Accept: "application/json" },
     signal: AbortSignal.timeout(30_000),
   });
-  if (!res.ok) throw new Error(`routerai.ru /models HTTP ${res.status}`);
+  const duration_ms = Math.round(performance.now() - t0);
 
-  const body = await res.json() as RawRouterAIModel[] | { data?: RawRouterAIModel[] };
+  if (!res.ok) {
+    throw new Error(`routerai.ru /models HTTP ${res.status}`);
+  }
+
+  const text = await res.text();
+  const body = JSON.parse(text) as RawRouterAIModel[] | { data?: RawRouterAIModel[] };
   const catalog = Array.isArray(body) ? body : body.data ?? [];
   const llm = catalog.filter(isLLM);
-  console.log(`[routerai] fetched ${catalog.length} models (${llm.length} LLM)`);
+  console.log(`[routerai] fetched ${catalog.length} models (${llm.length} LLM, ${text.length}B)`);
 
   const models: Record<string, RouterAIModelEntry> = {};
   let free = 0;
@@ -117,5 +125,16 @@ export async function buildRouterAISupplement(): Promise<RouterAISupplement> {
       source: ROUTERAI_BASE,
       fetched_at: new Date().toISOString(),
     },
+    fetch_stats: [
+      {
+        name: "routerai:models",
+        url,
+        fetched_at: new Date().toISOString(),
+        duration_ms,
+        bytes: text.length,
+        sha256: sha256(text),
+        ok: true,
+      },
+    ],
   };
 }
