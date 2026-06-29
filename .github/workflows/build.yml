@@ -44,10 +44,16 @@ jobs:
             echo "No changes."
           fi
 
+      - name: Prepare public artifact
+        run: |
+          mkdir -p public
+          cp supplement.json public/
+          cp .nojekyll public/
+
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: .
+          publish_dir: ./public
           publish_branch: gh-pages
           keep_files: false
