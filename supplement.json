@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-06-29T20:22:28.975Z",
+  "generated_at": "2026-06-29T20:23:19.758Z",
   "schema_version": "1.1",
   "provenance": {
     "git": {
-      "commit": "fa9862a",
-      "dirty": false,
+      "commit": "1bf509d",
+      "dirty": true,
       "branch": "main"
     },
     "env": {
@@ -12,14 +12,14 @@
       "bun_version": "1.3.14",
       "os": "linux node",
       "arch": "x64",
-      "ci": null
+      "ci": "github-actions:28400279343"
     },
     "sources": [
       {
         "name": "arena:text",
         "url": "https://api.wulong.dev/arena-ai-leaderboards/v1/leaderboard?name=text",
-        "fetched_at": "2026-06-29T20:22:28.451Z",
-        "duration_ms": 293,
+        "fetched_at": "2026-06-29T20:23:18.071Z",
+        "duration_ms": 206,
         "bytes": 3850,
         "sha256": "3db105abccc1df7f47ea064cba56009fdd383db37de4382eca48d3109147d63f",
         "ok": true
@@ -27,8 +27,8 @@
       {
         "name": "arena:code",
         "url": "https://api.wulong.dev/arena-ai-leaderboards/v1/leaderboard?name=code",
-        "fetched_at": "2026-06-29T20:22:28.519Z",
-        "duration_ms": 68,
+        "fetched_at": "2026-06-29T20:23:18.119Z",
+        "duration_ms": 47,
         "bytes": 3882,
         "sha256": "ea4c8d260c786bd84c14b9accfeb1f72f92be79077d0dc81ae2d73bfacf82b7c",
         "ok": true
@@ -36,8 +36,8 @@
       {
         "name": "alpaca_lc",
         "url": "https://raw.githubusercontent.com/tatsu-lab/alpaca_eval/main/src/alpaca_eval/leaderboards/data_AlpacaEval_2/weighted_alpaca_eval_gpt4_turbo_leaderboard.csv",
-        "fetched_at": "2026-06-29T20:22:28.748Z",
-        "duration_ms": 227,
+        "fetched_at": "2026-06-29T20:23:18.267Z",
+        "duration_ms": 148,
         "bytes": 28339,
         "sha256": "fe32bf85c2f7429038faa4c9a884d1d131726454ff84a4b810a91c1c7a2aa0e9",
         "ok": true
@@ -45,8 +45,8 @@
       {
         "name": "routerai:models",
         "url": "https://routerai.ru/api/v1/models",
-        "fetched_at": "2026-06-29T20:22:28.947Z",
-        "duration_ms": 627,
+        "fetched_at": "2026-06-29T20:23:19.748Z",
+        "duration_ms": 740,
         "bytes": 498650,
         "sha256": "9c4cf9e383dc15dcd601340134134de038ae652fafb2d2fe58f309bafc0436fb",
         "ok": true
@@ -54,8 +54,8 @@
       {
         "name": "cais_dashboard",
         "url": "https://dashboard.safe.ai/api/models",
-        "fetched_at": "2026-06-29T20:22:28.160Z",
-        "duration_ms": 229,
+        "fetched_at": "2026-06-29T20:23:17.866Z",
+        "duration_ms": 157,
         "bytes": 19958,
         "sha256": "48fac3a4a7bb9dd01f1be68bd510c40e6a7cb32158119075f08f06b1708a22d8",
         "ok": true
@@ -63,20 +63,20 @@
       {
         "name": "swe_bench_leaderboard",
         "url": "https://raw.githubusercontent.com/SWE-bench/swe-bench.github.io/master/data/leaderboards.json",
-        "fetched_at": "2026-06-29T20:22:28.160Z",
-        "duration_ms": 733,
+        "fetched_at": "2026-06-29T20:23:17.867Z",
+        "duration_ms": 331,
         "bytes": 7323841,
         "sha256": "c3bf3a74d7d67ba7e2777e197f96894601917e8e186a078133897ed3e81566e5",
         "ok": true
       }
     ],
-    "output_sha256": "fce4beae8d80fc445fddb1d6be08817ca82578b3d3bda16200a96c247a879fbe",
+    "output_sha256": "0f6d8b3b38144f90503d5a19b8957f00bf4693a63149d54d4a9442a88c9ed903",
     "dry_run": false
   },
   "currency": {
     "usd_rub": 77.7539,
     "source": "CBR XML (cbr-xml-daily.ru/daily_eng.xml)",
-    "fetched_at": "2026-06-29T20:22:28.283Z"
+    "fetched_at": "2026-06-29T20:23:18.246Z"
   },
   "arena": {
     "claude-fable-5": {
@@ -10229,7 +10229,7 @@
     "model_count": 300,
     "free_count": 2,
     "source": "https://routerai.ru/api/v1",
-    "fetched_at": "2026-06-29T20:22:28.947Z"
+    "fetched_at": "2026-06-29T20:23:19.748Z"
   },
   "benchmark_scores": {
     "hle": {
@@ -13384,8 +13384,8 @@
         "stat": {
           "name": "cais_dashboard",
           "url": "https://dashboard.safe.ai/api/models",
-          "fetched_at": "2026-06-29T20:22:28.160Z",
-          "duration_ms": 229,
+          "fetched_at": "2026-06-29T20:23:17.866Z",
+          "duration_ms": 157,
           "bytes": 19958,
           "sha256": "48fac3a4a7bb9dd01f1be68bd510c40e6a7cb32158119075f08f06b1708a22d8",
           "ok": true
@@ -13403,7 +13403,7 @@
       "swe_bench_multilingual": {
         "count": 13
       },
-      "fetched_at": "2026-06-29T20:22:28.975Z"
+      "fetched_at": "2026-06-29T20:23:19.758Z"
     }
   },
   "sources": {
