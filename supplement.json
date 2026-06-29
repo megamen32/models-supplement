@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-06-29T14:46:15.822Z",
+  "generated_at": "2026-06-29T14:48:50.650Z",
   "schema_version": "1.0",
   "currency": {
     "usd_rub": 77.0611,
     "source": "CBR XML (cbr-xml-daily.ru/daily_eng.xml)",
-    "fetched_at": "2026-06-29T14:46:14.039Z"
+    "fetched_at": "2026-06-29T14:48:49.207Z"
   },
   "arena": {
     "claude-fable-5": {
@@ -9009,9 +9009,9 @@
       "name": "StepFun: Step 3.5 Flash",
       "description": "Step 3.5 Flash — это самая продвинутая модель с открытым исходным кодом от StepFun. Построенная на архитектуре разреженной смеси экспертов (MoE), она избирательно активирует только 11 миллиардов из своих 196 миллиардов параметров на каждый токен. Это модель рассуждений, которая невероятно эффективна",
       "context_length": 262144,
-      "input_rub_per_token": 0.0000090161487,
+      "input_rub_per_token": 0.000010017943,
       "output_rub_per_token": 0.000030053829,
-      "input_usd_per_1m": 0.117,
+      "input_usd_per_1m": 0.13,
       "output_usd_per_1m": 0.39,
       "supports_vision": false,
       "supports_tools": true,
@@ -9592,20 +9592,6 @@
       "supports_structured_output": true,
       "reasoning": false
     },
-    "anthropic/claude-opus-4.6-fast": {
-      "id": "anthropic/claude-opus-4.6-fast",
-      "name": "Anthropic: Claude Opus 4.6 (Fast)",
-      "description": "Вариант быстрого режима [Opus 4.6](/models/anthropic/claude-opus-4.6) - идентичные возможности с более высокой скоростью вывода по премиальной цене в 6 раз выше.",
-      "context_length": 1000000,
-      "input_rub_per_token": 0.0030053829,
-      "output_rub_per_token": 0.0150269145,
-      "input_usd_per_1m": 39,
-      "output_usd_per_1m": 195,
-      "supports_vision": true,
-      "supports_tools": true,
-      "supports_structured_output": true,
-      "reasoning": false
-    },
     "qwen/qwen3.6-plus": {
       "id": "qwen/qwen3.6-plus",
       "name": "Qwen: Qwen3.6 Plus",
@@ -10168,10 +10154,10 @@
     }
   },
   "routerai_meta": {
-    "model_count": 301,
+    "model_count": 300,
     "free_count": 2,
     "source": "https://routerai.ru/api/v1",
-    "fetched_at": "2026-06-29T14:46:15.822Z"
+    "fetched_at": "2026-06-29T14:48:50.650Z"
   },
   "sources": {
     "upstream": "https://models.dev/api.json",
