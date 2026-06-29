@@ -1,0 +1,14 @@
+{
+  "name": "models-supplement",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Lightweight supplement layer for models.dev — arena ELO, RouterAI RUB pricing, currency rates. Not a fork; just an add-on.",
+  "scripts": {
+    "build": "bun src/build.ts",
+    "arena": "bun src/arena.ts",
+    "routerai": "bun src/routerai.ts"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  }
+}
