@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-06-29T14:31:15.367Z",
+  "generated_at": "2026-06-29T14:46:15.822Z",
   "schema_version": "1.0",
   "currency": {
     "usd_rub": 77.0611,
     "source": "CBR XML (cbr-xml-daily.ru/daily_eng.xml)",
-    "fetched_at": "2026-06-29T14:31:14.853Z"
+    "fetched_at": "2026-06-29T14:46:14.039Z"
   },
   "arena": {
     "claude-fable-5": {
@@ -9015,7 +9015,7 @@
       "output_usd_per_1m": 0.39,
       "supports_vision": false,
       "supports_tools": true,
-      "supports_structured_output": true,
+      "supports_structured_output": false,
       "reasoning": false
     },
     "minimax/minimax-m2.5": {
@@ -10171,7 +10171,7 @@
     "model_count": 301,
     "free_count": 2,
     "source": "https://routerai.ru/api/v1",
-    "fetched_at": "2026-06-29T14:31:15.019Z"
+    "fetched_at": "2026-06-29T14:46:15.822Z"
   },
   "sources": {
     "upstream": "https://models.dev/api.json",
