@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-06-30T18:23:47.357Z",
+  "generated_at": "2026-06-30T18:26:38.838Z",
   "schema_version": "2.0",
   "provenance": {
     "git": {
-      "commit": "843189a",
-      "dirty": false,
+      "commit": "c80861a",
+      "dirty": true,
       "branch": "main"
     },
     "env": {
@@ -12,14 +12,14 @@
       "bun_version": "1.3.14",
       "os": "linux node",
       "arch": "x64",
-      "ci": null
+      "ci": "github-actions:28466896342"
     },
     "sources": [
       {
         "name": "arena:text",
         "url": "https://api.wulong.dev/arena-ai-leaderboards/v1/leaderboard?name=text",
-        "fetched_at": "2026-06-30T18:23:46.347Z",
-        "duration_ms": 361,
+        "fetched_at": "2026-06-30T18:26:37.094Z",
+        "duration_ms": 92,
         "bytes": 3850,
         "sha256": "baf903601728fd66ade7085b4413b22576aee1637b3bb0676669b9b85eb0b277",
         "ok": true
@@ -27,8 +27,8 @@
       {
         "name": "arena:code",
         "url": "https://api.wulong.dev/arena-ai-leaderboards/v1/leaderboard?name=code",
-        "fetched_at": "2026-06-30T18:23:46.415Z",
-        "duration_ms": 68,
+        "fetched_at": "2026-06-30T18:26:37.116Z",
+        "duration_ms": 22,
         "bytes": 3882,
         "sha256": "686137bbdb8116b1f3832ec31be91ba86a659813534d9e51e99480771ea9233b",
         "ok": true
@@ -36,8 +36,8 @@
       {
         "name": "alpaca_lc",
         "url": "https://raw.githubusercontent.com/tatsu-lab/alpaca_eval/main/src/alpaca_eval/leaderboards/data_AlpacaEval_2/weighted_alpaca_eval_gpt4_turbo_leaderboard.csv",
-        "fetched_at": "2026-06-30T18:23:46.665Z",
-        "duration_ms": 248,
+        "fetched_at": "2026-06-30T18:26:37.172Z",
+        "duration_ms": 56,
         "bytes": 28339,
         "sha256": "fe32bf85c2f7429038faa4c9a884d1d131726454ff84a4b810a91c1c7a2aa0e9",
         "ok": true
@@ -45,8 +45,8 @@
       {
         "name": "routerai:models",
         "url": "https://routerai.ru/api/v1/models",
-        "fetched_at": "2026-06-30T18:23:46.221Z",
-        "duration_ms": 89,
+        "fetched_at": "2026-06-30T18:26:38.823Z",
+        "duration_ms": 577,
         "bytes": 495489,
         "sha256": "ea395ff025ef86e81f6183b83f23090c1d99110ea25c88a4c44579e783ccdbe6",
         "ok": true
@@ -54,8 +54,8 @@
       {
         "name": "cais_dashboard",
         "url": "https://dashboard.safe.ai/api/models",
-        "fetched_at": "2026-06-30T18:23:45.989Z",
-        "duration_ms": 247,
+        "fetched_at": "2026-06-30T18:26:37.003Z",
+        "duration_ms": 187,
         "bytes": 19958,
         "sha256": "48fac3a4a7bb9dd01f1be68bd510c40e6a7cb32158119075f08f06b1708a22d8",
         "ok": true
@@ -63,20 +63,20 @@
       {
         "name": "swe_bench_leaderboard",
         "url": "https://raw.githubusercontent.com/SWE-bench/swe-bench.github.io/master/data/leaderboards.json",
-        "fetched_at": "2026-06-30T18:23:45.989Z",
-        "duration_ms": 1325,
+        "fetched_at": "2026-06-30T18:26:37.003Z",
+        "duration_ms": 472,
         "bytes": 7323841,
         "sha256": "c3bf3a74d7d67ba7e2777e197f96894601917e8e186a078133897ed3e81566e5",
         "ok": true
       }
     ],
-    "output_sha256": "509b81e95f6a60f71a1c3c3ca419529375c28e1d04cf2e9fdb54f0302373c8d9",
+    "output_sha256": "45a03261a7e4a30b343f10d1bd5c16b61b97fbc4af4705b879c5fe41c064f2c6",
     "dry_run": false
   },
   "currency": {
     "usd_rub": 78.2696,
     "source": "CBR XML (cbr-xml-daily.ru/daily_eng.xml)",
-    "fetched_at": "2026-06-30T18:23:46.096Z"
+    "fetched_at": "2026-06-30T18:26:37.506Z"
   },
   "models": {
     "anthropic/claude-fable-5": {
