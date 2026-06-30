@@ -4,7 +4,7 @@ Lightweight supplement layer for [models.dev](https://models.dev). Not a fork �
 
 ## What it does
 
-Fetches seven data sources and merges them into a single `supplement.json`:
+Fetches seven data sources and merges them into a single `supplement.json` keyed by **canonical model id** (vendor/name, same shape as models.dev):
 
 | Source | What | Why it's not in upstream |
 |--------|------|--------------------------|
@@ -25,54 +25,60 @@ Consumer (AutoTelegramViews / TG_Commentator)
   └── supplement.json         ← this project (ADD: arena ELO, RUB pricing, benchmark scores)
 ```
 
-Upstream is always fresh. Supplement only adds what upstream doesn't have.
+Upstream is always fresh. Supplement only adds what upstream doesn't have. **Same model_id → same key as models.dev**, so consumers can do `supplement.models["<vendor>/<model>"]` and get all extra facts at once.
 
-## Output schema
+## Output schema (v2.0, model-centric)
 
 ```ts
 {
-  generated_at: string,            // ISO 8601
-  schema_version: "1.1",
+  generated_at: string,
+  schema_version: "2.0",
   provenance: { git, env, sources: FetchStat[], output_sha256, dry_run },
   currency: { usd_rub, source, fetched_at },
-  arena: { [normalizedModelName]: ArenaEntry },
-  routerai: { [modelId]: RouterAIModelEntry },
-  benchmark_scores: {
-    hle:                   { [k]: ScoreEntry },  // 44 models
-    swebench_pro:          { [k]: ScoreEntry },  // 40 models
-    swe_bench_verified:    { [k]: ScoreEntry },  // 150 models
-    swe_bench_lite:        { [k]: ScoreEntry },  // 77 models
-    swe_bench_multilingual:{ [k]: ScoreEntry },  // 13 models
-    _meta: { ... per-source counts + fetch stats },
+  models: {
+    "<vendor>/<model>": {
+      canonical_id: "anthropic/claude-opus-4-6",
+      vendor: "anthropic",
+      display_name: "Claude Opus 4.6",
+      arena?:       { elo, score, rank, leaderboard, ci, votes, confidence, license, sources, last_updated, fetched_at },
+      alpaca_lc?:   { winrate, lc_winrate, n },
+      routerai?:    { id, name, description, context_length, input_rub_per_token, output_rub_per_token,
+                       input_usd_per_1m, output_usd_per_1m, supports_vision, supports_tools,
+                       supports_structured_output, reasoning },
+      hle?:         { score, raw_score, date, calibration_error, provider },
+      swebench_pro?:          { score, raw_score, date },
+      swe_bench_verified?:    { score, raw_score, date },
+      swe_bench_lite?:        { score, raw_score, date },
+      swe_bench_multilingual?:{ score, raw_score, date },
+      benchmark_sources: string[],   // which sub-records are present
+    }
   },
+  unmatched_display_names: { hle, swebench_pro, swe_bench_verified, swe_bench_lite, swe_bench_multilingual },
   sources: { upstream, arena, routerai, hle, swe_bench_leaderboard },
 }
 ```
 
-`ScoreEntry`:
-```ts
-{
-  raw_name: string,           // original name from source (debugging)
-  score: number,              // 0..1 normalized
-  raw_score: number,          // original percentage (e.g., 38.4)
-  date?: string,              // YYYY-MM-DD when available
-  sources: string[],          // ["hle"], ["swe_bench_verified"], ...
-  extras?: { calibration_error?, model_id?, provider? }, // HLE only
-}
-```
+Each `models[]` entry only has sub-records for sources that contain the model. `unmatched_display_names` surfaces HLE/SWE-bench entries whose vendor couldn't be inferred (typically agent systems like TRAE, Bloop, Warp — not models).
 
-## Model-name normalization
+## Canonical-id mapping
 
-Sources use different conventions for the same model:
-- arena:    `"anthropic/claude-opus-4-6-thinking"`
-- HLE:      `"Opus 4.6"` (no vendor prefix)
-- SWE-bench: `"live-SWE-agent + Claude 4.5 Opus medium (20251101)"`
+`src/canonical.ts` resolves three different naming styles to the same `vendor/name` form:
 
-`src/normalize.ts` produces a stable key:
-- Strips vendor prefixes, scaffolding agents (`live-SWE-agent +`, `mini-SWE-agent +`, `swe-agent +`, `sweagent +`), parenthesized annotations `(2025-08-22)`, ISO dates, and lowercases everything
-- Keeps model-identity suffixes (`-thinking`, `-preview`, `-codex`)
+| Source | Raw name | → Canonical |
+|--------|----------|-------------|
+| arena | `claude-opus-4-6` (vendor="Anthropic") | `anthropic/claude-opus-4-6` |
+| arena | `glm-5.2 (max)` (vendor="Z.AI") | `z-ai/glm-5.2 (max)` |
+| HLE | `Opus 4.6` (provider="anthropic") | `anthropic/claude-opus-4-6` |
+| HLE | `GPT-5.5` (provider="openai") | `openai/gpt-5-5` |
+| SWE-bench | `live-SWE-agent + Claude 4.5 Opus medium (20251101)` | `anthropic/claude-4-5-opus-medium` |
+| SWE-bench | `Bloop` | *(unmatched — agent system, not a model)* |
+| routerai | `qwen/qwen3-next-80b-a3b-thinking` | `qwen/qwen3-next-80b-a3b-thinking` (passthrough) |
 
-For family-level grouping (collapse variants), use `familyKey()` from the same module.
+Rules (`canonical.ts`):
+1. **HLE**: trust the API's `provider` field; canonicalize Anthropic names so "Opus" → "claude-opus".
+2. **SWE-bench**: no vendor field → infer from family prefix (claude/gpt/gemini/grok/etc). Unknown families go to `unmatched_display_names`.
+3. **arena**: arena entries have `vendor` field; the key itself is vendor-stripped.
+4. **routerai**: keys are already `vendor/name`; split on first `/`.
 
 ## Build
 
@@ -82,15 +88,15 @@ bun src/build.ts              # build + write supplement.json
 bun src/build.ts --dry-run    # preview only, no file written
 ```
 
-Output: `supplement.json` (~440 KB compressed, ~3 MB pretty-printed)
+Output: `supplement.json` (~480 KB pretty-printed, 651 model entries)
 
 ## Reliability features
 
 Mirrors the manifest + sanity-check + diff-gate pattern from `llm-inference-benchmark` (Happynood, 2025).
 
 - **`provenance` block in output** — git commit/branch/dirty, bun/node version, per-source URL+bytes+SHA-256+duration, final artifact SHA-256. Lets consumers defend every number months later.
-- **Sanity checks** — built into `src/build.ts`. Fails the build if any source drops below threshold (arena<50, routerai<50, HLE<5, SWE-bench Verified<20), USD/RUB rate is invalid/out-of-range, or schema drift. Warnings for key collisions and SWE-bench Lite/Multilingual underflow.
-- **CI regression gate** — `.github/workflows/build.yml` runs `bun src/diff.ts` between `HEAD:supplement.json` and the new build; fails if any source dropped >30% overnight.
+- **Sanity checks** — built into `src/build.ts`. Fails the build if any source drops below threshold (arena<50, routerai<50, HLE<5, SWE-bench Verified<20, models with bad canonical_id, schema drift). Warnings for SWE-bench Lite/Multilingual underflow and unmatched display names.
+- **CI regression gate** — `.github/workflows/build.yml` runs `bun src/diff.ts` between `HEAD:supplement.json` and the new build; fails if any per-source count dropped >30% overnight.
 
 ```bash
 # CI gate manually:
@@ -108,12 +114,14 @@ Consumers fetch: `https://<user>.github.io/models-supplement/supplement.json`
 
 ```
 src/
-├── build.ts        # Main: merge all sources → supplement.json (runs checks, writes provenance)
+├── build.ts        # Main: parallel fetch all sources, merge to model-centric schema
+├── build-types.ts  # Shared types: ModelEntry, Unmatched (avoids circular imports)
 ├── arena.ts        # Arena AI + AlpacaEval scores
 ├── routerai.ts     # RouterAI models with RUB pricing
 ├── currency.ts     # CBR USD/RUB rates
 ├── scores.ts       # HLE + SWE-bench (Verified/Lite/Multilingual) + SWE-bench Pro
-├── normalize.ts    # Shared model-name normalization across all sources
+├── normalize.ts    # Shared model-name normalization (vendor/date/parenthesized strips)
+├── canonical.ts    # Source-specific → canonical (vendor/name) mapping
 ├── provenance.ts   # git info, env fingerprint, SHA-256 helpers
 ├── checks.ts       # post-merge sanity checks (errors + warnings)
 └── diff.ts         # CI regression gate between two supplement.json files

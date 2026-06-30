@@ -10,6 +10,8 @@
  * based on severity.
  */
 
+import type { ModelEntry } from "./build-types";
+
 export interface CheckIssue {
   severity: "error" | "warn";
   code: string;
@@ -20,30 +22,39 @@ export interface CheckReport {
   ok: boolean;
   errors: CheckIssue[];
   warnings: CheckIssue[];
-  stats: {
-    arena_entries: number;
-    routerai_entries: number;
-    arena_with_alpaca: number;
-    routerai_with_usd: number;
-    duplicate_keys: number;
-    usd_rub: number | null;
-    hle_entries: number;
-    swe_verified_entries: number;
-    swe_lite_entries: number;
-    swe_multilingual_entries: number;
-  };
+  stats: CheckStats;
+}
+
+export interface CheckStats {
+  total_models: number;
+  with_arena: number;
+  with_alpaca_lc: number;
+  with_routerai: number;
+  with_hle: number;
+  with_swe_pro: number;
+  with_swe_verified: number;
+  with_swe_lite: number;
+  with_swe_multilingual: number;
+  duplicate_canonical_ids: number;
+  usd_rub: number | null;
+  unmatched_hle: number;
+  unmatched_swe: number;
+}
+
+export interface Unmatched {
+  hle: Array<{ display_name: string; reason: string }>;
+  swebench_pro: Array<{ display_name: string; reason: string }>;
+  swe_bench_verified: Array<{ display_name: string; reason: string }>;
+  swe_bench_lite: Array<{ display_name: string; reason: string }>;
+  swe_bench_multilingual: Array<{ display_name: string; reason: string }>;
 }
 
 export interface CheckInput {
   arena: Record<string, unknown>;
   routerai: Record<string, unknown>;
   currency: { usd_rub: number; source: string };
-  benchmark_scores?: {
-    hle: Record<string, unknown>;
-    swe_bench_verified: Record<string, unknown>;
-    swe_bench_lite: Record<string, unknown>;
-    swe_bench_multilingual: Record<string, unknown>;
-  };
+  models?: Record<string, ModelEntry>;
+  unmatched?: Unmatched;
 }
 
 /** Minimum counts we expect from healthy sources. Tuned to catch outages. */
@@ -61,7 +72,6 @@ export function runChecks(input: CheckInput): CheckReport {
   const arenaEntries = Object.keys(input.arena).length;
   const routeraiEntries = Object.keys(input.routerai).length;
 
-  // 1. Minimum counts — source outage detection
   if (arenaEntries < MIN_ARENA) {
     errors.push({
       severity: "error",
@@ -77,7 +87,6 @@ export function runChecks(input: CheckInput): CheckReport {
     });
   }
 
-  // 2. Currency sanity
   const rate = input.currency.usd_rub;
   if (!Number.isFinite(rate) || rate <= 0) {
     errors.push({
@@ -93,48 +102,52 @@ export function runChecks(input: CheckInput): CheckReport {
     });
   }
 
-  // 3. Duplicate detection — same key appears as both arena entry and routerai model
-  //    Not strictly wrong, but consumers may treat keys as global; flag for review.
-  let duplicates = 0;
-  for (const k of Object.keys(input.arena)) {
-    if (Object.prototype.hasOwnProperty.call(input.routerai, k)) duplicates++;
-  }
-  if (duplicates > 0) {
-    warnings.push({
-      severity: "warn",
-      code: "key_collision",
-      message: `${duplicates} key(s) appear in both arena and routerai — consumers may need to disambiguate`,
-    });
-  }
+  // Models view stats
+  const models = input.models ?? {};
+  const totalModels = Object.keys(models).length;
+  let withArena = 0, withAlpaca = 0, withRouterai = 0, withHle = 0;
+  let withSwePro = 0, withSweVerified = 0, withSweLite = 0, withSweMulti = 0;
+  let arenaMissing = 0, routeraiMissing = 0;
+  let routeraiWithUsd = 0;
 
-  // 4. Required fields per arena entry
-  let arenaMissing = 0;
-  for (const [k, v] of Object.entries(input.arena)) {
-    const e = v as { score?: number; sources?: string[] };
-    if (typeof e.score !== "number" || !Array.isArray(e.sources) || e.sources.length === 0) {
-      arenaMissing++;
+  for (const [cid, m] of Object.entries(models)) {
+    if (m.arena) withArena++;
+    if (m.alpaca_lc) withAlpaca++;
+    if (m.routerai) {
+      withRouterai++;
+      if ((m.routerai.input_usd_per_1m ?? 0) > 0 || (m.routerai.output_usd_per_1m ?? 0) > 0) {
+        routeraiWithUsd++;
+      }
+      if (typeof m.routerai.id !== "string" || m.routerai.id.length === 0) routeraiMissing++;
+    }
+    if (m.hle) withHle++;
+    if (m.swebench_pro) withSwePro++;
+    if (m.swe_bench_verified) withSweVerified++;
+    if (m.swe_bench_lite) withSweLite++;
+    if (m.swe_bench_multilingual) withSweMulti++;
+
+    // Schema checks on arena subrecord
+    if (m.arena) {
+      if (typeof m.arena.score !== "number" || !Array.isArray(m.arena.sources) || m.arena.sources.length === 0) {
+        arenaMissing++;
+      }
+    }
+    // Validate canonical_id format
+    if (!cid.includes("/")) {
+      errors.push({
+        severity: "error",
+        code: "bad_canonical_id",
+        message: `model entry has no vendor prefix: ${cid}`,
+      });
     }
   }
+
   if (arenaMissing > 0) {
     errors.push({
       severity: "error",
       code: "arena_schema_drift",
-      message: `${arenaMissing} arena entries missing required fields (score/sources)`,
+      message: `${arenaMissing} model entries have malformed arena subrecord (missing score/sources)`,
     });
-  }
-
-  // 5. Required fields per routerai entry
-  let routeraiMissing = 0;
-  let routeraiWithUsd = 0;
-  for (const [k, v] of Object.entries(input.routerai)) {
-    const e = v as { id?: string; input_usd_per_1m?: number; output_usd_per_1m?: number };
-    if (typeof e.id !== "string" || e.id.length === 0) {
-      routeraiMissing++;
-      continue;
-    }
-    if ((e.input_usd_per_1m ?? 0) > 0 || (e.output_usd_per_1m ?? 0) > 0) {
-      routeraiWithUsd++;
-    }
   }
   if (routeraiMissing > 0) {
     errors.push({
@@ -143,57 +156,63 @@ export function runChecks(input: CheckInput): CheckReport {
       message: `${routeraiMissing} routerai entries missing required field 'id'`,
     });
   }
-  if (routeraiEntries > 0 && routeraiWithUsd / routeraiEntries < 0.5) {
+  if (withRouterai > 0 && routeraiWithUsd / withRouterai < 0.5) {
     warnings.push({
       severity: "warn",
       code: "routerai_low_priced",
-      message: `only ${routeraiWithUsd}/${routeraiEntries} routerai entries have non-zero USD pricing (>50% free/unpriced)`,
+      message: `only ${routeraiWithUsd}/${withRouterai} routerai entries have non-zero USD pricing (>50% free/unpriced)`,
     });
   }
 
-  // 6. Arena entries with alpaca cross-reference — rough quality signal
-  let arenaWithAlpaca = 0;
-  for (const v of Object.values(input.arena)) {
-    const e = v as { sources?: string[] };
-    if (e.sources?.includes("alpaca_lc")) arenaWithAlpaca++;
+  // Benchmark coverage thresholds
+  if (withHle < MIN_HLE) {
+    errors.push({
+      severity: "error",
+      code: "hle_underflow",
+      message: `HLE has ${withHle} entries, expected >= ${MIN_HLE}`,
+    });
+  }
+  if (withSweVerified < MIN_SWE_VERIFIED) {
+    errors.push({
+      severity: "error",
+      code: "swe_verified_underflow",
+      message: `SWE-bench Verified has ${withSweVerified} entries, expected >= ${MIN_SWE_VERIFIED}`,
+    });
+  }
+  if (withSweLite < MIN_SWE_LITE) {
+    warnings.push({
+      severity: "warn",
+      code: "swe_lite_underflow",
+      message: `SWE-bench Lite has ${withSweLite} entries, expected >= ${MIN_SWE_LITE}`,
+    });
+  }
+  if (withSweMulti < MIN_SWE_MULTILINGUAL) {
+    warnings.push({
+      severity: "warn",
+      code: "swe_multilingual_underflow",
+      message: `SWE-bench Multilingual has ${withSweMulti} entries, expected >= ${MIN_SWE_MULTILINGUAL}`,
+    });
   }
 
-  // 7. Benchmark score sanity — only enforced if those sources were fetched
-  const bs = input.benchmark_scores;
-  const hleCount = bs ? Object.keys(bs.hle ?? {}).length : 0;
-  const sweVCount = bs ? Object.keys(bs.swe_bench_verified ?? {}).length : 0;
-  const sweLCount = bs ? Object.keys(bs.swe_bench_lite ?? {}).length : 0;
-  const sweMCount = bs ? Object.keys(bs.swe_bench_multilingual ?? {}).length : 0;
-
-  if (bs) {
-    if (hleCount < MIN_HLE) {
-      errors.push({
-        severity: "error",
-        code: "hle_underflow",
-        message: `HLE has ${hleCount} entries, expected >= ${MIN_HLE}`,
-      });
-    }
-    if (sweVCount < MIN_SWE_VERIFIED) {
-      errors.push({
-        severity: "error",
-        code: "swe_verified_underflow",
-        message: `SWE-bench Verified has ${sweVCount} entries, expected >= ${MIN_SWE_VERIFIED}`,
-      });
-    }
-    if (sweLCount < MIN_SWE_LITE) {
-      warnings.push({
-        severity: "warn",
-        code: "swe_lite_underflow",
-        message: `SWE-bench Lite has ${sweLCount} entries, expected >= ${MIN_SWE_LITE}`,
-      });
-    }
-    if (sweMCount < MIN_SWE_MULTILINGUAL) {
-      warnings.push({
-        severity: "warn",
-        code: "swe_multilingual_underflow",
-        message: `SWE-bench Multilingual has ${sweMCount} entries, expected >= ${MIN_SWE_MULTILINGUAL}`,
-      });
-    }
+  // Unmatched display names — informational, not blocking
+  const unmatched = input.unmatched;
+  const unmatchedHle = unmatched?.hle.length ?? 0;
+  const unmatchedSwe = (unmatched?.swe_bench_verified.length ?? 0) +
+                       (unmatched?.swe_bench_lite.length ?? 0) +
+                       (unmatched?.swe_bench_multilingual.length ?? 0);
+  if (unmatched && unmatchedHle > 0) {
+    warnings.push({
+      severity: "warn",
+      code: "unmatched_hle",
+      message: `${unmatchedHle} HLE entries could not be mapped to canonical (vendor unknown)`,
+    });
+  }
+  if (unmatched && unmatchedSwe > 0) {
+    warnings.push({
+      severity: "warn",
+      code: "unmatched_swe",
+      message: `${unmatchedSwe} SWE-bench entries could not be mapped to canonical (likely agent systems, not models)`,
+    });
   }
 
   return {
@@ -201,16 +220,19 @@ export function runChecks(input: CheckInput): CheckReport {
     errors,
     warnings,
     stats: {
-      arena_entries: arenaEntries,
-      routerai_entries: routeraiEntries,
-      arena_with_alpaca: arenaWithAlpaca,
-      routerai_with_usd: routeraiWithUsd,
-      duplicate_keys: duplicates,
+      total_models: totalModels,
+      with_arena: withArena,
+      with_alpaca_lc: withAlpaca,
+      with_routerai: withRouterai,
+      with_hle: withHle,
+      with_swe_pro: withSwePro,
+      with_swe_verified: withSweVerified,
+      with_swe_lite: withSweLite,
+      with_swe_multilingual: withSweMulti,
+      duplicate_canonical_ids: 0,
       usd_rub: Number.isFinite(rate) ? rate : null,
-      hle_entries: hleCount,
-      swe_verified_entries: sweVCount,
-      swe_lite_entries: sweLCount,
-      swe_multilingual_entries: sweMCount,
+      unmatched_hle: unmatchedHle,
+      unmatched_swe: unmatchedSwe,
     },
   };
 }
@@ -226,15 +248,16 @@ export function formatReport(r: CheckReport): string {
   }
   lines.push("");
   lines.push("=== stats ===");
-  lines.push(`  arena entries:         ${r.stats.arena_entries}`);
-  lines.push(`  arena w/ alpaca:       ${r.stats.arena_with_alpaca}`);
-  lines.push(`  routerai models:       ${r.stats.routerai_entries}`);
-  lines.push(`  routerai w/ USD:       ${r.stats.routerai_with_usd}`);
-  lines.push(`  duplicate keys:        ${r.stats.duplicate_keys}`);
+  lines.push(`  total models:          ${r.stats.total_models}`);
+  lines.push(`    with arena:          ${r.stats.with_arena}`);
+  lines.push(`    with alpaca_lc:      ${r.stats.with_alpaca_lc}`);
+  lines.push(`    with routerai:       ${r.stats.with_routerai}`);
+  lines.push(`    with hle:            ${r.stats.with_hle}`);
+  lines.push(`    with swebench_pro:   ${r.stats.with_swe_pro}`);
+  lines.push(`    with swe_verified:   ${r.stats.with_swe_verified}`);
+  lines.push(`    with swe_lite:       ${r.stats.with_swe_lite}`);
+  lines.push(`    with swe_multiling:  ${r.stats.with_swe_multilingual}`);
   lines.push(`  USD/RUB:               ${r.stats.usd_rub ?? "(none)"}`);
-  lines.push(`  HLE scores:            ${r.stats.hle_entries}`);
-  lines.push(`  SWE-bench Verified:    ${r.stats.swe_verified_entries}`);
-  lines.push(`  SWE-bench Lite:        ${r.stats.swe_lite_entries}`);
-  lines.push(`  SWE-bench Multiling:   ${r.stats.swe_multilingual_entries}`);
+  lines.push(`  unmatched:             hle=${r.stats.unmatched_hle}  swe=${r.stats.unmatched_swe}`);
   return lines.join("\n");
 }

@@ -1,7 +1,7 @@
 /**
  * build.ts — Main entry point.
  *
- * Fetches all sources in parallel, merges into a single supplement.json
+ * Fetches all sources in parallel, merges them into a single supplement.json
  * consumed by AutoTelegramViews and TG_Commentator alongside the upstream
  * models.dev/api.json.
  *
@@ -12,11 +12,16 @@
  *   - SWE-bench Verified + Lite + Multilingual (official leaderboard JSON)
  *   - CBR USD/RUB rate
  *
+ * Output schema (v2.0): model-centric.
+ *   supplement.models["<vendor>/<model>"] = { arena?, alpaca_lc?, routerai?, hle?, swebench_pro?, ... }
+ * Each model entry only contains sub-records for sources that include it.
+ * Sources that use display names (HLE, SWE-bench) are mapped to canonical
+ * vendor/name form via src/canonical.ts. Items that cannot be mapped are
+ * surfaced in `unmatched_display_names` for review.
+ *
  * Usage:
  *   bun src/build.ts              # build + write supplement.json
  *   bun src/build.ts --dry-run    # preview only, no file written
- *
- * Output: supplement.json  (deploy to GitHub Pages)
  *
  * Inspired by llm-inference-benchmark's manifest + sanity-check + diff-gate
  * pattern: every emitted artifact carries provenance (git, runtime, per-source
@@ -25,15 +30,23 @@
 
 import { writeFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { buildArenaSupplement } from "./arena";
-import { buildRouterAISupplement } from "./routerai";
+import { buildArenaSupplement, type ArenaEntry } from "./arena";
+import { buildRouterAISupplement, type RouterAIModelEntry } from "./routerai";
 import { fetchHLE, fetchSWEbench, type ScoreEntry } from "./scores";
 import { getEnvFingerprint, getGitInfo, sha256, type FetchStat } from "./provenance";
 import { formatReport, runChecks } from "./checks";
+import {
+  arenaKeyToCanonical,
+  displayNameFromRaw,
+  hleToCanonical,
+  routeraiKeyToCanonical,
+  sweKeyToCanonical,
+} from "./canonical";
+import type { ModelEntry, Unmatched } from "./build-types";
 
 interface Supplement {
   generated_at: string;
-  schema_version: string;
+  schema_version: "2.0";
   provenance: {
     git: { commit: string | null; dirty: boolean; branch: string | null };
     env: ReturnType<typeof getEnvFingerprint>;
@@ -46,18 +59,8 @@ interface Supplement {
     source: string;
     fetched_at: string;
   };
-  arena: Record<string, unknown>;
-  arena_meta: Record<string, unknown>;
-  routerai: Record<string, unknown>;
-  routerai_meta: Record<string, unknown>;
-  benchmark_scores: {
-    hle: Record<string, ScoreEntry>;
-    swebench_pro: Record<string, ScoreEntry>;
-    swe_bench_verified: Record<string, ScoreEntry>;
-    swe_bench_lite: Record<string, ScoreEntry>;
-    swe_bench_multilingual: Record<string, ScoreEntry>;
-    _meta: Record<string, unknown>;
-  };
+  models: Record<string, ModelEntry>;
+  unmatched_display_names: Unmatched;
   sources: {
     upstream: string;
     arena: string;
@@ -71,41 +74,90 @@ function parseArgs(argv: string[]): { dryRun: boolean } {
   return { dryRun: argv.includes("--dry-run") };
 }
 
+function ensureModel(
+  models: Record<string, ModelEntry>,
+  canonicalId: string,
+  vendor: string,
+  displayName?: string,
+): ModelEntry {
+  let m = models[canonicalId];
+  if (!m) {
+    m = {
+      canonical_id: canonicalId,
+      vendor,
+      benchmark_sources: [],
+    };
+    models[canonicalId] = m;
+  }
+  if (displayName && !m.display_name) m.display_name = displayName;
+  return m;
+}
+
+function addSource(m: ModelEntry, source: string): void {
+  if (!m.benchmark_sources.includes(source)) m.benchmark_sources.push(source);
+}
+
 function printDryRunSummary(s: Supplement): void {
-  const arenaEntries = Object.entries(s.arena) as [string, { elo: number; score: number; sources: string[] }][];
-  const topElo = arenaEntries
-    .filter(([, e]) => e.elo > 0)
-    .sort((a, b) => b[1].elo - a[1].elo)
+  const arenaEntries = Object.values(s.models).filter((m) => m.arena).length;
+  const routeraiEntries = Object.values(s.models).filter((m) => m.routerai).length;
+  const hleEntries = Object.values(s.models).filter((m) => m.hle).length;
+  const sweVEntries = Object.values(s.models).filter((m) => m.swe_bench_verified).length;
+  const sweLEntries = Object.values(s.models).filter((m) => m.swe_bench_lite).length;
+  const sweMEntries = Object.values(s.models).filter((m) => m.swe_bench_multilingual).length;
+  const swePEntries = Object.values(s.models).filter((m) => m.swebench_pro).length;
+  const alpacaEntries = Object.values(s.models).filter((m) => m.alpaca_lc).length;
+
+  const topElo = Object.values(s.models)
+    .filter((m) => m.arena && m.arena.elo > 0)
+    .sort((a, b) => (b.arena!.elo - a.arena!.elo))
     .slice(0, 3);
 
-  const bs = s.benchmark_scores;
+  const topHLE = Object.values(s.models)
+    .filter((m) => m.hle)
+    .sort((a, b) => (b.hle!.raw_score - a.hle!.raw_score))
+    .slice(0, 3);
+
+  const topSWE = Object.values(s.models)
+    .filter((m) => m.swe_bench_verified)
+    .sort((a, b) => (b.swe_bench_verified!.raw_score - a.swe_bench_verified!.raw_score))
+    .slice(0, 3);
+
   console.log("");
   console.log("=== dry-run summary ===");
   console.log(`  would write:        supplement.json`);
   console.log(`  schema_version:     ${s.schema_version}`);
   console.log(`  git commit:         ${s.provenance.git.commit ?? "(none)"}${s.provenance.git.dirty ? " (dirty)" : ""}`);
   console.log(`  bun:                ${s.provenance.env.bun_version}`);
-  console.log(`  arena entries:      ${Object.keys(s.arena).length}`);
-  console.log(`  routerai models:    ${Object.keys(s.routerai).length}`);
+  console.log(`  models:             ${Object.keys(s.models).length}`);
+  console.log(`    with arena:       ${arenaEntries}`);
+  console.log(`    with alpaca_lc:   ${alpacaEntries}`);
+  console.log(`    with routerai:    ${routeraiEntries}`);
+  console.log(`    with hle:         ${hleEntries}`);
+  console.log(`    with swebench_pro:${swePEntries}`);
+  console.log(`    with swe_verified:${sweVEntries}`);
+  console.log(`    with swe_lite:    ${sweLEntries}`);
+  console.log(`    with swe_multilin:${sweMEntries}`);
   console.log(`  USD/RUB:            ${s.currency.usd_rub} (${s.currency.source})`);
-  console.log(`  HLE scores:         ${Object.keys(bs.hle).length}`);
-  console.log(`  SWE-bench Pro:      ${Object.keys(bs.swebench_pro).length}`);
-  console.log(`  SWE-bench Verified: ${Object.keys(bs.swe_bench_verified).length}`);
-  console.log(`  SWE-bench Lite:     ${Object.keys(bs.swe_bench_lite).length}`);
-  console.log(`  SWE-bench Multi:    ${Object.keys(bs.swe_bench_multilingual).length}`);
   console.log(`  sources ok:         ${s.provenance.sources.filter((x) => x.ok).length}/${s.provenance.sources.length}`);
-  console.log(`  top 3 arena ELO:`);
-  for (const [name, e] of topElo) {
-    console.log(`    ${e.elo.toString().padStart(5)}  ${name}  (score=${e.score}, sources=${e.sources.join("+")})`);
+  const totalUnmatched = Object.values(s.unmatched_display_names).reduce((s, a) => s + a.length, 0);
+  console.log(`  unmatched:          ${totalUnmatched}`);
+
+  if (topElo.length > 0) {
+    console.log(`  top 3 arena ELO:`);
+    for (const m of topElo) {
+      console.log(`    ${m.arena!.elo.toString().padStart(5)}  ${m.canonical_id}  (score=${m.arena!.score})`);
+    }
   }
-  // Top 3 HLE
-  const topHLE = Object.entries(bs.hle)
-    .sort((a, b) => b[1].raw_score - a[1].raw_score)
-    .slice(0, 3);
   if (topHLE.length > 0) {
     console.log(`  top 3 HLE:`);
-    for (const [k, v] of topHLE) {
-      console.log(`    ${v.raw_score.toFixed(1).padStart(5)}%  ${k}  (raw: ${v.raw_name})`);
+    for (const m of topHLE) {
+      console.log(`    ${m.hle!.raw_score.toFixed(1).padStart(5)}%  ${m.canonical_id}`);
+    }
+  }
+  if (topSWE.length > 0) {
+    console.log(`  top 3 SWE-bench Verified:`);
+    for (const m of topSWE) {
+      console.log(`    ${m.swe_bench_verified!.raw_score.toFixed(1).padStart(5)}%  ${m.canonical_id}`);
     }
   }
   console.log(`  output sha256:      ${s.provenance.output_sha256.slice(0, 16)}...`);
@@ -128,25 +180,90 @@ async function main() {
   const git = getGitInfo();
   const env = getEnvFingerprint();
 
-  const benchmarkMeta = {
-    hle: {
-      count: Object.keys(hleResult.hle).length,
-      stat: hleResult.stat,
-    },
-    swebench_pro: {
-      count: Object.keys(hleResult.swebench_pro).length,
-    },
-    swe_bench_verified: {
-      count: Object.keys(sweResult.swe_bench_verified).length,
-    },
-    swe_bench_lite: {
-      count: Object.keys(sweResult.swe_bench_lite).length,
-    },
-    swe_bench_multilingual: {
-      count: Object.keys(sweResult.swe_bench_multilingual).length,
-    },
-    fetched_at: new Date().toISOString(),
+  const models: Record<string, ModelEntry> = {};
+  const unmatched: Unmatched = {
+    hle: [], swebench_pro: [], swe_bench_verified: [], swe_bench_lite: [], swe_bench_multilingual: [],
   };
+
+  // 1. arena + alpaca_lc (merged via arena.ts)
+  for (const [arenaKey, entry] of Object.entries(arenaResult.arena) as [string, ArenaEntry][]) {
+    const vendor = entry.vendor || (arenaKey.includes("/") ? arenaKey.split("/")[0] : "");
+    const cid = arenaKeyToCanonical(arenaKey, vendor || "unknown");
+    const displayName = displayNameFromRaw(arenaKey);
+    const m = ensureModel(models, cid, cid.split("/")[0], displayName);
+    m.arena = {
+      elo: entry.elo,
+      score: entry.score,
+      rank: entry.rank,
+      leaderboard: entry.leaderboard,
+      ci: entry.ci,
+      votes: entry.votes,
+      confidence: entry.confidence,
+      license: entry.license,
+      sources: entry.sources,
+      last_updated: entry.lastUpdated,
+      fetched_at: entry.fetchedAt,
+    };
+    addSource(m, "arena");
+    if (entry.alpaca_lc) {
+      m.alpaca_lc = entry.alpaca_lc;
+      addSource(m, "alpaca_lc");
+    }
+  }
+
+  // 2. routerai
+  for (const [key, entry] of Object.entries(routeraiResult.models) as [string, RouterAIModelEntry][]) {
+    const cid = routeraiKeyToCanonical(key);
+    const m = ensureModel(models, cid, cid.split("/")[0], entry.name);
+    m.routerai = entry;
+    addSource(m, "routerai");
+  }
+
+  // 3. HLE
+  for (const [normKey, entry] of Object.entries(hleResult.hle) as [string, ScoreEntry][]) {
+    const provider = (entry.extras?.provider as string) ?? undefined;
+    const cid = hleToCanonical(normKey, provider);
+    if (!cid) {
+      unmatched.hle.push({ display_name: entry.raw_name, reason: "unknown_vendor" });
+      continue;
+    }
+    const m = ensureModel(models, cid, cid.split("/")[0], displayNameFromRaw(entry.raw_name));
+    m.hle = {
+      score: entry.score,
+      raw_score: entry.raw_score,
+      date: entry.date,
+      calibration_error: (entry.extras?.calibration_error as number | null) ?? null,
+      provider,
+    };
+    addSource(m, "hle");
+  }
+
+  // 4. SWE-bench Pro (from HLE API)
+  for (const [normKey, entry] of Object.entries(hleResult.swebench_pro) as [string, ScoreEntry][]) {
+    const provider = (entry.extras?.provider as string) ?? undefined;
+    const cid = hleToCanonical(normKey, provider);
+    if (!cid) {
+      unmatched.swebench_pro.push({ display_name: entry.raw_name, reason: "unknown_vendor" });
+      continue;
+    }
+    const m = ensureModel(models, cid, cid.split("/")[0], displayNameFromRaw(entry.raw_name));
+    m.swebench_pro = { score: entry.score, raw_score: entry.raw_score, date: entry.date };
+    addSource(m, "swebench_pro");
+  }
+
+  // 5. SWE-bench Verified + Lite + Multilingual
+  for (const split of ["swe_bench_verified", "swe_bench_lite", "swe_bench_multilingual"] as const) {
+    for (const [normKey, entry] of Object.entries(sweResult[split]) as [string, ScoreEntry][]) {
+      const cid = sweKeyToCanonical(normKey);
+      if (!cid) {
+        unmatched[split].push({ display_name: entry.raw_name, reason: "unknown_vendor" });
+        continue;
+      }
+      const m = ensureModel(models, cid, cid.split("/")[0], displayNameFromRaw(entry.raw_name));
+      m[split] = { score: entry.score, raw_score: entry.raw_score, date: entry.date };
+      addSource(m, split);
+    }
+  }
 
   const fetchStats: FetchStat[] = [
     ...arenaResult.fetch_stats,
@@ -159,21 +276,11 @@ async function main() {
     provenance: Omit<Supplement["provenance"], "output_sha256" | "dry_run">;
   } = {
     generated_at: new Date().toISOString(),
-    schema_version: "1.1",
+    schema_version: "2.0",
     provenance: { git, env, sources: fetchStats },
     currency: routeraiResult.currency,
-    arena: arenaResult.arena,
-    arena_meta: arenaResult.meta,
-    routerai: routeraiResult.models,
-    routerai_meta: routeraiResult.meta,
-    benchmark_scores: {
-      hle: hleResult.hle,
-      swebench_pro: hleResult.swebench_pro,
-      swe_bench_verified: sweResult.swe_bench_verified,
-      swe_bench_lite: sweResult.swe_bench_lite,
-      swe_bench_multilingual: sweResult.swe_bench_multilingual,
-      _meta: benchmarkMeta,
-    },
+    models,
+    unmatched_display_names: unmatched,
     sources: {
       upstream: "https://models.dev/api.json",
       arena: "https://api.wulong.dev/arena-ai-leaderboards/v1/leaderboard",
@@ -184,15 +291,11 @@ async function main() {
   };
 
   const report = runChecks({
-    arena: draft.arena,
-    routerai: draft.routerai,
+    arena: arenaResult.arena,
+    routerai: routeraiResult.models,
     currency: draft.currency,
-    benchmark_scores: {
-      hle: draft.benchmark_scores.hle,
-      swe_bench_verified: draft.benchmark_scores.swe_bench_verified,
-      swe_bench_lite: draft.benchmark_scores.swe_bench_lite,
-      swe_bench_multilingual: draft.benchmark_scores.swe_bench_multilingual,
-    },
+    models: draft.models,
+    unmatched: draft.unmatched_display_names,
   });
   console.log("");
   console.log(formatReport(report));
@@ -227,15 +330,11 @@ async function main() {
   const outPath = resolve(import.meta.dir, "..", "supplement.json");
   writeFileSync(outPath, JSON.stringify(supplement, null, 2));
   console.log(`\n=== Done in ${buildMs}ms: ${outPath} ===`);
-  console.log(`  Arena entries:       ${Object.keys(supplement.arena).length}`);
-  console.log(`  RouterAI models:     ${Object.keys(supplement.routerai).length}`);
-  console.log(`  HLE scores:          ${Object.keys(supplement.benchmark_scores.hle).length}`);
-  console.log(`  SWE-bench Pro:       ${Object.keys(supplement.benchmark_scores.swebench_pro).length}`);
-  console.log(`  SWE-bench Verified:  ${Object.keys(supplement.benchmark_scores.swe_bench_verified).length}`);
-  console.log(`  SWE-bench Lite:      ${Object.keys(supplement.benchmark_scores.swe_bench_lite).length}`);
-  console.log(`  SWE-bench Multiling: ${Object.keys(supplement.benchmark_scores.swe_bench_multilingual).length}`);
+  console.log(`  total models:        ${Object.keys(supplement.models).length}`);
   console.log(`  USD/RUB:             ${supplement.currency.usd_rub}`);
   console.log(`  output sha256:       ${supplement.provenance.output_sha256.slice(0, 16)}...`);
+  const totalUnmatched = Object.values(supplement.unmatched_display_names).reduce((s, a) => s + a.length, 0);
+  if (totalUnmatched > 0) console.log(`  unmatched:           ${totalUnmatched} (see unmatched_display_names)`);
 }
 
 main().catch((err) => {

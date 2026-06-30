@@ -9,6 +9,7 @@
  */
 
 import { sha256, type FetchStat } from "./provenance";
+import type { AlpacaLcEntry } from "./build-types";
 
 const ARENA_BASE = "https://api.wulong.dev/arena-ai-leaderboards/v1/leaderboard";
 const CATEGORIES = ["text", "code"] as const;
@@ -51,6 +52,8 @@ export interface ArenaEntry {
   sourceUrl?: string;
   fetchedAt?: string;
   sources: string[];
+  /** Present when the entry also appears in AlpacaEval LC. */
+  alpaca_lc?: AlpacaLcEntry;
 }
 
 export interface ArenaData {
@@ -254,7 +257,7 @@ export async function buildArenaSupplement(): Promise<{
   let alpacaOnly = 0;
   for (const [name, data] of alpaca) {
     if (result[name]) {
-      // Merge: add alpaca as a second source
+      // Merge: add alpaca as a second source, preserve lc_winrate separately
       const existing = result[name];
       if (data.lcWinrate > existing.score) {
         existing.score = Math.round(data.lcWinrate * 10000) / 10000;
@@ -262,6 +265,11 @@ export async function buildArenaSupplement(): Promise<{
       if (!existing.sources.includes("alpaca_lc")) {
         existing.sources.push("alpaca_lc");
       }
+      existing.alpaca_lc = {
+        winrate: Math.round(data.winrate * 10000) / 10000,
+        lc_winrate: Math.round(data.lcWinrate * 10000) / 10000,
+        n: data.n,
+      };
     } else {
       const confidence: "high" | "medium" | "low" =
         data.n >= HIGH_CONFIDENCE_VOTES ? "high" :
@@ -278,6 +286,11 @@ export async function buildArenaSupplement(): Promise<{
         confidence,
         categories: CATEGORY_TASK_MAP.text,
         sources: ["alpaca_lc"],
+        alpaca_lc: {
+          winrate: Math.round(data.winrate * 10000) / 10000,
+          lc_winrate: Math.round(data.lcWinrate * 10000) / 10000,
+          n: data.n,
+        },
       };
       alpacaOnly++;
     }
