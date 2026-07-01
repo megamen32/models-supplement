@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-06-30T18:26:38.838Z",
+  "generated_at": "2026-07-01T09:33:23.267Z",
   "schema_version": "2.0",
   "provenance": {
     "git": {
-      "commit": "c80861a",
+      "commit": "fa719fb",
       "dirty": true,
       "branch": "main"
     },
@@ -12,32 +12,32 @@
       "bun_version": "1.3.14",
       "os": "linux node",
       "arch": "x64",
-      "ci": "github-actions:28466896342"
+      "ci": "github-actions:28507917522"
     },
     "sources": [
       {
         "name": "arena:text",
         "url": "https://api.wulong.dev/arena-ai-leaderboards/v1/leaderboard?name=text",
-        "fetched_at": "2026-06-30T18:26:37.094Z",
-        "duration_ms": 92,
+        "fetched_at": "2026-07-01T09:33:21.577Z",
+        "duration_ms": 91,
         "bytes": 3850,
-        "sha256": "baf903601728fd66ade7085b4413b22576aee1637b3bb0676669b9b85eb0b277",
+        "sha256": "6ad04b7fb78c20f60a237467e869d3d882243016abadd91b278e9454b15ccadf",
         "ok": true
       },
       {
         "name": "arena:code",
         "url": "https://api.wulong.dev/arena-ai-leaderboards/v1/leaderboard?name=code",
-        "fetched_at": "2026-06-30T18:26:37.116Z",
-        "duration_ms": 22,
-        "bytes": 3882,
-        "sha256": "686137bbdb8116b1f3832ec31be91ba86a659813534d9e51e99480771ea9233b",
+        "fetched_at": "2026-07-01T09:33:21.596Z",
+        "duration_ms": 19,
+        "bytes": 3126,
+        "sha256": "d6c046ea2fad01fa5fc5654ad646076e891b2759c50f71ef0ae2b00a96143cc2",
         "ok": true
       },
       {
         "name": "alpaca_lc",
         "url": "https://raw.githubusercontent.com/tatsu-lab/alpaca_eval/main/src/alpaca_eval/leaderboards/data_AlpacaEval_2/weighted_alpaca_eval_gpt4_turbo_leaderboard.csv",
-        "fetched_at": "2026-06-30T18:26:37.172Z",
-        "duration_ms": 56,
+        "fetched_at": "2026-07-01T09:33:21.639Z",
+        "duration_ms": 42,
         "bytes": 28339,
         "sha256": "fe32bf85c2f7429038faa4c9a884d1d131726454ff84a4b810a91c1c7a2aa0e9",
         "ok": true
@@ -45,17 +45,17 @@
       {
         "name": "routerai:models",
         "url": "https://routerai.ru/api/v1/models",
-        "fetched_at": "2026-06-30T18:26:38.823Z",
-        "duration_ms": 577,
-        "bytes": 495489,
-        "sha256": "ea395ff025ef86e81f6183b83f23090c1d99110ea25c88a4c44579e783ccdbe6",
+        "fetched_at": "2026-07-01T09:33:23.253Z",
+        "duration_ms": 594,
+        "bytes": 497426,
+        "sha256": "9f669c75abeeb0d760490cc4ba2597283ebe4e5933b49122cfa264e56fd17775",
         "ok": true
       },
       {
         "name": "cais_dashboard",
         "url": "https://dashboard.safe.ai/api/models",
-        "fetched_at": "2026-06-30T18:26:37.003Z",
-        "duration_ms": 187,
+        "fetched_at": "2026-07-01T09:33:21.487Z",
+        "duration_ms": 264,
         "bytes": 19958,
         "sha256": "48fac3a4a7bb9dd01f1be68bd510c40e6a7cb32158119075f08f06b1708a22d8",
         "ok": true
@@ -63,20 +63,20 @@
       {
         "name": "swe_bench_leaderboard",
         "url": "https://raw.githubusercontent.com/SWE-bench/swe-bench.github.io/master/data/leaderboards.json",
-        "fetched_at": "2026-06-30T18:26:37.003Z",
-        "duration_ms": 472,
+        "fetched_at": "2026-07-01T09:33:21.487Z",
+        "duration_ms": 232,
         "bytes": 7323841,
         "sha256": "c3bf3a74d7d67ba7e2777e197f96894601917e8e186a078133897ed3e81566e5",
         "ok": true
       }
     ],
-    "output_sha256": "45a03261a7e4a30b343f10d1bd5c16b61b97fbc4af4705b879c5fe41c064f2c6",
+    "output_sha256": "d72bc290450447c079b8cc07b5136f4297a561523a3d9bd02a7bbdc1ff89c939",
     "dry_run": false
   },
   "currency": {
     "usd_rub": 78.2696,
     "source": "CBR XML (cbr-xml-daily.ru/daily_eng.xml)",
-    "fetched_at": "2026-06-30T18:26:37.506Z"
+    "fetched_at": "2026-07-01T09:33:21.881Z"
   },
   "models": {
     "anthropic/claude-fable-5": {
@@ -99,7 +99,7 @@
           "arena"
         ],
         "last_updated": null,
-        "fetched_at": "2026-06-30T05:51:10.901038+00:00"
+        "fetched_at": "2026-07-01T06:08:05.722402+00:00"
       }
     },
     "anthropic/claude-opus-4-6-thinking": {
@@ -111,7 +111,7 @@
       "display_name": "claude-opus-4-6-thinking",
       "arena": {
         "elo": 1542,
-        "score": 0.6088,
+        "score": 0.5526,
         "rank": 7,
         "leaderboard": "code",
         "ci": 7,
@@ -122,7 +122,7 @@
           "arena"
         ],
         "last_updated": null,
-        "fetched_at": "2026-06-30T05:51:10.901038+00:00"
+        "fetched_at": "2026-07-01T06:08:05.722402+00:00"
       }
     },
     "anthropic/claude-opus-4-7-thinking": {
@@ -134,7 +134,7 @@
       "display_name": "claude-opus-4-7-thinking",
       "arena": {
         "elo": 1563,
-        "score": 0.6784,
+        "score": 0.6328,
         "rank": 4,
         "leaderboard": "code",
         "ci": 8,
@@ -145,7 +145,7 @@
           "arena"
         ],
         "last_updated": null,
-        "fetched_at": "2026-06-30T05:51:10.901038+00:00"
+        "fetched_at": "2026-07-01T06:08:05.722402+00:00"
       }
     },
     "anthropic/claude-opus-4-6": {
@@ -159,7 +159,7 @@
       "display_name": "claude-opus-4-6",
       "arena": {
         "elo": 1538,
-        "score": 0.5955,
+        "score": 0.5374,
         "rank": 9,
         "leaderboard": "code",
         "ci": 7,
@@ -170,7 +170,7 @@
           "arena"
         ],
         "last_updated": null,
-        "fetched_at": "2026-06-30T05:51:10.901038+00:00"
+        "fetched_at": "2026-07-01T06:08:05.722402+00:00"
       },
       "hle": {
         "score": 0.342,
@@ -195,7 +195,7 @@
       "display_name": "claude-opus-4-7",
       "arena": {
         "elo": 1557,
-        "score": 0.6585,
+        "score": 0.6099,
         "rank": 5,
         "leaderboard": "code",
         "ci": 8,
@@ -206,7 +206,7 @@
           "arena"
         ],
         "last_updated": null,
-        "fetched_at": "2026-06-30T05:51:10.901038+00:00"
+        "fetched_at": "2026-07-01T06:08:05.722402+00:00"
       },
       "hle": {
         "score": 0.3904,
@@ -236,7 +236,7 @@
           "arena"
         ],
         "last_updated": null,
-        "fetched_at": "2026-06-30T05:51:10.901038+00:00"
+        "fetched_at": "2026-07-01T06:08:05.722402+00:00"
       }
     },
     "google/gemini-3.1-pro-preview": {
@@ -260,7 +260,7 @@
           "arena"
         ],
         "last_updated": null,
-        "fetched_at": "2026-06-30T05:51:10.901038+00:00"
+        "fetched_at": "2026-07-01T06:08:05.722402+00:00"
       },
       "routerai": {
         "id": "google/gemini-3.1-pro-preview",
@@ -301,7 +301,7 @@
           "arena"
         ],
         "last_updated": null,
-        "fetched_at": "2026-06-30T05:51:10.901038+00:00"
+        "fetched_at": "2026-07-01T06:08:05.722402+00:00"
       },
       "hle": {
         "score": 0.383,
@@ -335,7 +335,7 @@
       "display_name": "claude-opus-4-8-thinking",
       "arena": {
         "elo": 1565,
-        "score": 0.685,
+        "score": 0.6404,
         "rank": 3,
         "leaderboard": "code",
         "ci": 12,
@@ -346,7 +346,7 @@
           "arena"
         ],
         "last_updated": null,
-        "fetched_at": "2026-06-30T05:51:10.901038+00:00"
+        "fetched_at": "2026-07-01T06:08:05.722402+00:00"
       }
     },
     "openai/gpt-5.5-high": {
@@ -369,7 +369,7 @@
           "arena"
         ],
         "last_updated": null,
-        "fetched_at": "2026-06-30T05:51:10.901038+00:00"
+        "fetched_at": "2026-07-01T06:08:05.722402+00:00"
       }
     },
     "anthropic/claude-opus-4-8": {
@@ -382,7 +382,7 @@
       "display_name": "claude-opus-4-8",
       "arena": {
         "elo": 1542,
-        "score": 0.6088,
+        "score": 0.5526,
         "rank": 6,
         "leaderboard": "code",
         "ci": 11,
@@ -393,7 +393,7 @@
           "arena"
         ],
         "last_updated": null,
-        "fetched_at": "2026-06-30T05:51:10.901038+00:00"
+        "fetched_at": "2026-07-01T06:08:05.722402+00:00"
       },
       "hle": {
         "score": 0.422,
@@ -423,7 +423,7 @@
           "arena"
         ],
         "last_updated": null,
-        "fetched_at": "2026-06-30T05:51:10.901038+00:00"
+        "fetched_at": "2026-07-01T06:08:05.722402+00:00"
       }
     },
     "google/gemini-3.5-flash": {
@@ -436,7 +436,7 @@
       "display_name": "gemini-3.5-flash",
       "arena": {
         "elo": 1506,
-        "score": 0.4895,
+        "score": 0.4153,
         "rank": 14,
         "leaderboard": "code",
         "ci": 13,
@@ -447,7 +447,7 @@
           "arena"
         ],
         "last_updated": null,
-        "fetched_at": "2026-06-30T05:51:10.901038+00:00"
+        "fetched_at": "2026-07-01T06:08:05.722402+00:00"
       },
       "routerai": {
         "id": "google/gemini-3.5-flash",
@@ -484,7 +484,7 @@
           "arena"
         ],
         "last_updated": null,
-        "fetched_at": "2026-06-30T05:51:10.901038+00:00"
+        "fetched_at": "2026-07-01T06:08:05.722402+00:00"
       }
     },
     "xai/grok-4.20-beta-0309-reasoning": {
@@ -507,7 +507,7 @@
           "arena"
         ],
         "last_updated": null,
-        "fetched_at": "2026-06-30T05:51:10.901038+00:00"
+        "fetched_at": "2026-07-01T06:08:05.722402+00:00"
       }
     },
     "qwen/qwen3.7-max-preview": {
@@ -530,7 +530,7 @@
           "arena"
         ],
         "last_updated": null,
-        "fetched_at": "2026-06-30T05:51:10.901038+00:00"
+        "fetched_at": "2026-07-01T06:08:05.722402+00:00"
       }
     },
     "openai/gpt-5.5": {
@@ -554,7 +554,7 @@
           "arena"
         ],
         "last_updated": null,
-        "fetched_at": "2026-06-30T05:51:10.901038+00:00"
+        "fetched_at": "2026-07-01T06:08:05.722402+00:00"
       },
       "routerai": {
         "id": "openai/gpt-5.5",
@@ -591,7 +591,7 @@
           "arena"
         ],
         "last_updated": null,
-        "fetched_at": "2026-06-30T05:51:10.901038+00:00"
+        "fetched_at": "2026-07-01T06:08:05.722402+00:00"
       }
     },
     "z-ai/glm-5.1": {
@@ -604,7 +604,7 @@
       "display_name": "glm-5.1",
       "arena": {
         "elo": 1529,
-        "score": 0.5657,
+        "score": 0.503,
         "rank": 11,
         "leaderboard": "code",
         "ci": 11,
@@ -615,7 +615,7 @@
           "arena"
         ],
         "last_updated": null,
-        "fetched_at": "2026-06-30T05:51:10.901038+00:00"
+        "fetched_at": "2026-07-01T06:08:05.722402+00:00"
       },
       "routerai": {
         "id": "z-ai/glm-5.1",
@@ -656,7 +656,7 @@
           "arena"
         ],
         "last_updated": null,
-        "fetched_at": "2026-06-30T05:51:10.901038+00:00"
+        "fetched_at": "2026-07-01T06:08:05.722402+00:00"
       },
       "hle": {
         "score": 0.366,
@@ -690,7 +690,7 @@
       "display_name": "glm-5.2",
       "arena": {
         "elo": 1593,
-        "score": 0.7778,
+        "score": 0.7472,
         "rank": 2,
         "leaderboard": "code",
         "ci": 15,
@@ -701,7 +701,7 @@
           "arena"
         ],
         "last_updated": null,
-        "fetched_at": "2026-06-30T05:51:10.901038+00:00"
+        "fetched_at": "2026-07-01T06:08:05.722402+00:00"
       }
     },
     "bytedance/seed-2.1-pro-preview": {
@@ -713,7 +713,7 @@
       "display_name": "seed-2.1-pro-preview",
       "arena": {
         "elo": 1539,
-        "score": 0.5989,
+        "score": 0.5412,
         "rank": 8,
         "leaderboard": "code",
         "ci": 15,
@@ -724,7 +724,7 @@
           "arena"
         ],
         "last_updated": null,
-        "fetched_at": "2026-06-30T05:51:10.901038+00:00"
+        "fetched_at": "2026-07-01T06:08:05.722402+00:00"
       }
     },
     "qwen/qwen3.7-max-20260517": {
@@ -736,7 +736,7 @@
       "display_name": "qwen3.7-max-20260517",
       "arena": {
         "elo": 1530,
-        "score": 0.569,
+        "score": 0.5068,
         "rank": 10,
         "leaderboard": "code",
         "ci": 11,
@@ -747,7 +747,7 @@
           "arena"
         ],
         "last_updated": null,
-        "fetched_at": "2026-06-30T05:51:10.901038+00:00"
+        "fetched_at": "2026-07-01T06:08:05.722402+00:00"
       }
     },
     "anthropic/claude-sonnet-4-6": {
@@ -760,7 +760,7 @@
       "display_name": "claude-sonnet-4-6",
       "arena": {
         "elo": 1521,
-        "score": 0.5392,
+        "score": 0.4725,
         "rank": 12,
         "leaderboard": "code",
         "ci": 6,
@@ -771,7 +771,7 @@
           "arena"
         ],
         "last_updated": null,
-        "fetched_at": "2026-06-30T05:51:10.901038+00:00"
+        "fetched_at": "2026-07-01T06:08:05.722402+00:00"
       },
       "hle": {
         "score": 0.2107,
@@ -791,7 +791,7 @@
       "display_name": "kimi-k2.6",
       "arena": {
         "elo": 1513,
-        "score": 0.5127,
+        "score": 0.442,
         "rank": 13,
         "leaderboard": "code",
         "ci": 8,
@@ -802,7 +802,7 @@
           "arena"
         ],
         "last_updated": null,
-        "fetched_at": "2026-06-30T05:51:10.901038+00:00"
+        "fetched_at": "2026-07-01T06:08:05.722402+00:00"
       },
       "routerai": {
         "id": "moonshotai/kimi-k2.6",
@@ -829,7 +829,7 @@
       "display_name": "minimax-m3",
       "arena": {
         "elo": 1505,
-        "score": 0.4862,
+        "score": 0.4114,
         "rank": 15,
         "leaderboard": "code",
         "ci": 11,
@@ -840,7 +840,7 @@
           "arena"
         ],
         "last_updated": null,
-        "fetched_at": "2026-06-30T05:51:10.901038+00:00"
+        "fetched_at": "2026-07-01T06:08:05.722402+00:00"
       },
       "routerai": {
         "id": "minimax/minimax-m3",
@@ -866,7 +866,7 @@
       "display_name": "gpt-5.5-xhigh",
       "arena": {
         "elo": 1502,
-        "score": 0.4762,
+        "score": 0.4,
         "rank": 16,
         "leaderboard": "code",
         "ci": 8,
@@ -877,129 +877,7 @@
           "arena"
         ],
         "last_updated": null,
-        "fetched_at": "2026-06-30T05:51:10.901038+00:00"
-      }
-    },
-    "anthropic/claude-opus-4-5-20251101-thinking-32k": {
-      "canonical_id": "anthropic/claude-opus-4-5-20251101-thinking-32k",
-      "vendor": "anthropic",
-      "benchmark_sources": [
-        "arena"
-      ],
-      "display_name": "claude-opus-4-5-20251101-thinking-32k",
-      "arena": {
-        "elo": 1490,
-        "score": 0.4365,
-        "rank": 17,
-        "leaderboard": "code",
-        "ci": 7,
-        "votes": 13059,
-        "confidence": "high",
-        "license": "proprietary",
-        "sources": [
-          "arena"
-        ],
-        "last_updated": null,
-        "fetched_at": "2026-06-30T05:51:10.901038+00:00"
-      }
-    },
-    "openai/gpt-5.5-high (codex-harness)": {
-      "canonical_id": "openai/gpt-5.5-high (codex-harness)",
-      "vendor": "openai",
-      "benchmark_sources": [
-        "arena"
-      ],
-      "display_name": "gpt-5.5-high",
-      "arena": {
-        "elo": 1484,
-        "score": 0.4166,
-        "rank": 18,
-        "leaderboard": "code",
-        "ci": 8,
-        "votes": 6726,
-        "confidence": "high",
-        "license": "proprietary",
-        "sources": [
-          "arena"
-        ],
-        "last_updated": null,
-        "fetched_at": "2026-06-30T05:51:10.901038+00:00"
-      }
-    },
-    "qwen/qwen3.6-max-preview": {
-      "canonical_id": "qwen/qwen3.6-max-preview",
-      "vendor": "qwen",
-      "benchmark_sources": [
-        "arena",
-        "routerai"
-      ],
-      "display_name": "qwen3.6-max-preview",
-      "arena": {
-        "elo": 1483,
-        "score": 0.4133,
-        "rank": 19,
-        "leaderboard": "code",
-        "ci": 12,
-        "votes": 2507,
-        "confidence": "medium",
-        "license": "proprietary",
-        "sources": [
-          "arena"
-        ],
-        "last_updated": null,
-        "fetched_at": "2026-06-30T05:51:10.901038+00:00"
-      },
-      "routerai": {
-        "id": "qwen/qwen3.6-max-preview",
-        "name": "Qwen: Qwen3.6 Max Preview",
-        "description": "Qwen3.6-Max-Preview — это собственная передовая модель от Alibaba Cloud, построенная на архитектуре разреженной смеси экспертов с примерно 1 триллионом параметров. Она оптимизирована для агентного кодирования, использования инструментов и рассуждений в длинном контексте, поддерживая окно контекста в",
-        "context_length": 262144,
-        "input_rub_per_token": 0.0001051232728,
-        "output_rub_per_token": 0.0006307396368,
-        "input_usd_per_1m": 1.3431,
-        "output_usd_per_1m": 8.0586,
-        "supports_vision": false,
-        "supports_tools": true,
-        "supports_structured_output": true,
-        "reasoning": false
-      }
-    },
-    "moonshotai/kimi-k2.7-code": {
-      "canonical_id": "moonshotai/kimi-k2.7-code",
-      "vendor": "moonshotai",
-      "benchmark_sources": [
-        "arena",
-        "routerai"
-      ],
-      "display_name": "kimi-k2.7-code",
-      "arena": {
-        "elo": 1479,
-        "score": 0.4,
-        "rank": 20,
-        "leaderboard": "code",
-        "ci": 13,
-        "votes": 2281,
-        "confidence": "medium",
-        "license": "open",
-        "sources": [
-          "arena"
-        ],
-        "last_updated": null,
-        "fetched_at": "2026-06-30T05:51:10.901038+00:00"
-      },
-      "routerai": {
-        "id": "moonshotai/kimi-k2.7-code",
-        "name": "MoonshotAI: Kimi K2.7 Code",
-        "description": "MoonshotAI: Kimi K2.7 Code — это модель, ориентированная на программирование, из семейства Kimi K2 компании Moonshot AI, созданная для надежного выполнения комплексных программных задач в длительных контекстах. Она использует нативную мультимодальную архитектуру смеси экспертов, которая принимает те",
-        "context_length": 262144,
-        "input_rub_per_token": 0.0000747992518,
-        "output_rub_per_token": 0.000353780245,
-        "input_usd_per_1m": 0.9557,
-        "output_usd_per_1m": 4.52,
-        "supports_vision": true,
-        "supports_tools": true,
-        "supports_structured_output": true,
-        "reasoning": true
+        "fetched_at": "2026-07-01T06:08:05.722402+00:00"
       }
     },
     "unknown/nullmodel": {
@@ -6935,7 +6813,7 @@
           "arena"
         ],
         "last_updated": null,
-        "fetched_at": "2026-06-30T05:51:10.901038+00:00"
+        "fetched_at": "2026-07-01T06:08:05.722402+00:00"
       }
     },
     "anthropic/claude-opus-4": {
@@ -6948,7 +6826,7 @@
       "display_name": "claude-opus-4",
       "arena": {
         "elo": 1538,
-        "score": 0.5955,
+        "score": 0.5374,
         "rank": 9,
         "leaderboard": "code",
         "ci": 7,
@@ -6959,7 +6837,7 @@
           "arena"
         ],
         "last_updated": null,
-        "fetched_at": "2026-06-30T05:51:10.901038+00:00"
+        "fetched_at": "2026-07-01T06:08:05.722402+00:00"
       },
       "routerai": {
         "id": "anthropic/claude-opus-4",
@@ -6996,7 +6874,7 @@
           "arena"
         ],
         "last_updated": null,
-        "fetched_at": "2026-06-30T05:51:10.901038+00:00"
+        "fetched_at": "2026-07-01T06:08:05.722402+00:00"
       }
     },
     "openai/gpt": {
@@ -7019,7 +6897,7 @@
           "arena"
         ],
         "last_updated": null,
-        "fetched_at": "2026-06-30T05:51:10.901038+00:00"
+        "fetched_at": "2026-07-01T06:08:05.722402+00:00"
       }
     },
     "z-ai/glm": {
@@ -7031,7 +6909,7 @@
       "display_name": "glm",
       "arena": {
         "elo": 1529,
-        "score": 0.5657,
+        "score": 0.503,
         "rank": 11,
         "leaderboard": "code",
         "ci": 11,
@@ -7042,7 +6920,7 @@
           "arena"
         ],
         "last_updated": null,
-        "fetched_at": "2026-06-30T05:51:10.901038+00:00"
+        "fetched_at": "2026-07-01T06:08:05.722402+00:00"
       }
     },
     "qwen/qwen3.7-max": {
@@ -7055,7 +6933,7 @@
       "display_name": "qwen3.7-max",
       "arena": {
         "elo": 1530,
-        "score": 0.569,
+        "score": 0.5068,
         "rank": 10,
         "leaderboard": "code",
         "ci": 11,
@@ -7066,7 +6944,7 @@
           "arena"
         ],
         "last_updated": null,
-        "fetched_at": "2026-06-30T05:51:10.901038+00:00"
+        "fetched_at": "2026-07-01T06:08:05.722402+00:00"
       },
       "routerai": {
         "id": "qwen/qwen3.7-max",
@@ -7094,7 +6972,7 @@
       "display_name": "claude-sonnet-4",
       "arena": {
         "elo": 1521,
-        "score": 0.5392,
+        "score": 0.4725,
         "rank": 12,
         "leaderboard": "code",
         "ci": 6,
@@ -7105,7 +6983,7 @@
           "arena"
         ],
         "last_updated": null,
-        "fetched_at": "2026-06-30T05:51:10.901038+00:00"
+        "fetched_at": "2026-07-01T06:08:05.722402+00:00"
       },
       "routerai": {
         "id": "anthropic/claude-sonnet-4",
@@ -7141,7 +7019,7 @@
       "display_name": "kimi-k2",
       "arena": {
         "elo": 1513,
-        "score": 0.5127,
+        "score": 0.442,
         "rank": 13,
         "leaderboard": "code",
         "ci": 8,
@@ -7152,7 +7030,7 @@
           "arena"
         ],
         "last_updated": null,
-        "fetched_at": "2026-06-30T05:51:10.901038+00:00"
+        "fetched_at": "2026-07-01T06:08:05.722402+00:00"
       },
       "routerai": {
         "id": "moonshotai/kimi-k2",
@@ -14089,10 +13967,10 @@
         "name": "DeepSeek: DeepSeek V4 Flash",
         "description": "DeepSeek V4 Flash — это оптимизированная по эффективности модель Mixture-of-Experts от DeepSeek с общим количеством параметров 284 миллиардов и 13 миллиардов активированных параметров, поддерживающая контекстное окно на 1 миллион токенов. Она разработана для быстрого вывода и высокопроизводительных ",
         "context_length": 1048576,
-        "input_rub_per_token": 0.0000090972063,
-        "output_rub_per_token": 0.0000181944126,
-        "input_usd_per_1m": 0.1162,
-        "output_usd_per_1m": 0.2325,
+        "input_rub_per_token": 0.00000990584686,
+        "output_rub_per_token": 0.00001981169372,
+        "input_usd_per_1m": 0.1266,
+        "output_usd_per_1m": 0.2531,
         "supports_vision": false,
         "supports_tools": true,
         "supports_structured_output": true,
@@ -14138,6 +14016,28 @@
         "input_usd_per_1m": 0.2082,
         "output_usd_per_1m": 1.2466,
         "supports_vision": true,
+        "supports_tools": true,
+        "supports_structured_output": true,
+        "reasoning": false
+      }
+    },
+    "qwen/qwen3.6-max-preview": {
+      "canonical_id": "qwen/qwen3.6-max-preview",
+      "vendor": "qwen",
+      "benchmark_sources": [
+        "routerai"
+      ],
+      "display_name": "Qwen: Qwen3.6 Max Preview",
+      "routerai": {
+        "id": "qwen/qwen3.6-max-preview",
+        "name": "Qwen: Qwen3.6 Max Preview",
+        "description": "Qwen3.6-Max-Preview — это собственная передовая модель от Alibaba Cloud, построенная на архитектуре разреженной смеси экспертов с примерно 1 триллионом параметров. Она оптимизирована для агентного кодирования, использования инструментов и рассуждений в длинном контексте, поддерживая окно контекста в",
+        "context_length": 262144,
+        "input_rub_per_token": 0.0001051232728,
+        "output_rub_per_token": 0.0006307396368,
+        "input_usd_per_1m": 1.3431,
+        "output_usd_per_1m": 8.0586,
+        "supports_vision": false,
         "supports_tools": true,
         "supports_structured_output": true,
         "reasoning": false
@@ -14293,28 +14193,6 @@
         "output_usd_per_1m": 9.6858,
         "supports_vision": true,
         "supports_tools": true,
-        "supports_structured_output": true,
-        "reasoning": false
-      }
-    },
-    "microsoft/phi-4-mini-instruct": {
-      "canonical_id": "microsoft/phi-4-mini-instruct",
-      "vendor": "microsoft",
-      "benchmark_sources": [
-        "routerai"
-      ],
-      "display_name": "Microsoft: Phi 4 Mini Instruct",
-      "routerai": {
-        "id": "microsoft/phi-4-mini-instruct",
-        "name": "Microsoft: Phi 4 Mini Instruct",
-        "description": "",
-        "context_length": 131072,
-        "input_rub_per_token": 0.0000080864056,
-        "output_rub_per_token": 0.0000353780245,
-        "input_usd_per_1m": 0.1033,
-        "output_usd_per_1m": 0.452,
-        "supports_vision": false,
-        "supports_tools": false,
         "supports_structured_output": true,
         "reasoning": false
       }
@@ -14605,6 +14483,28 @@
         "reasoning": false
       }
     },
+    "moonshotai/kimi-k2.7-code": {
+      "canonical_id": "moonshotai/kimi-k2.7-code",
+      "vendor": "moonshotai",
+      "benchmark_sources": [
+        "routerai"
+      ],
+      "display_name": "MoonshotAI: Kimi K2.7 Code",
+      "routerai": {
+        "id": "moonshotai/kimi-k2.7-code",
+        "name": "MoonshotAI: Kimi K2.7 Code",
+        "description": "MoonshotAI: Kimi K2.7 Code — это модель, ориентированная на программирование, из семейства Kimi K2 компании Moonshot AI, созданная для надежного выполнения комплексных программных задач в длительных контекстах. Она использует нативную мультимодальную архитектуру смеси экспертов, которая принимает те",
+        "context_length": 262144,
+        "input_rub_per_token": 0.0000747992518,
+        "output_rub_per_token": 0.000353780245,
+        "input_usd_per_1m": 0.9557,
+        "output_usd_per_1m": 4.52,
+        "supports_vision": true,
+        "supports_tools": true,
+        "supports_structured_output": true,
+        "reasoning": true
+      }
+    },
     "z-ai/glm-5.2": {
       "canonical_id": "z-ai/glm-5.2",
       "vendor": "z-ai",
@@ -14617,9 +14517,9 @@
         "name": "Z.ai: GLM 5.2",
         "description": "GLM 5.2 — это крупномасштабная модель рассуждений от Z.ai. Она поддерживает ввод и вывод текста с контекстным окном в 1 миллион токенов и подходит для долгосрочных рабочих процессов агентов, проектного уровня программной инженерии и сложной многоэтапной автоматизации.\n\nПоддерживаются уровни рассужде",
         "context_length": 1048576,
-        "input_rub_per_token": 0.0000950152658,
+        "input_rub_per_token": 0.0000940044651,
         "output_rub_per_token": 0.00030324021,
-        "input_usd_per_1m": 1.2139,
+        "input_usd_per_1m": 1.201,
         "output_usd_per_1m": 3.8743,
         "supports_vision": false,
         "supports_tools": true,
@@ -14690,6 +14590,28 @@
         "supports_vision": true,
         "supports_tools": false,
         "supports_structured_output": false,
+        "reasoning": false
+      }
+    },
+    "anthropic/claude-sonnet-5": {
+      "canonical_id": "anthropic/claude-sonnet-5",
+      "vendor": "anthropic",
+      "benchmark_sources": [
+        "routerai"
+      ],
+      "display_name": "Anthropic: Claude Sonnet 5",
+      "routerai": {
+        "id": "anthropic/claude-sonnet-5",
+        "name": "Anthropic: Claude Sonnet 5",
+        "description": "Sonnet 5 — это самая мощная модель класса Sonnet от Anthropic, демонстрирующая передовые результаты в области кодирования, агентных систем и профессиональной работы. Она поддерживает адаптивное мышление с возможностью выбора уровня усилий для рассуждений (низкий, средний, высокий, максимальный и све",
+        "context_length": 1000000,
+        "input_rub_per_token": 0.00020216014,
+        "output_rub_per_token": 0.0010108007,
+        "input_usd_per_1m": 2.5829,
+        "output_usd_per_1m": 12.9143,
+        "supports_vision": true,
+        "supports_tools": true,
+        "supports_structured_output": true,
         "reasoning": false
       }
     },
