@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-07-05T08:44:16.722Z",
+  "generated_at": "2026-07-06T10:01:03.413Z",
   "schema_version": "2.0",
   "provenance": {
     "git": {
-      "commit": "69318dd",
+      "commit": "9ad5f6e",
       "dirty": true,
       "branch": "main"
     },
@@ -12,32 +12,32 @@
       "bun_version": "1.3.14",
       "os": "linux node",
       "arch": "x64",
-      "ci": "github-actions:28735169546"
+      "ci": "github-actions:28783496424"
     },
     "sources": [
       {
         "name": "arena:text",
         "url": "https://api.wulong.dev/arena-ai-leaderboards/v1/leaderboard?name=text",
-        "fetched_at": "2026-07-05T08:44:14.282Z",
-        "duration_ms": 336,
-        "bytes": 2049,
-        "sha256": "87fde33c26b90da7c50ab8e5a122794aeafd6bf1f837e21b319d408176c3f417",
+        "fetched_at": "2026-07-06T10:01:00.665Z",
+        "duration_ms": 167,
+        "bytes": 9337,
+        "sha256": "2b224cf4f6d8d93e9579c71dc979969ae7ab4664e1dbfcb5ac717b356041bd9c",
         "ok": true
       },
       {
         "name": "arena:code",
         "url": "https://api.wulong.dev/arena-ai-leaderboards/v1/leaderboard?name=code",
-        "fetched_at": "2026-07-05T08:44:14.399Z",
-        "duration_ms": 118,
+        "fetched_at": "2026-07-06T10:01:00.684Z",
+        "duration_ms": 19,
         "bytes": 3892,
-        "sha256": "ce8623efb6b59898a5e74d51b8453e81da50aa2ac1497636ea854c26b5d33224",
+        "sha256": "147ea43111a0198b2d739df357eac16fd09647e94f9f3a65fe24efd19459a034",
         "ok": true
       },
       {
         "name": "alpaca_lc",
         "url": "https://raw.githubusercontent.com/tatsu-lab/alpaca_eval/main/src/alpaca_eval/leaderboards/data_AlpacaEval_2/weighted_alpaca_eval_gpt4_turbo_leaderboard.csv",
-        "fetched_at": "2026-07-05T08:44:14.521Z",
-        "duration_ms": 121,
+        "fetched_at": "2026-07-06T10:01:00.692Z",
+        "duration_ms": 8,
         "bytes": 28339,
         "sha256": "fe32bf85c2f7429038faa4c9a884d1d131726454ff84a4b810a91c1c7a2aa0e9",
         "ok": true
@@ -45,17 +45,17 @@
       {
         "name": "routerai:models",
         "url": "https://routerai.ru/api/v1/models",
-        "fetched_at": "2026-07-05T08:44:16.707Z",
-        "duration_ms": 974,
+        "fetched_at": "2026-07-06T10:01:03.399Z",
+        "duration_ms": 1000,
         "bytes": 499705,
-        "sha256": "f88e3d5a8f872b78cf98ec4b063d83316b76b7c69f96ea3729a97be85426ffbd",
+        "sha256": "607e879aa8e7f1cba0bbe93aa79dbb3b2ec0066924b1adbba1deb6a5f7111cfe",
         "ok": true
       },
       {
         "name": "cais_dashboard",
         "url": "https://dashboard.safe.ai/api/models",
-        "fetched_at": "2026-07-05T08:44:13.947Z",
-        "duration_ms": 162,
+        "fetched_at": "2026-07-06T10:01:00.499Z",
+        "duration_ms": 242,
         "bytes": 19958,
         "sha256": "48fac3a4a7bb9dd01f1be68bd510c40e6a7cb32158119075f08f06b1708a22d8",
         "ok": true
@@ -63,20 +63,20 @@
       {
         "name": "swe_bench_leaderboard",
         "url": "https://raw.githubusercontent.com/SWE-bench/swe-bench.github.io/master/data/leaderboards.json",
-        "fetched_at": "2026-07-05T08:44:13.948Z",
-        "duration_ms": 546,
+        "fetched_at": "2026-07-06T10:01:00.500Z",
+        "duration_ms": 473,
         "bytes": 7323841,
         "sha256": "c3bf3a74d7d67ba7e2777e197f96894601917e8e186a078133897ed3e81566e5",
         "ok": true
       }
     ],
-    "output_sha256": "3902cf77d1b3291474cd73d9d919c728fa17a16aa488409183426f349f235696",
+    "output_sha256": "850b86b25025eaff39e917172e0ec3f0fb398961e570c9db7a92f10deb14e822",
     "dry_run": false
   },
   "currency": {
     "usd_rub": 77.2264,
     "source": "CBR XML (cbr-xml-daily.ru/daily_eng.xml)",
-    "fetched_at": "2026-07-05T08:44:14.661Z"
+    "fetched_at": "2026-07-06T10:01:01.226Z"
   },
   "models": {
     "anthropic/claude-fable-5": {
@@ -100,7 +100,7 @@
           "arena"
         ],
         "last_updated": null,
-        "fetched_at": "2026-07-05T05:45:53.816457+00:00"
+        "fetched_at": "2026-07-06T06:08:27.510931+00:00"
       },
       "routerai": {
         "id": "anthropic/claude-fable-5",
@@ -137,7 +137,7 @@
           "arena"
         ],
         "last_updated": null,
-        "fetched_at": "2026-07-05T05:45:53.816457+00:00"
+        "fetched_at": "2026-07-06T06:08:27.510931+00:00"
       }
     },
     "anthropic/claude-opus-4-7-thinking": {
@@ -160,7 +160,7 @@
           "arena"
         ],
         "last_updated": null,
-        "fetched_at": "2026-07-05T05:45:53.816457+00:00"
+        "fetched_at": "2026-07-06T06:08:27.510931+00:00"
       }
     },
     "anthropic/claude-opus-4-6": {
@@ -185,7 +185,7 @@
           "arena"
         ],
         "last_updated": null,
-        "fetched_at": "2026-07-05T05:45:53.816457+00:00"
+        "fetched_at": "2026-07-06T06:08:27.510931+00:00"
       },
       "hle": {
         "score": 0.342,
@@ -221,7 +221,7 @@
           "arena"
         ],
         "last_updated": null,
-        "fetched_at": "2026-07-05T05:45:53.816457+00:00"
+        "fetched_at": "2026-07-06T06:08:27.510931+00:00"
       },
       "hle": {
         "score": 0.3904,
@@ -240,7 +240,7 @@
       "display_name": "muse-spark",
       "arena": {
         "elo": 1487,
-        "score": 0.5243,
+        "score": 0.7673,
         "rank": 6,
         "leaderboard": "text",
         "ci": 6,
@@ -250,8 +250,8 @@
         "sources": [
           "arena"
         ],
-        "last_updated": null,
-        "fetched_at": "2026-07-05T05:45:53.816457+00:00"
+        "last_updated": "Jul 1, 2026",
+        "fetched_at": "2026-07-06T06:08:27.510931+00:00"
       }
     },
     "google/gemini-3.1-pro-preview": {
@@ -264,7 +264,7 @@
       "display_name": "gemini-3.1-pro-preview",
       "arena": {
         "elo": 1486,
-        "score": 0.5036,
+        "score": 0.7577,
         "rank": 7,
         "leaderboard": "text",
         "ci": 4,
@@ -274,8 +274,8 @@
         "sources": [
           "arena"
         ],
-        "last_updated": null,
-        "fetched_at": "2026-07-05T05:45:53.816457+00:00"
+        "last_updated": "Jul 1, 2026",
+        "fetched_at": "2026-07-06T06:08:27.510931+00:00"
       },
       "routerai": {
         "id": "google/gemini-3.1-pro-preview",
@@ -305,7 +305,7 @@
       "display_name": "gemini-3-pro",
       "arena": {
         "elo": 1486,
-        "score": 0.5036,
+        "score": 0.7577,
         "rank": 8,
         "leaderboard": "text",
         "ci": 4,
@@ -315,8 +315,8 @@
         "sources": [
           "arena"
         ],
-        "last_updated": null,
-        "fetched_at": "2026-07-05T05:45:53.816457+00:00"
+        "last_updated": "Jul 1, 2026",
+        "fetched_at": "2026-07-06T06:08:27.510931+00:00"
       },
       "hle": {
         "score": 0.383,
@@ -361,7 +361,7 @@
           "arena"
         ],
         "last_updated": null,
-        "fetched_at": "2026-07-05T05:45:53.816457+00:00"
+        "fetched_at": "2026-07-06T06:08:27.510931+00:00"
       }
     },
     "openai/gpt-5.5-high": {
@@ -373,7 +373,7 @@
       "display_name": "gpt-5.5-high",
       "arena": {
         "elo": 1481,
-        "score": 0.4,
+        "score": 0.7093,
         "rank": 10,
         "leaderboard": "text",
         "ci": 5,
@@ -383,77 +383,69 @@
         "sources": [
           "arena"
         ],
-        "last_updated": null,
-        "fetched_at": "2026-07-05T05:45:53.816457+00:00"
+        "last_updated": "Jul 1, 2026",
+        "fetched_at": "2026-07-06T06:08:27.510931+00:00"
       }
     },
-    "z-ai/glm-5.2 (max)": {
-      "canonical_id": "z-ai/glm-5.2 (max)",
-      "vendor": "z-ai",
+    "google/gemini-3.5-flash": {
+      "canonical_id": "google/gemini-3.5-flash",
+      "vendor": "google",
       "benchmark_sources": [
-        "arena"
+        "arena",
+        "routerai"
       ],
-      "display_name": "glm-5.2",
+      "display_name": "gemini-3.5-flash",
       "arena": {
-        "elo": 1584,
-        "score": 0.746,
-        "rank": 2,
+        "elo": 1510,
+        "score": 0.495,
+        "rank": 15,
         "leaderboard": "code",
-        "ci": 12,
-        "votes": 3015,
-        "confidence": "medium",
-        "license": "open",
-        "sources": [
-          "arena"
-        ],
-        "last_updated": null,
-        "fetched_at": "2026-07-05T05:45:53.816457+00:00"
-      }
-    },
-    "anthropic/claude-sonnet-5-thinking": {
-      "canonical_id": "anthropic/claude-sonnet-5-thinking",
-      "vendor": "anthropic",
-      "benchmark_sources": [
-        "arena"
-      ],
-      "display_name": "claude-sonnet-5-thinking",
-      "arena": {
-        "elo": 1551,
-        "score": 0.634,
-        "rank": 6,
-        "leaderboard": "code",
-        "ci": 18,
-        "votes": 1250,
-        "confidence": "medium",
+        "ci": 9,
+        "votes": 5817,
+        "confidence": "high",
         "license": "proprietary",
         "sources": [
           "arena"
         ],
         "last_updated": null,
-        "fetched_at": "2026-07-05T05:45:53.816457+00:00"
+        "fetched_at": "2026-07-06T06:08:27.510931+00:00"
+      },
+      "routerai": {
+        "id": "google/gemini-3.5-flash",
+        "name": "Google: Gemini 3.5 Flash",
+        "description": "Gemini 3.5 Flash — это высокоэффективная мультимодальная модель от Google, обеспечивающая кодирование и рассуждение почти на профессиональном уровне при стоимости и скорости уровня Flash. Она высоко оптимизирована для повышения квалификации в кодировании и параллельного выполнения агентных циклов, п",
+        "context_length": 1048576,
+        "input_rub_per_token": 0.00015059148,
+        "output_rub_per_token": 0.00090354888,
+        "input_usd_per_1m": 1.95,
+        "output_usd_per_1m": 11.7,
+        "supports_vision": true,
+        "supports_tools": true,
+        "supports_structured_output": true,
+        "reasoning": false
       }
     },
-    "bytedance/seed-2.1-pro-preview": {
-      "canonical_id": "bytedance/seed-2.1-pro-preview",
-      "vendor": "bytedance",
+    "openai/gpt-5.4-high": {
+      "canonical_id": "openai/gpt-5.4-high",
+      "vendor": "openai",
       "benchmark_sources": [
         "arena"
       ],
-      "display_name": "seed-2.1-pro-preview",
+      "display_name": "gpt-5.4-high",
       "arena": {
-        "elo": 1539,
-        "score": 0.5933,
-        "rank": 8,
-        "leaderboard": "code",
-        "ci": 13,
-        "votes": 2577,
-        "confidence": "medium",
+        "elo": 1478,
+        "score": 0.6803,
+        "rank": 12,
+        "leaderboard": "text",
+        "ci": 4,
+        "votes": 50378,
+        "confidence": "high",
         "license": "proprietary",
         "sources": [
           "arena"
         ],
-        "last_updated": null,
-        "fetched_at": "2026-07-05T05:45:53.816457+00:00"
+        "last_updated": "Jul 1, 2026",
+        "fetched_at": "2026-07-06T06:08:27.510931+00:00"
       }
     },
     "anthropic/claude-opus-4-8": {
@@ -477,7 +469,7 @@
           "arena"
         ],
         "last_updated": null,
-        "fetched_at": "2026-07-05T05:45:53.816457+00:00"
+        "fetched_at": "2026-07-06T06:08:27.510931+00:00"
       },
       "hle": {
         "score": 0.422,
@@ -487,27 +479,229 @@
         "provider": "anthropic"
       }
     },
-    "qwen/qwen3.7-max-20260517": {
-      "canonical_id": "qwen/qwen3.7-max-20260517",
+    "openai/gpt-5.2-chat-latest-20260210": {
+      "canonical_id": "openai/gpt-5.2-chat-latest-20260210",
+      "vendor": "openai",
+      "benchmark_sources": [
+        "arena"
+      ],
+      "display_name": "gpt-5.2-chat-latest-20260210",
+      "arena": {
+        "elo": 1476,
+        "score": 0.661,
+        "rank": 14,
+        "leaderboard": "text",
+        "ci": 4,
+        "votes": 34518,
+        "confidence": "high",
+        "license": "proprietary",
+        "sources": [
+          "arena"
+        ],
+        "last_updated": "Jul 1, 2026",
+        "fetched_at": "2026-07-06T06:08:27.510931+00:00"
+      }
+    },
+    "qwen/qwen3.7-max-preview": {
+      "canonical_id": "qwen/qwen3.7-max-preview",
       "vendor": "qwen",
       "benchmark_sources": [
         "arena"
       ],
-      "display_name": "qwen3.7-max-20260517",
+      "display_name": "qwen3.7-max-preview",
       "arena": {
-        "elo": 1526,
-        "score": 0.5492,
-        "rank": 11,
-        "leaderboard": "code",
+        "elo": 1475,
+        "score": 0.6513,
+        "rank": 15,
+        "leaderboard": "text",
         "ci": 10,
-        "votes": 4655,
+        "votes": 3727,
         "confidence": "medium",
         "license": "proprietary",
         "sources": [
           "arena"
         ],
+        "last_updated": "Jul 1, 2026",
+        "fetched_at": "2026-07-06T06:08:27.510931+00:00"
+      }
+    },
+    "openai/gpt-5.5": {
+      "canonical_id": "openai/gpt-5.5",
+      "vendor": "openai",
+      "benchmark_sources": [
+        "arena",
+        "routerai"
+      ],
+      "display_name": "gpt-5.5",
+      "arena": {
+        "elo": 1475,
+        "score": 0.6513,
+        "rank": 16,
+        "leaderboard": "text",
+        "ci": 5,
+        "votes": 38470,
+        "confidence": "high",
+        "license": "proprietary",
+        "sources": [
+          "arena"
+        ],
+        "last_updated": "Jul 1, 2026",
+        "fetched_at": "2026-07-06T06:08:27.510931+00:00"
+      },
+      "routerai": {
+        "id": "openai/gpt-5.5",
+        "name": "OpenAI: GPT-5.5",
+        "description": "GPT-5.5 — новейшая модель от OpenAI, позиционируемая как «новый класс интеллекта». Она обладает контекстным окном более чем на 1 миллион токенов (922 тыс. на вход и 128 тыс. на выход) с поддержкой текстовых и графических входных данных, что позволяет выполнять высококонтек\nстное рассуждение, програм",
+        "context_length": 1050000,
+        "input_rub_per_token": 0.0005019716,
+        "output_rub_per_token": 0.0030118296,
+        "input_usd_per_1m": 6.5,
+        "output_usd_per_1m": 39,
+        "supports_vision": true,
+        "supports_tools": true,
+        "supports_structured_output": true,
+        "reasoning": false
+      }
+    },
+    "xai/grok-4.20-beta-0309-reasoning": {
+      "canonical_id": "xai/grok-4.20-beta-0309-reasoning",
+      "vendor": "xai",
+      "benchmark_sources": [
+        "arena"
+      ],
+      "display_name": "grok-4.20-beta-0309-reasoning",
+      "arena": {
+        "elo": 1475,
+        "score": 0.6513,
+        "rank": 17,
+        "leaderboard": "text",
+        "ci": 4,
+        "votes": 51724,
+        "confidence": "high",
+        "license": "proprietary",
+        "sources": [
+          "arena"
+        ],
+        "last_updated": "Jul 1, 2026",
+        "fetched_at": "2026-07-06T06:08:27.510931+00:00"
+      }
+    },
+    "xai/grok-4.20-beta1": {
+      "canonical_id": "xai/grok-4.20-beta1",
+      "vendor": "xai",
+      "benchmark_sources": [
+        "arena"
+      ],
+      "display_name": "grok-4.20-beta1",
+      "arena": {
+        "elo": 1474,
+        "score": 0.6417,
+        "rank": 18,
+        "leaderboard": "text",
+        "ci": 5,
+        "votes": 26920,
+        "confidence": "high",
+        "license": "proprietary",
+        "sources": [
+          "arena"
+        ],
+        "last_updated": "Jul 1, 2026",
+        "fetched_at": "2026-07-06T06:08:27.510931+00:00"
+      }
+    },
+    "google/gemini-3-flash": {
+      "canonical_id": "google/gemini-3-flash",
+      "vendor": "google",
+      "benchmark_sources": [
+        "arena",
+        "hle",
+        "swebench_pro",
+        "swe_bench_verified",
+        "swe_bench_multilingual"
+      ],
+      "display_name": "gemini-3-flash",
+      "arena": {
+        "elo": 1473,
+        "score": 0.632,
+        "rank": 19,
+        "leaderboard": "text",
+        "ci": 4,
+        "votes": 30711,
+        "confidence": "high",
+        "license": "proprietary",
+        "sources": [
+          "arena"
+        ],
+        "last_updated": "Jul 1, 2026",
+        "fetched_at": "2026-07-06T06:08:27.510931+00:00"
+      },
+      "hle": {
+        "score": 0.366,
+        "raw_score": 36.6,
+        "date": "2025-12-17",
+        "calibration_error": 55.1,
+        "provider": "google"
+      },
+      "swebench_pro": {
+        "score": 0.386,
+        "raw_score": 38.6,
+        "date": "2025-12-17"
+      },
+      "swe_bench_verified": {
+        "score": 0.758,
+        "raw_score": 75.8,
+        "date": "2026-02-17"
+      },
+      "swe_bench_multilingual": {
+        "score": 0.727,
+        "raw_score": 72.7,
+        "date": "2026-02-13"
+      }
+    },
+    "anthropic/claude-opus-4-5-20251101-thinking-32k": {
+      "canonical_id": "anthropic/claude-opus-4-5-20251101-thinking-32k",
+      "vendor": "anthropic",
+      "benchmark_sources": [
+        "arena"
+      ],
+      "display_name": "claude-opus-4-5-20251101-thinking-32k",
+      "arena": {
+        "elo": 1490,
+        "score": 0.4271,
+        "rank": 18,
+        "leaderboard": "code",
+        "ci": 7,
+        "votes": 13060,
+        "confidence": "high",
+        "license": "proprietary",
+        "sources": [
+          "arena"
+        ],
         "last_updated": null,
-        "fetched_at": "2026-07-05T05:45:53.816457+00:00"
+        "fetched_at": "2026-07-06T06:08:27.510931+00:00"
+      }
+    },
+    "openai/gpt-5.5-instant": {
+      "canonical_id": "openai/gpt-5.5-instant",
+      "vendor": "openai",
+      "benchmark_sources": [
+        "arena"
+      ],
+      "display_name": "gpt-5.5-instant",
+      "arena": {
+        "elo": 1473,
+        "score": 0.632,
+        "rank": 21,
+        "leaderboard": "text",
+        "ci": 5,
+        "votes": 26172,
+        "confidence": "high",
+        "license": "proprietary",
+        "sources": [
+          "arena"
+        ],
+        "last_updated": "Jul 1, 2026",
+        "fetched_at": "2026-07-06T06:08:27.510931+00:00"
       }
     },
     "z-ai/glm-5.1": {
@@ -531,7 +725,7 @@
           "arena"
         ],
         "last_updated": null,
-        "fetched_at": "2026-07-05T05:45:53.816457+00:00"
+        "fetched_at": "2026-07-06T06:08:27.510931+00:00"
       },
       "routerai": {
         "id": "z-ai/glm-5.1",
@@ -569,7 +763,7 @@
           "arena"
         ],
         "last_updated": null,
-        "fetched_at": "2026-07-05T05:45:53.816457+00:00"
+        "fetched_at": "2026-07-06T06:08:27.510931+00:00"
       },
       "hle": {
         "score": 0.2107,
@@ -577,6 +771,281 @@
         "date": "2026-02-17",
         "calibration_error": 43.08,
         "provider": "anthropic"
+      }
+    },
+    "xai/grok-4.20-multi-agent-beta-0309": {
+      "canonical_id": "xai/grok-4.20-multi-agent-beta-0309",
+      "vendor": "xai",
+      "benchmark_sources": [
+        "arena"
+      ],
+      "display_name": "grok-4.20-multi-agent-beta-0309",
+      "arena": {
+        "elo": 1470,
+        "score": 0.603,
+        "rank": 24,
+        "leaderboard": "text",
+        "ci": 4,
+        "votes": 50647,
+        "confidence": "high",
+        "license": "proprietary",
+        "sources": [
+          "arena"
+        ],
+        "last_updated": "Jul 1, 2026",
+        "fetched_at": "2026-07-06T06:08:27.510931+00:00"
+      }
+    },
+    "anthropic/claude-opus-4-5-20251101": {
+      "canonical_id": "anthropic/claude-opus-4-5-20251101",
+      "vendor": "anthropic",
+      "benchmark_sources": [
+        "arena"
+      ],
+      "display_name": "claude-opus-4-5-20251101",
+      "arena": {
+        "elo": 1469,
+        "score": 0.5933,
+        "rank": 25,
+        "leaderboard": "text",
+        "ci": 3,
+        "votes": 71135,
+        "confidence": "high",
+        "license": "proprietary",
+        "sources": [
+          "arena"
+        ],
+        "last_updated": "Jul 1, 2026",
+        "fetched_at": "2026-07-06T06:08:27.510931+00:00"
+      }
+    },
+    "z-ai/glm-5.2 (max)": {
+      "canonical_id": "z-ai/glm-5.2 (max)",
+      "vendor": "z-ai",
+      "benchmark_sources": [
+        "arena"
+      ],
+      "display_name": "glm-5.2",
+      "arena": {
+        "elo": 1584,
+        "score": 0.746,
+        "rank": 2,
+        "leaderboard": "code",
+        "ci": 12,
+        "votes": 3015,
+        "confidence": "medium",
+        "license": "open",
+        "sources": [
+          "arena"
+        ],
+        "last_updated": null,
+        "fetched_at": "2026-07-06T06:08:27.510931+00:00"
+      }
+    },
+    "baidu/ernie-5.1": {
+      "canonical_id": "baidu/ernie-5.1",
+      "vendor": "baidu",
+      "benchmark_sources": [
+        "arena"
+      ],
+      "display_name": "ernie-5.1",
+      "arena": {
+        "elo": 1468,
+        "score": 0.5837,
+        "rank": 27,
+        "leaderboard": "text",
+        "ci": 5,
+        "votes": 32742,
+        "confidence": "high",
+        "license": "proprietary",
+        "sources": [
+          "arena"
+        ],
+        "last_updated": "Jul 1, 2026",
+        "fetched_at": "2026-07-06T06:08:27.510931+00:00"
+      }
+    },
+    "openai/gpt-5.4": {
+      "canonical_id": "openai/gpt-5.4",
+      "vendor": "openai",
+      "benchmark_sources": [
+        "arena",
+        "routerai"
+      ],
+      "display_name": "gpt-5.4",
+      "arena": {
+        "elo": 1467,
+        "score": 0.574,
+        "rank": 28,
+        "leaderboard": "text",
+        "ci": 4,
+        "votes": 53056,
+        "confidence": "high",
+        "license": "proprietary",
+        "sources": [
+          "arena"
+        ],
+        "last_updated": "Jul 1, 2026",
+        "fetched_at": "2026-07-06T06:08:27.510931+00:00"
+      },
+      "routerai": {
+        "id": "openai/gpt-5.4",
+        "name": "OpenAI: GPT-5.4",
+        "description": "GPT-5.4 — это новейшая модель от OpenAI, объединяющая линии Codex и GPT в единую систему. Она обладает контекстным окном более чем на 1 миллион токенов (922 тыс. на вход и 128 тыс. на выход) с поддержкой текстовых и графических входных данных, что позволяет выполнять высококонтекстное рассуждение, п",
+        "context_length": 1050000,
+        "input_rub_per_token": 0.0002509858,
+        "output_rub_per_token": 0.0015059148,
+        "input_usd_per_1m": 3.25,
+        "output_usd_per_1m": 19.5,
+        "supports_vision": true,
+        "supports_tools": true,
+        "supports_structured_output": true,
+        "reasoning": false
+      }
+    },
+    "xiaomi/mimo-v2.5-pro": {
+      "canonical_id": "xiaomi/mimo-v2.5-pro",
+      "vendor": "xiaomi",
+      "benchmark_sources": [
+        "arena",
+        "routerai"
+      ],
+      "display_name": "mimo-v2.5-pro",
+      "arena": {
+        "elo": 1466,
+        "score": 0.5643,
+        "rank": 29,
+        "leaderboard": "text",
+        "ci": 5,
+        "votes": 34468,
+        "confidence": "high",
+        "license": "open",
+        "sources": [
+          "arena"
+        ],
+        "last_updated": "Jul 1, 2026",
+        "fetched_at": "2026-07-06T06:08:27.510931+00:00"
+      },
+      "routerai": {
+        "id": "xiaomi/mimo-v2.5-pro",
+        "name": "Xiaomi: MiMo-V2.5-Pro",
+        "description": "MiMo-V2.5-Pro — это флагманская модель Xiaomi, обеспечивающая высокую производительность в общих агентных возможностях, сложной программной инженерии и задачах с долгосрочным горизонтом, с лидирующими позициями в таких бенчмарках, как ClawEval, GDPVal и SWE-bench Pro.",
+        "context_length": 1048576,
+        "input_rub_per_token": 0.0000655072938,
+        "output_rub_per_token": 0.0001310145876,
+        "input_usd_per_1m": 0.8483,
+        "output_usd_per_1m": 1.6965,
+        "supports_vision": false,
+        "supports_tools": true,
+        "supports_structured_output": true,
+        "reasoning": false
+      }
+    },
+    "xai/grok-4.1-thinking": {
+      "canonical_id": "xai/grok-4.1-thinking",
+      "vendor": "xai",
+      "benchmark_sources": [
+        "arena"
+      ],
+      "display_name": "grok-4.1-thinking",
+      "arena": {
+        "elo": 1466,
+        "score": 0.5643,
+        "rank": 30,
+        "leaderboard": "text",
+        "ci": 3,
+        "votes": 65565,
+        "confidence": "high",
+        "license": "proprietary",
+        "sources": [
+          "arena"
+        ],
+        "last_updated": "Jul 1, 2026",
+        "fetched_at": "2026-07-06T06:08:27.510931+00:00"
+      }
+    },
+    "qwen/qwen3.5-max-preview": {
+      "canonical_id": "qwen/qwen3.5-max-preview",
+      "vendor": "qwen",
+      "benchmark_sources": [
+        "arena"
+      ],
+      "display_name": "qwen3.5-max-preview",
+      "arena": {
+        "elo": 1465,
+        "score": 0.5547,
+        "rank": 31,
+        "leaderboard": "text",
+        "ci": 5,
+        "votes": 21531,
+        "confidence": "high",
+        "license": "proprietary",
+        "sources": [
+          "arena"
+        ],
+        "last_updated": "Jul 1, 2026",
+        "fetched_at": "2026-07-06T06:08:27.510931+00:00"
+      }
+    },
+    "anthropic/claude-sonnet-5-thinking": {
+      "canonical_id": "anthropic/claude-sonnet-5-thinking",
+      "vendor": "anthropic",
+      "benchmark_sources": [
+        "arena"
+      ],
+      "display_name": "claude-sonnet-5-thinking",
+      "arena": {
+        "elo": 1551,
+        "score": 0.634,
+        "rank": 6,
+        "leaderboard": "code",
+        "ci": 18,
+        "votes": 1250,
+        "confidence": "medium",
+        "license": "proprietary",
+        "sources": [
+          "arena"
+        ],
+        "last_updated": null,
+        "fetched_at": "2026-07-06T06:08:27.510931+00:00"
+      }
+    },
+    "qwen/qwen3.7-plus": {
+      "canonical_id": "qwen/qwen3.7-plus",
+      "vendor": "qwen",
+      "benchmark_sources": [
+        "arena",
+        "routerai"
+      ],
+      "display_name": "qwen3.7-plus",
+      "arena": {
+        "elo": 1463,
+        "score": 0.5353,
+        "rank": 33,
+        "leaderboard": "text",
+        "ci": 6,
+        "votes": 14900,
+        "confidence": "high",
+        "license": "proprietary",
+        "sources": [
+          "arena"
+        ],
+        "last_updated": "Jul 1, 2026",
+        "fetched_at": "2026-07-06T06:08:27.510931+00:00"
+      },
+      "routerai": {
+        "id": "qwen/qwen3.7-plus",
+        "name": "Qwen: Qwen3.7 Plus",
+        "description": "Qwen3.7-Plus — это экономичная модель в серии Qwen3.7 от Alibaba. Она поддерживает ввод текста и изображений с выводом текста, развивая текстовые возможности серии с комплексным обновлением её способностей в области зрения и языка, при этом сохраняя полнофункциональный интеллект агентского уровня дл",
+        "context_length": 1000000,
+        "input_rub_per_token": 0.0000321261824,
+        "output_rub_per_token": 0.0001285047296,
+        "input_usd_per_1m": 0.416,
+        "output_usd_per_1m": 1.664,
+        "supports_vision": true,
+        "supports_tools": true,
+        "supports_structured_output": true,
+        "reasoning": false
       }
     },
     "moonshotai/kimi-k2.6": {
@@ -600,7 +1069,7 @@
           "arena"
         ],
         "last_updated": null,
-        "fetched_at": "2026-07-05T05:45:53.816457+00:00"
+        "fetched_at": "2026-07-06T06:08:27.510931+00:00"
       },
       "routerai": {
         "id": "moonshotai/kimi-k2.6",
@@ -617,42 +1086,475 @@
         "reasoning": false
       }
     },
-    "google/gemini-3.5-flash": {
-      "canonical_id": "google/gemini-3.5-flash",
-      "vendor": "google",
+    "qwen/qwen3.6-max-preview": {
+      "canonical_id": "qwen/qwen3.6-max-preview",
+      "vendor": "qwen",
       "benchmark_sources": [
         "arena",
         "routerai"
       ],
-      "display_name": "gemini-3.5-flash",
+      "display_name": "qwen3.6-max-preview",
       "arena": {
-        "elo": 1510,
-        "score": 0.495,
-        "rank": 15,
+        "elo": 1482,
+        "score": 0.4,
+        "rank": 20,
         "leaderboard": "code",
-        "ci": 9,
-        "votes": 5817,
-        "confidence": "high",
+        "ci": 12,
+        "votes": 2507,
+        "confidence": "medium",
         "license": "proprietary",
         "sources": [
           "arena"
         ],
         "last_updated": null,
-        "fetched_at": "2026-07-05T05:45:53.816457+00:00"
+        "fetched_at": "2026-07-06T06:08:27.510931+00:00"
       },
       "routerai": {
-        "id": "google/gemini-3.5-flash",
-        "name": "Google: Gemini 3.5 Flash",
-        "description": "Gemini 3.5 Flash — это высокоэффективная мультимодальная модель от Google, обеспечивающая кодирование и рассуждение почти на профессиональном уровне при стоимости и скорости уровня Flash. Она высоко оптимизирована для повышения квалификации в кодировании и параллельного выполнения агентных циклов, п",
-        "context_length": 1048576,
-        "input_rub_per_token": 0.00015059148,
-        "output_rub_per_token": 0.00090354888,
-        "input_usd_per_1m": 1.95,
-        "output_usd_per_1m": 11.7,
-        "supports_vision": true,
+        "id": "qwen/qwen3.6-max-preview",
+        "name": "Qwen: Qwen3.6 Max Preview",
+        "description": "Qwen3.6-Max-Preview — это собственная передовая модель от Alibaba Cloud, построенная на архитектуре разреженной смеси экспертов с примерно 1 триллионом параметров. Она оптимизирована для агентного кодирования, использования инструментов и рассуждений в длинном контексте, поддерживая окно контекста в",
+        "context_length": 262144,
+        "input_rub_per_token": 0.0001044100928,
+        "output_rub_per_token": 0.0006264605568,
+        "input_usd_per_1m": 1.352,
+        "output_usd_per_1m": 8.112,
+        "supports_vision": false,
         "supports_tools": true,
         "supports_structured_output": true,
         "reasoning": false
+      }
+    },
+    "google/gemini-3-flash (thinking-minimal)": {
+      "canonical_id": "google/gemini-3-flash (thinking-minimal)",
+      "vendor": "google",
+      "benchmark_sources": [
+        "arena"
+      ],
+      "display_name": "gemini-3-flash",
+      "arena": {
+        "elo": 1460,
+        "score": 0.5063,
+        "rank": 36,
+        "leaderboard": "text",
+        "ci": 3,
+        "votes": 75608,
+        "confidence": "high",
+        "license": "proprietary",
+        "sources": [
+          "arena"
+        ],
+        "last_updated": "Jul 1, 2026",
+        "fetched_at": "2026-07-06T06:08:27.510931+00:00"
+      }
+    },
+    "xai/grok-4.1": {
+      "canonical_id": "xai/grok-4.1",
+      "vendor": "xai",
+      "benchmark_sources": [
+        "arena"
+      ],
+      "display_name": "grok-4.1",
+      "arena": {
+        "elo": 1459,
+        "score": 0.4967,
+        "rank": 37,
+        "leaderboard": "text",
+        "ci": 3,
+        "votes": 67704,
+        "confidence": "high",
+        "license": "proprietary",
+        "sources": [
+          "arena"
+        ],
+        "last_updated": "Jul 1, 2026",
+        "fetched_at": "2026-07-06T06:08:27.510931+00:00"
+      }
+    },
+    "deepseek/deepseek-v4-pro": {
+      "canonical_id": "deepseek/deepseek-v4-pro",
+      "vendor": "deepseek",
+      "benchmark_sources": [
+        "arena",
+        "routerai"
+      ],
+      "display_name": "deepseek-v4-pro",
+      "arena": {
+        "elo": 1457,
+        "score": 0.4773,
+        "rank": 38,
+        "leaderboard": "text",
+        "ci": 5,
+        "votes": 37116,
+        "confidence": "high",
+        "license": "open",
+        "sources": [
+          "arena"
+        ],
+        "last_updated": "Jul 1, 2026",
+        "fetched_at": "2026-07-06T06:08:27.510931+00:00"
+      },
+      "routerai": {
+        "id": "deepseek/deepseek-v4-pro",
+        "name": "DeepSeek: DeepSeek V4 Pro",
+        "description": "DeepSeek V4 Pro — это крупномасштабная модель Mixture-of-Experts от DeepSeek с общим количеством параметров 1,6 триллиона и 49 миллиардами активированных параметров, поддерживающая контекстное окно в 1 миллион токенов. Она разработана для продвинутого рассуждения, кодирования и работы агентов с длин",
+        "context_length": 1048576,
+        "input_rub_per_token": 0.00006114014088,
+        "output_rub_per_token": 0.00012228028176,
+        "input_usd_per_1m": 0.7917,
+        "output_usd_per_1m": 1.5834,
+        "supports_vision": false,
+        "supports_tools": true,
+        "supports_structured_output": true,
+        "reasoning": false
+      }
+    },
+    "z-ai/glm-5": {
+      "canonical_id": "z-ai/glm-5",
+      "vendor": "z-ai",
+      "benchmark_sources": [
+        "arena",
+        "routerai",
+        "swe_bench_verified",
+        "swe_bench_multilingual"
+      ],
+      "display_name": "glm-5",
+      "arena": {
+        "elo": 1457,
+        "score": 0.4773,
+        "rank": 39,
+        "leaderboard": "text",
+        "ci": 4,
+        "votes": 27897,
+        "confidence": "high",
+        "license": "open",
+        "sources": [
+          "arena"
+        ],
+        "last_updated": "Jul 1, 2026",
+        "fetched_at": "2026-07-06T06:08:27.510931+00:00"
+      },
+      "routerai": {
+        "id": "z-ai/glm-5",
+        "name": "Z.ai: GLM 5",
+        "description": "GLM-5 — это флагманская открытая модель от Z.ai, разработанная для проектирования сложных систем и долгосрочных рабочих процессов агентов. Созданная для опытных разработчиков, она обеспечивает производительность промышленного уровня при выполнении крупномасштабных программных задач, соперничая с вед",
+        "context_length": 202752,
+        "input_rub_per_token": 0.000060236592,
+        "output_rub_per_token": 0.0001927570944,
+        "input_usd_per_1m": 0.78,
+        "output_usd_per_1m": 2.496,
+        "supports_vision": false,
+        "supports_tools": true,
+        "supports_structured_output": true,
+        "reasoning": false
+      },
+      "swe_bench_verified": {
+        "score": 0.728,
+        "raw_score": 72.8,
+        "date": "2026-02-17"
+      },
+      "swe_bench_multilingual": {
+        "score": 0.697,
+        "raw_score": 69.7,
+        "date": "2026-02-13"
+      }
+    },
+    "deepseek/deepseek-v4-pro-thinking": {
+      "canonical_id": "deepseek/deepseek-v4-pro-thinking",
+      "vendor": "deepseek",
+      "benchmark_sources": [
+        "arena"
+      ],
+      "display_name": "deepseek-v4-pro-thinking",
+      "arena": {
+        "elo": 1457,
+        "score": 0.4773,
+        "rank": 40,
+        "leaderboard": "text",
+        "ci": 5,
+        "votes": 35108,
+        "confidence": "high",
+        "license": "open",
+        "sources": [
+          "arena"
+        ],
+        "last_updated": "Jul 1, 2026",
+        "fetched_at": "2026-07-06T06:08:27.510931+00:00"
+      }
+    },
+    "anthropic/claude-sonnet-4-5-20250929-thinking-32k": {
+      "canonical_id": "anthropic/claude-sonnet-4-5-20250929-thinking-32k",
+      "vendor": "anthropic",
+      "benchmark_sources": [
+        "arena"
+      ],
+      "display_name": "claude-sonnet-4-5-20250929-thinking-32k",
+      "arena": {
+        "elo": 1455,
+        "score": 0.458,
+        "rank": 41,
+        "leaderboard": "text",
+        "ci": 3,
+        "votes": 82456,
+        "confidence": "high",
+        "license": "proprietary",
+        "sources": [
+          "arena"
+        ],
+        "last_updated": "Jul 1, 2026",
+        "fetched_at": "2026-07-06T06:08:27.510931+00:00"
+      }
+    },
+    "anthropic/claude-sonnet-4-5-20250929": {
+      "canonical_id": "anthropic/claude-sonnet-4-5-20250929",
+      "vendor": "anthropic",
+      "benchmark_sources": [
+        "arena"
+      ],
+      "display_name": "claude-sonnet-4-5-20250929",
+      "arena": {
+        "elo": 1455,
+        "score": 0.458,
+        "rank": 42,
+        "leaderboard": "text",
+        "ci": 3,
+        "votes": 80895,
+        "confidence": "high",
+        "license": "proprietary",
+        "sources": [
+          "arena"
+        ],
+        "last_updated": "Jul 1, 2026",
+        "fetched_at": "2026-07-06T06:08:27.510931+00:00"
+      }
+    },
+    "bytedance/dola-seed-2.0-pro": {
+      "canonical_id": "bytedance/dola-seed-2.0-pro",
+      "vendor": "bytedance",
+      "benchmark_sources": [
+        "arena"
+      ],
+      "display_name": "dola-seed-2.0-pro",
+      "arena": {
+        "elo": 1455,
+        "score": 0.458,
+        "rank": 43,
+        "leaderboard": "text",
+        "ci": 4,
+        "votes": 59361,
+        "confidence": "high",
+        "license": "proprietary",
+        "sources": [
+          "arena"
+        ],
+        "last_updated": "Jul 1, 2026",
+        "fetched_at": "2026-07-06T06:08:27.510931+00:00"
+      }
+    },
+    "openai/gpt-5.1-high": {
+      "canonical_id": "openai/gpt-5.1-high",
+      "vendor": "openai",
+      "benchmark_sources": [
+        "arena"
+      ],
+      "display_name": "gpt-5.1-high",
+      "arena": {
+        "elo": 1455,
+        "score": 0.458,
+        "rank": 44,
+        "leaderboard": "text",
+        "ci": 4,
+        "votes": 40823,
+        "confidence": "high",
+        "license": "proprietary",
+        "sources": [
+          "arena"
+        ],
+        "last_updated": "Jul 1, 2026",
+        "fetched_at": "2026-07-06T06:08:27.510931+00:00"
+      }
+    },
+    "google/gemma-4-31b": {
+      "canonical_id": "google/gemma-4-31b",
+      "vendor": "google",
+      "benchmark_sources": [
+        "arena"
+      ],
+      "display_name": "gemma-4-31b",
+      "arena": {
+        "elo": 1451,
+        "score": 0.4193,
+        "rank": 45,
+        "leaderboard": "text",
+        "ci": 8,
+        "votes": 5898,
+        "confidence": "high",
+        "license": "open",
+        "sources": [
+          "arena"
+        ],
+        "last_updated": "Jul 1, 2026",
+        "fetched_at": "2026-07-06T06:08:27.510931+00:00"
+      }
+    },
+    "moonshotai/kimi-k2.5-thinking": {
+      "canonical_id": "moonshotai/kimi-k2.5-thinking",
+      "vendor": "moonshotai",
+      "benchmark_sources": [
+        "arena"
+      ],
+      "display_name": "kimi-k2.5-thinking",
+      "arena": {
+        "elo": 1450,
+        "score": 0.4097,
+        "rank": 46,
+        "leaderboard": "text",
+        "ci": 4,
+        "votes": 55504,
+        "confidence": "high",
+        "license": "open",
+        "sources": [
+          "arena"
+        ],
+        "last_updated": "Jul 1, 2026",
+        "fetched_at": "2026-07-06T06:08:27.510931+00:00"
+      }
+    },
+    "openai/gpt-5.4-mini-high": {
+      "canonical_id": "openai/gpt-5.4-mini-high",
+      "vendor": "openai",
+      "benchmark_sources": [
+        "arena"
+      ],
+      "display_name": "gpt-5.4-mini-high",
+      "arena": {
+        "elo": 1449,
+        "score": 0.4,
+        "rank": 47,
+        "leaderboard": "text",
+        "ci": 4,
+        "votes": 48963,
+        "confidence": "high",
+        "license": "proprietary",
+        "sources": [
+          "arena"
+        ],
+        "last_updated": "Jul 1, 2026",
+        "fetched_at": "2026-07-06T06:08:27.510931+00:00"
+      }
+    },
+    "anthropic/claude-opus-4-1-20250805-thinking-16k": {
+      "canonical_id": "anthropic/claude-opus-4-1-20250805-thinking-16k",
+      "vendor": "anthropic",
+      "benchmark_sources": [
+        "arena"
+      ],
+      "display_name": "claude-opus-4-1-20250805-thinking-16k",
+      "arena": {
+        "elo": 1449,
+        "score": 0.4,
+        "rank": 48,
+        "leaderboard": "text",
+        "ci": 3,
+        "votes": 49773,
+        "confidence": "high",
+        "license": "proprietary",
+        "sources": [
+          "arena"
+        ],
+        "last_updated": "Jul 1, 2026",
+        "fetched_at": "2026-07-06T06:08:27.510931+00:00"
+      }
+    },
+    "baidu/ernie-5.0-preview-1203": {
+      "canonical_id": "baidu/ernie-5.0-preview-1203",
+      "vendor": "baidu",
+      "benchmark_sources": [
+        "arena"
+      ],
+      "display_name": "ernie-5.0-preview-1203",
+      "arena": {
+        "elo": 1449,
+        "score": 0.4,
+        "rank": 49,
+        "leaderboard": "text",
+        "ci": 7,
+        "votes": 9746,
+        "confidence": "high",
+        "license": "proprietary",
+        "sources": [
+          "arena"
+        ],
+        "last_updated": "Jul 1, 2026",
+        "fetched_at": "2026-07-06T06:08:27.510931+00:00"
+      }
+    },
+    "openai/gpt-5.3-chat-latest": {
+      "canonical_id": "openai/gpt-5.3-chat-latest",
+      "vendor": "openai",
+      "benchmark_sources": [
+        "arena"
+      ],
+      "display_name": "gpt-5.3-chat-latest",
+      "arena": {
+        "elo": 1449,
+        "score": 0.4,
+        "rank": 50,
+        "leaderboard": "text",
+        "ci": 4,
+        "votes": 33084,
+        "confidence": "high",
+        "license": "proprietary",
+        "sources": [
+          "arena"
+        ],
+        "last_updated": "Jul 1, 2026",
+        "fetched_at": "2026-07-06T06:08:27.510931+00:00"
+      }
+    },
+    "bytedance/seed-2.1-pro-preview": {
+      "canonical_id": "bytedance/seed-2.1-pro-preview",
+      "vendor": "bytedance",
+      "benchmark_sources": [
+        "arena"
+      ],
+      "display_name": "seed-2.1-pro-preview",
+      "arena": {
+        "elo": 1539,
+        "score": 0.5933,
+        "rank": 8,
+        "leaderboard": "code",
+        "ci": 13,
+        "votes": 2577,
+        "confidence": "medium",
+        "license": "proprietary",
+        "sources": [
+          "arena"
+        ],
+        "last_updated": null,
+        "fetched_at": "2026-07-06T06:08:27.510931+00:00"
+      }
+    },
+    "qwen/qwen3.7-max-20260517": {
+      "canonical_id": "qwen/qwen3.7-max-20260517",
+      "vendor": "qwen",
+      "benchmark_sources": [
+        "arena"
+      ],
+      "display_name": "qwen3.7-max-20260517",
+      "arena": {
+        "elo": 1526,
+        "score": 0.5492,
+        "rank": 11,
+        "leaderboard": "code",
+        "ci": 10,
+        "votes": 4655,
+        "confidence": "medium",
+        "license": "proprietary",
+        "sources": [
+          "arena"
+        ],
+        "last_updated": null,
+        "fetched_at": "2026-07-06T06:08:27.510931+00:00"
       }
     },
     "MiniMax/minimax-m3": {
@@ -676,7 +1578,7 @@
           "arena"
         ],
         "last_updated": null,
-        "fetched_at": "2026-07-05T05:45:53.816457+00:00"
+        "fetched_at": "2026-07-06T06:08:27.510931+00:00"
       },
       "routerai": {
         "id": "minimax/minimax-m3",
@@ -713,30 +1615,7 @@
           "arena"
         ],
         "last_updated": null,
-        "fetched_at": "2026-07-05T05:45:53.816457+00:00"
-      }
-    },
-    "anthropic/claude-opus-4-5-20251101-thinking-32k": {
-      "canonical_id": "anthropic/claude-opus-4-5-20251101-thinking-32k",
-      "vendor": "anthropic",
-      "benchmark_sources": [
-        "arena"
-      ],
-      "display_name": "claude-opus-4-5-20251101-thinking-32k",
-      "arena": {
-        "elo": 1490,
-        "score": 0.4271,
-        "rank": 18,
-        "leaderboard": "code",
-        "ci": 7,
-        "votes": 13060,
-        "confidence": "high",
-        "license": "proprietary",
-        "sources": [
-          "arena"
-        ],
-        "last_updated": null,
-        "fetched_at": "2026-07-05T05:45:53.816457+00:00"
+        "fetched_at": "2026-07-06T06:08:27.510931+00:00"
       }
     },
     "openai/gpt-5.5-high (codex-harness)": {
@@ -759,45 +1638,7 @@
           "arena"
         ],
         "last_updated": null,
-        "fetched_at": "2026-07-05T05:45:53.816457+00:00"
-      }
-    },
-    "qwen/qwen3.6-max-preview": {
-      "canonical_id": "qwen/qwen3.6-max-preview",
-      "vendor": "qwen",
-      "benchmark_sources": [
-        "arena",
-        "routerai"
-      ],
-      "display_name": "qwen3.6-max-preview",
-      "arena": {
-        "elo": 1482,
-        "score": 0.4,
-        "rank": 20,
-        "leaderboard": "code",
-        "ci": 12,
-        "votes": 2507,
-        "confidence": "medium",
-        "license": "proprietary",
-        "sources": [
-          "arena"
-        ],
-        "last_updated": null,
-        "fetched_at": "2026-07-05T05:45:53.816457+00:00"
-      },
-      "routerai": {
-        "id": "qwen/qwen3.6-max-preview",
-        "name": "Qwen: Qwen3.6 Max Preview",
-        "description": "Qwen3.6-Max-Preview — это собственная передовая модель от Alibaba Cloud, построенная на архитектуре разреженной смеси экспертов с примерно 1 триллионом параметров. Она оптимизирована для агентного кодирования, использования инструментов и рассуждений в длинном контексте, поддерживая окно контекста в",
-        "context_length": 262144,
-        "input_rub_per_token": 0.0001044100928,
-        "output_rub_per_token": 0.0006264605568,
-        "input_usd_per_1m": 1.352,
-        "output_usd_per_1m": 8.112,
-        "supports_vision": false,
-        "supports_tools": true,
-        "supports_structured_output": true,
-        "reasoning": false
+        "fetched_at": "2026-07-06T06:08:27.510931+00:00"
       }
     },
     "unknown/nullmodel": {
@@ -6733,7 +7574,7 @@
           "arena"
         ],
         "last_updated": null,
-        "fetched_at": "2026-07-05T05:45:53.816457+00:00"
+        "fetched_at": "2026-07-06T06:08:27.510931+00:00"
       }
     },
     "anthropic/claude-opus-4": {
@@ -6757,7 +7598,7 @@
           "arena"
         ],
         "last_updated": null,
-        "fetched_at": "2026-07-05T05:45:53.816457+00:00"
+        "fetched_at": "2026-07-06T06:08:27.510931+00:00"
       },
       "routerai": {
         "id": "anthropic/claude-opus-4",
@@ -6774,42 +7615,50 @@
         "reasoning": false
       }
     },
-    "qwen/qwen3.7-max": {
-      "canonical_id": "qwen/qwen3.7-max",
-      "vendor": "qwen",
+    "openai/gpt-5.2-chat-latest": {
+      "canonical_id": "openai/gpt-5.2-chat-latest",
+      "vendor": "openai",
       "benchmark_sources": [
-        "arena",
-        "routerai"
+        "arena"
       ],
-      "display_name": "qwen3.7-max",
+      "display_name": "gpt-5.2-chat-latest",
       "arena": {
-        "elo": 1526,
-        "score": 0.5492,
-        "rank": 11,
-        "leaderboard": "code",
-        "ci": 10,
-        "votes": 4655,
-        "confidence": "medium",
+        "elo": 1476,
+        "score": 0.661,
+        "rank": 14,
+        "leaderboard": "text",
+        "ci": 4,
+        "votes": 34518,
+        "confidence": "high",
         "license": "proprietary",
         "sources": [
           "arena"
         ],
-        "last_updated": null,
-        "fetched_at": "2026-07-05T05:45:53.816457+00:00"
-      },
-      "routerai": {
-        "id": "qwen/qwen3.7-max",
-        "name": "Qwen: Qwen3.7 Max",
-        "description": "Qwen3.7-Max является флагманской моделью в серии Qwen3.7 от Alibaba. Она поддерживает ввод и вывод текста и предназначена для задач, ориентированных на агентов, с особыми преимуществами в области программирования, офисных и производительных задач, а также в долгосрочном автономном выполнении. Модель",
-        "context_length": 1000000,
-        "input_rub_per_token": 0.0001254929,
-        "output_rub_per_token": 0.0003764787,
-        "input_usd_per_1m": 1.625,
-        "output_usd_per_1m": 4.875,
-        "supports_vision": false,
-        "supports_tools": true,
-        "supports_structured_output": true,
-        "reasoning": false
+        "last_updated": "Jul 1, 2026",
+        "fetched_at": "2026-07-06T06:08:27.510931+00:00"
+      }
+    },
+    "openai/gpt": {
+      "canonical_id": "openai/gpt",
+      "vendor": "openai",
+      "benchmark_sources": [
+        "arena"
+      ],
+      "display_name": "gpt",
+      "arena": {
+        "elo": 1475,
+        "score": 0.6513,
+        "rank": 16,
+        "leaderboard": "text",
+        "ci": 5,
+        "votes": 38470,
+        "confidence": "high",
+        "license": "proprietary",
+        "sources": [
+          "arena"
+        ],
+        "last_updated": "Jul 1, 2026",
+        "fetched_at": "2026-07-06T06:08:27.510931+00:00"
       }
     },
     "z-ai/glm": {
@@ -6832,7 +7681,7 @@
           "arena"
         ],
         "last_updated": null,
-        "fetched_at": "2026-07-05T05:45:53.816457+00:00"
+        "fetched_at": "2026-07-06T06:08:27.510931+00:00"
       }
     },
     "anthropic/claude-sonnet-4": {
@@ -6857,7 +7706,7 @@
           "arena"
         ],
         "last_updated": null,
-        "fetched_at": "2026-07-05T05:45:53.816457+00:00"
+        "fetched_at": "2026-07-06T06:08:27.510931+00:00"
       },
       "routerai": {
         "id": "anthropic/claude-sonnet-4",
@@ -6879,6 +7728,83 @@
         "date": "2025-05-22",
         "calibration_error": 75,
         "provider": "anthropic"
+      }
+    },
+    "xai/grok-4.20-multi-agent-beta": {
+      "canonical_id": "xai/grok-4.20-multi-agent-beta",
+      "vendor": "xai",
+      "benchmark_sources": [
+        "arena"
+      ],
+      "display_name": "grok-4.20-multi-agent-beta",
+      "arena": {
+        "elo": 1470,
+        "score": 0.603,
+        "rank": 24,
+        "leaderboard": "text",
+        "ci": 4,
+        "votes": 50647,
+        "confidence": "high",
+        "license": "proprietary",
+        "sources": [
+          "arena"
+        ],
+        "last_updated": "Jul 1, 2026",
+        "fetched_at": "2026-07-06T06:08:27.510931+00:00"
+      }
+    },
+    "anthropic/claude-opus-4-5": {
+      "canonical_id": "anthropic/claude-opus-4-5",
+      "vendor": "anthropic",
+      "benchmark_sources": [
+        "arena",
+        "hle"
+      ],
+      "display_name": "claude-opus-4-5",
+      "arena": {
+        "elo": 1469,
+        "score": 0.5933,
+        "rank": 25,
+        "leaderboard": "text",
+        "ci": 3,
+        "votes": 71135,
+        "confidence": "high",
+        "license": "proprietary",
+        "sources": [
+          "arena"
+        ],
+        "last_updated": "Jul 1, 2026",
+        "fetched_at": "2026-07-06T06:08:27.510931+00:00"
+      },
+      "hle": {
+        "score": 0.258,
+        "raw_score": 25.8,
+        "date": "2025-11-24",
+        "calibration_error": 44.5,
+        "provider": "anthropic"
+      }
+    },
+    "baidu/ernie": {
+      "canonical_id": "baidu/ernie",
+      "vendor": "baidu",
+      "benchmark_sources": [
+        "arena"
+      ],
+      "display_name": "ernie",
+      "arena": {
+        "elo": 1468,
+        "score": 0.5837,
+        "rank": 27,
+        "leaderboard": "text",
+        "ci": 5,
+        "votes": 32742,
+        "confidence": "high",
+        "license": "proprietary",
+        "sources": [
+          "arena"
+        ],
+        "last_updated": "Jul 1, 2026",
+        "fetched_at": "2026-07-06T06:08:27.510931+00:00"
       }
     },
     "moonshotai/kimi-k2": {
@@ -6904,7 +7830,7 @@
           "arena"
         ],
         "last_updated": null,
-        "fetched_at": "2026-07-05T05:45:53.816457+00:00"
+        "fetched_at": "2026-07-06T06:08:27.510931+00:00"
       },
       "routerai": {
         "id": "moonshotai/kimi-k2",
@@ -6931,6 +7857,121 @@
         "score": 0.2767,
         "raw_score": 27.67,
         "date": "2025-11-06"
+      }
+    },
+    "xai/grok": {
+      "canonical_id": "xai/grok",
+      "vendor": "xai",
+      "benchmark_sources": [
+        "arena"
+      ],
+      "display_name": "grok",
+      "arena": {
+        "elo": 1459,
+        "score": 0.4967,
+        "rank": 37,
+        "leaderboard": "text",
+        "ci": 3,
+        "votes": 67704,
+        "confidence": "high",
+        "license": "proprietary",
+        "sources": [
+          "arena"
+        ],
+        "last_updated": "Jul 1, 2026",
+        "fetched_at": "2026-07-06T06:08:27.510931+00:00"
+      }
+    },
+    "anthropic/claude-sonnet-4-5": {
+      "canonical_id": "anthropic/claude-sonnet-4-5",
+      "vendor": "anthropic",
+      "benchmark_sources": [
+        "arena",
+        "hle"
+      ],
+      "display_name": "claude-sonnet-4-5",
+      "arena": {
+        "elo": 1455,
+        "score": 0.458,
+        "rank": 42,
+        "leaderboard": "text",
+        "ci": 3,
+        "votes": 80895,
+        "confidence": "high",
+        "license": "proprietary",
+        "sources": [
+          "arena"
+        ],
+        "last_updated": "Jul 1, 2026",
+        "fetched_at": "2026-07-06T06:08:27.510931+00:00"
+      },
+      "hle": {
+        "score": 0.147,
+        "raw_score": 14.7,
+        "date": "2025-09-29",
+        "calibration_error": 64.11,
+        "provider": "anthropic"
+      }
+    },
+    "baidu/ernie-5.0-preview": {
+      "canonical_id": "baidu/ernie-5.0-preview",
+      "vendor": "baidu",
+      "benchmark_sources": [
+        "arena"
+      ],
+      "display_name": "ernie-5.0-preview",
+      "arena": {
+        "elo": 1449,
+        "score": 0.4,
+        "rank": 49,
+        "leaderboard": "text",
+        "ci": 7,
+        "votes": 9746,
+        "confidence": "high",
+        "license": "proprietary",
+        "sources": [
+          "arena"
+        ],
+        "last_updated": "Jul 1, 2026",
+        "fetched_at": "2026-07-06T06:08:27.510931+00:00"
+      }
+    },
+    "qwen/qwen3.7-max": {
+      "canonical_id": "qwen/qwen3.7-max",
+      "vendor": "qwen",
+      "benchmark_sources": [
+        "arena",
+        "routerai"
+      ],
+      "display_name": "qwen3.7-max",
+      "arena": {
+        "elo": 1526,
+        "score": 0.5492,
+        "rank": 11,
+        "leaderboard": "code",
+        "ci": 10,
+        "votes": 4655,
+        "confidence": "medium",
+        "license": "proprietary",
+        "sources": [
+          "arena"
+        ],
+        "last_updated": null,
+        "fetched_at": "2026-07-06T06:08:27.510931+00:00"
+      },
+      "routerai": {
+        "id": "qwen/qwen3.7-max",
+        "name": "Qwen: Qwen3.7 Max",
+        "description": "Qwen3.7-Max является флагманской моделью в серии Qwen3.7 от Alibaba. Она поддерживает ввод и вывод текста и предназначена для задач, ориентированных на агентов, с особыми преимуществами в области программирования, офисных и производительных задач, а также в долгосрочном автономном выполнении. Модель",
+        "context_length": 1000000,
+        "input_rub_per_token": 0.0001254929,
+        "output_rub_per_token": 0.0003764787,
+        "input_usd_per_1m": 1.625,
+        "output_usd_per_1m": 4.875,
+        "supports_vision": false,
+        "supports_tools": true,
+        "supports_structured_output": true,
+        "reasoning": false
       }
     },
     "unknown/storm-7b-best-of": {
@@ -12805,40 +13846,6 @@
         "reasoning": true
       }
     },
-    "z-ai/glm-5": {
-      "canonical_id": "z-ai/glm-5",
-      "vendor": "z-ai",
-      "benchmark_sources": [
-        "routerai",
-        "swe_bench_verified",
-        "swe_bench_multilingual"
-      ],
-      "display_name": "Z.ai: GLM 5",
-      "routerai": {
-        "id": "z-ai/glm-5",
-        "name": "Z.ai: GLM 5",
-        "description": "GLM-5 — это флагманская открытая модель от Z.ai, разработанная для проектирования сложных систем и долгосрочных рабочих процессов агентов. Созданная для опытных разработчиков, она обеспечивает производительность промышленного уровня при выполнении крупномасштабных программных задач, соперничая с вед",
-        "context_length": 202752,
-        "input_rub_per_token": 0.000060236592,
-        "output_rub_per_token": 0.0001927570944,
-        "input_usd_per_1m": 0.78,
-        "output_usd_per_1m": 2.496,
-        "supports_vision": false,
-        "supports_tools": true,
-        "supports_structured_output": true,
-        "reasoning": false
-      },
-      "swe_bench_verified": {
-        "score": 0.728,
-        "raw_score": 72.8,
-        "date": "2026-02-17"
-      },
-      "swe_bench_multilingual": {
-        "score": 0.697,
-        "raw_score": 69.7,
-        "date": "2026-02-13"
-      }
-    },
     "stepfun/step-3.5-flash": {
       "canonical_id": "stepfun/step-3.5-flash",
       "vendor": "stepfun",
@@ -13251,28 +14258,6 @@
         "output_rub_per_token": 0.02168517312,
         "input_usd_per_1m": 46.8,
         "output_usd_per_1m": 280.8,
-        "supports_vision": true,
-        "supports_tools": true,
-        "supports_structured_output": true,
-        "reasoning": false
-      }
-    },
-    "openai/gpt-5.4": {
-      "canonical_id": "openai/gpt-5.4",
-      "vendor": "openai",
-      "benchmark_sources": [
-        "routerai"
-      ],
-      "display_name": "OpenAI: GPT-5.4",
-      "routerai": {
-        "id": "openai/gpt-5.4",
-        "name": "OpenAI: GPT-5.4",
-        "description": "GPT-5.4 — это новейшая модель от OpenAI, объединяющая линии Codex и GPT в единую систему. Она обладает контекстным окном более чем на 1 миллион токенов (922 тыс. на вход и 128 тыс. на выход) с поддержкой текстовых и графических входных данных, что позволяет выполнять высококонтекстное рассуждение, п",
-        "context_length": 1050000,
-        "input_rub_per_token": 0.0002509858,
-        "output_rub_per_token": 0.0015059148,
-        "input_usd_per_1m": 3.25,
-        "output_usd_per_1m": 19.5,
         "supports_vision": true,
         "supports_tools": true,
         "supports_structured_output": true,
@@ -13763,28 +14748,6 @@
         "reasoning": false
       }
     },
-    "xiaomi/mimo-v2.5-pro": {
-      "canonical_id": "xiaomi/mimo-v2.5-pro",
-      "vendor": "xiaomi",
-      "benchmark_sources": [
-        "routerai"
-      ],
-      "display_name": "Xiaomi: MiMo-V2.5-Pro",
-      "routerai": {
-        "id": "xiaomi/mimo-v2.5-pro",
-        "name": "Xiaomi: MiMo-V2.5-Pro",
-        "description": "MiMo-V2.5-Pro — это флагманская модель Xiaomi, обеспечивающая высокую производительность в общих агентных возможностях, сложной программной инженерии и задачах с долгосрочным горизонтом, с лидирующими позициями в таких бенчмарках, как ClawEval, GDPVal и SWE-bench Pro.",
-        "context_length": 1048576,
-        "input_rub_per_token": 0.0000655072938,
-        "output_rub_per_token": 0.0001310145876,
-        "input_usd_per_1m": 0.8483,
-        "output_usd_per_1m": 1.6965,
-        "supports_vision": false,
-        "supports_tools": true,
-        "supports_structured_output": true,
-        "reasoning": false
-      }
-    },
     "xiaomi/mimo-v2.5": {
       "canonical_id": "xiaomi/mimo-v2.5",
       "vendor": "xiaomi",
@@ -13807,28 +14770,6 @@
         "reasoning": false
       }
     },
-    "deepseek/deepseek-v4-pro": {
-      "canonical_id": "deepseek/deepseek-v4-pro",
-      "vendor": "deepseek",
-      "benchmark_sources": [
-        "routerai"
-      ],
-      "display_name": "DeepSeek: DeepSeek V4 Pro",
-      "routerai": {
-        "id": "deepseek/deepseek-v4-pro",
-        "name": "DeepSeek: DeepSeek V4 Pro",
-        "description": "DeepSeek V4 Pro — это крупномасштабная модель Mixture-of-Experts от DeepSeek с общим количеством параметров 1,6 триллиона и 49 миллиардами активированных параметров, поддерживающая контекстное окно в 1 миллион токенов. Она разработана для продвинутого рассуждения, кодирования и работы агентов с длин",
-        "context_length": 1048576,
-        "input_rub_per_token": 0.00006114014088,
-        "output_rub_per_token": 0.00012228028176,
-        "input_usd_per_1m": 0.7917,
-        "output_usd_per_1m": 1.5834,
-        "supports_vision": false,
-        "supports_tools": true,
-        "supports_structured_output": true,
-        "reasoning": false
-      }
-    },
     "deepseek/deepseek-v4-flash": {
       "canonical_id": "deepseek/deepseek-v4-flash",
       "vendor": "deepseek",
@@ -13846,28 +14787,6 @@
         "input_usd_per_1m": 0.117,
         "output_usd_per_1m": 0.234,
         "supports_vision": false,
-        "supports_tools": true,
-        "supports_structured_output": true,
-        "reasoning": false
-      }
-    },
-    "openai/gpt-5.5": {
-      "canonical_id": "openai/gpt-5.5",
-      "vendor": "openai",
-      "benchmark_sources": [
-        "routerai"
-      ],
-      "display_name": "OpenAI: GPT-5.5",
-      "routerai": {
-        "id": "openai/gpt-5.5",
-        "name": "OpenAI: GPT-5.5",
-        "description": "GPT-5.5 — новейшая модель от OpenAI, позиционируемая как «новый класс интеллекта». Она обладает контекстным окном более чем на 1 миллион токенов (922 тыс. на вход и 128 тыс. на выход) с поддержкой текстовых и графических входных данных, что позволяет выполнять высококонтек\nстное рассуждение, програм",
-        "context_length": 1050000,
-        "input_rub_per_token": 0.0005019716,
-        "output_rub_per_token": 0.0030118296,
-        "input_usd_per_1m": 6.5,
-        "output_usd_per_1m": 39,
-        "supports_vision": true,
         "supports_tools": true,
         "supports_structured_output": true,
         "reasoning": false
@@ -14313,28 +15232,6 @@
         "reasoning": false
       }
     },
-    "qwen/qwen3.7-plus": {
-      "canonical_id": "qwen/qwen3.7-plus",
-      "vendor": "qwen",
-      "benchmark_sources": [
-        "routerai"
-      ],
-      "display_name": "Qwen: Qwen3.7 Plus",
-      "routerai": {
-        "id": "qwen/qwen3.7-plus",
-        "name": "Qwen: Qwen3.7 Plus",
-        "description": "Qwen3.7-Plus — это экономичная модель в серии Qwen3.7 от Alibaba. Она поддерживает ввод текста и изображений с выводом текста, развивая текстовые возможности серии с комплексным обновлением её способностей в области зрения и языка, при этом сохраняя полнофункциональный интеллект агентского уровня дл",
-        "context_length": 1000000,
-        "input_rub_per_token": 0.0000321261824,
-        "output_rub_per_token": 0.0001285047296,
-        "input_usd_per_1m": 0.416,
-        "output_usd_per_1m": 1.664,
-        "supports_vision": true,
-        "supports_tools": true,
-        "supports_structured_output": true,
-        "reasoning": false
-      }
-    },
     "nvidia/nemotron-3-ultra-550b-a55b": {
       "canonical_id": "nvidia/nemotron-3-ultra-550b-a55b",
       "vendor": "nvidia",
@@ -14391,10 +15288,10 @@
         "name": "Z.ai: GLM 5.2",
         "description": "GLM 5.2 — это крупномасштабная модель рассуждений от Z.ai. Она поддерживает ввод и вывод текста с контекстным окном в 1 миллион токенов и подходит для долгосрочных рабочих процессов агентов, проектного уровня программной инженерии и сложной многоэтапной автоматизации.\n\nПоддерживаются уровни рассужде",
         "context_length": 1048576,
-        "input_rub_per_token": 0.00007308706496,
-        "output_rub_per_token": 0.00022970220416,
-        "input_usd_per_1m": 0.9464,
-        "output_usd_per_1m": 2.9744,
+        "input_rub_per_token": 0.00008995331072,
+        "output_rub_per_token": 0.00028271040512,
+        "input_usd_per_1m": 1.1648,
+        "output_usd_per_1m": 3.6608,
         "supports_vision": false,
         "supports_tools": true,
         "supports_structured_output": true,
@@ -14607,54 +15504,6 @@
         "date": "2026-05-20"
       }
     },
-    "google/gemini-3-flash": {
-      "canonical_id": "google/gemini-3-flash",
-      "vendor": "google",
-      "benchmark_sources": [
-        "hle",
-        "swebench_pro",
-        "swe_bench_verified",
-        "swe_bench_multilingual"
-      ],
-      "display_name": "Gemini 3 Flash",
-      "hle": {
-        "score": 0.366,
-        "raw_score": 36.6,
-        "date": "2025-12-17",
-        "calibration_error": 55.1,
-        "provider": "google"
-      },
-      "swebench_pro": {
-        "score": 0.386,
-        "raw_score": 38.6,
-        "date": "2025-12-17"
-      },
-      "swe_bench_verified": {
-        "score": 0.758,
-        "raw_score": 75.8,
-        "date": "2026-02-17"
-      },
-      "swe_bench_multilingual": {
-        "score": 0.727,
-        "raw_score": 72.7,
-        "date": "2026-02-13"
-      }
-    },
-    "anthropic/claude-opus-4-5": {
-      "canonical_id": "anthropic/claude-opus-4-5",
-      "vendor": "anthropic",
-      "benchmark_sources": [
-        "hle"
-      ],
-      "display_name": "Opus 4.5",
-      "hle": {
-        "score": 0.258,
-        "raw_score": 25.8,
-        "date": "2025-11-24",
-        "calibration_error": 44.5,
-        "provider": "anthropic"
-      }
-    },
     "openai/gpt-5-2": {
       "canonical_id": "openai/gpt-5-2",
       "vendor": "openai",
@@ -14713,21 +15562,6 @@
         "score": 0.66,
         "raw_score": 66,
         "date": "2025-11-20"
-      }
-    },
-    "anthropic/claude-sonnet-4-5": {
-      "canonical_id": "anthropic/claude-sonnet-4-5",
-      "vendor": "anthropic",
-      "benchmark_sources": [
-        "hle"
-      ],
-      "display_name": "Sonnet 4.5",
-      "hle": {
-        "score": 0.147,
-        "raw_score": 14.7,
-        "date": "2025-09-29",
-        "calibration_error": 64.11,
-        "provider": "anthropic"
       }
     },
     "xai/grok-4": {
