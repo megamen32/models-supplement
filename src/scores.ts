@@ -31,6 +31,14 @@ export interface ScoreEntry {
 }
 
 const HLE_API = "https://dashboard.safe.ai/api/models";
+// Match the public lastexam.ai client for this official cross-origin API.
+// Generic server-side requests are rejected with HTTP 403.
+const HLE_PUBLIC_HEADERS = {
+  Origin: "https://lastexam.ai",
+  Referer: "https://lastexam.ai/",
+  Accept: "application/json",
+  "User-Agent": "Mozilla/5.0",
+};
 const SWE_LEADERBOARD_URL =
   "https://raw.githubusercontent.com/SWE-bench/swe-bench.github.io/master/data/leaderboards.json";
 
@@ -43,7 +51,7 @@ interface HleModel {
   modelCardUrl?: string;
 }
 
-async function fetchJson<T>(url: string, timeoutMs = 30_000): Promise<{ data: T; stat: FetchStat }> {
+async function fetchJson<T>(url: string, timeoutMs = 30_000, headers?: HeadersInit): Promise<{ data: T; stat: FetchStat }> {
   const t0 = performance.now();
   const fetched_at = new Date().toISOString();
   const baseStat = (overrides: Partial<FetchStat> = {}): FetchStat => ({
@@ -53,7 +61,7 @@ async function fetchJson<T>(url: string, timeoutMs = 30_000): Promise<{ data: T;
     bytes: 0, sha256: "", ok: false, ...overrides,
   });
   try {
-    const res = await fetch(url, { signal: AbortSignal.timeout(timeoutMs) });
+    const res = await fetch(url, { headers, signal: AbortSignal.timeout(timeoutMs) });
     if (!res.ok) return { data: undefined as unknown as T, stat: baseStat({ error: `HTTP ${res.status}` }) };
     const text = await res.text();
     const data = JSON.parse(text) as T;
@@ -72,7 +80,7 @@ export async function fetchHLE(): Promise<{
   swebench_pro: Record<string, ScoreEntry>;
   stat: FetchStat;
 }> {
-  const { data: models, stat } = await fetchJson<HleModel[]>(HLE_API);
+  const { data: models, stat } = await fetchJson<HleModel[]>(HLE_API, 30_000, HLE_PUBLIC_HEADERS);
 
   const hle: Record<string, ScoreEntry> = {};
   const swebenchPro: Record<string, ScoreEntry> = {};
