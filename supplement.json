@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-11-01T12:26:22.573Z",
+  "generated_at": "2026-11-02T14:23:21.890Z",
   "schema_version": "2.0",
   "provenance": {
     "git": {
-      "commit": "c0847e9",
+      "commit": "8cb0857",
       "dirty": true,
       "branch": "main"
     },
@@ -12,34 +12,34 @@
       "bun_version": "1.4.4",
       "os": "linux node",
       "arch": "x64",
-      "ci": "github-actions:41306479584"
+      "ci": "github-actions:41461417914"
     },
     "sources": [
       {
         "name": "arena:text",
         "url": "https://api.wulong.dev/arena-ai-leaderboards/v1/leaderboard?name=text",
-        "fetched_at": "2026-11-01T12:26:20.805Z",
-        "duration_ms": 147,
+        "fetched_at": "2026-11-02T14:23:19.782Z",
+        "duration_ms": 151,
         "bytes": 0,
         "sha256": "",
         "ok": false,
-        "error": "HTTP 404"
+        "error": "HTTP 429"
       },
       {
         "name": "arena:code",
         "url": "https://api.wulong.dev/arena-ai-leaderboards/v1/leaderboard?name=code",
-        "fetched_at": "2026-11-01T12:26:20.848Z",
+        "fetched_at": "2026-11-02T14:23:19.825Z",
         "duration_ms": 43,
         "bytes": 0,
         "sha256": "",
         "ok": false,
-        "error": "HTTP 404"
+        "error": "HTTP 429"
       },
       {
         "name": "alpaca_lc",
         "url": "https://raw.githubusercontent.com/tatsu-lab/alpaca_eval/main/src/alpaca_eval/leaderboards/data_AlpacaEval_2/weighted_alpaca_eval_gpt4_turbo_leaderboard.csv",
-        "fetched_at": "2026-11-01T12:26:21.006Z",
-        "duration_ms": 157,
+        "fetched_at": "2026-11-02T14:23:19.935Z",
+        "duration_ms": 110,
         "bytes": 28339,
         "sha256": "fe32bf85c2f7429038faa4c9a884d1d131726454ff84a4b810a91c1c7a2aa0e9",
         "ok": true
@@ -47,17 +47,17 @@
       {
         "name": "routerai:models",
         "url": "https://routerai.ru/api/v1/models",
-        "fetched_at": "2026-11-01T12:26:22.559Z",
-        "duration_ms": 803,
-        "bytes": 756659,
-        "sha256": "a8631d1af64a1aed8b7b02322db510674602b4fa3f386faf9b88c54e7bf1ae3f",
+        "fetched_at": "2026-11-02T14:23:21.878Z",
+        "duration_ms": 875,
+        "bytes": 756809,
+        "sha256": "464841c944a5f55574b5d96bd972b9b08c227e223b485df30afe27083b244e39",
         "ok": true
       },
       {
         "name": "cais_dashboard",
         "url": "https://dashboard.safe.ai/api/models",
-        "fetched_at": "2026-11-01T12:26:20.659Z",
-        "duration_ms": 274,
+        "fetched_at": "2026-11-02T14:23:19.632Z",
+        "duration_ms": 262,
         "bytes": 41721,
         "sha256": "f3c1b5e54bfba3ea60ac699b91ea6e484726ccd13dd05a9cfc2bf23e5cc86264",
         "ok": true
@@ -65,20 +65,20 @@
       {
         "name": "swe_bench_leaderboard",
         "url": "https://raw.githubusercontent.com/SWE-bench/swe-bench.github.io/master/data/leaderboards.json",
-        "fetched_at": "2026-11-01T12:26:20.659Z",
-        "duration_ms": 403,
+        "fetched_at": "2026-11-02T14:23:19.632Z",
+        "duration_ms": 104,
         "bytes": 4091442,
         "sha256": "83cd949a9582f4dd68b0a07148cd86ff0eae6a05b0f2d2298a8f3717baf89d2d",
         "ok": true
       }
     ],
-    "output_sha256": "e6ae1b4938fb525885cc3bc0751041ebf3f852cd5e31eabfe16769c4f71729b6",
+    "output_sha256": "dcd66c86c464d2f601829c0d6015b8a0bd1a0429c8560de149cb1bd33f21300e",
     "dry_run": false
   },
   "currency": {
     "usd_rub": 80.5573,
     "source": "CBR XML (cbr-xml-daily.ru/daily_eng.xml)",
-    "fetched_at": "2026-11-01T12:26:21.340Z"
+    "fetched_at": "2026-11-02T14:23:20.258Z"
   },
   "models": {
     "unknown/nullmodel": {
@@ -7164,6 +7164,28 @@
         "reasoning": false
       }
     },
+    "deepseek/deepseek-v4.1-flash": {
+      "canonical_id": "deepseek/deepseek-v4.1-flash",
+      "vendor": "deepseek",
+      "benchmark_sources": [
+        "routerai"
+      ],
+      "display_name": "DeepSeek: DeepSeek V4.1 Flash",
+      "routerai": {
+        "id": "deepseek/deepseek-v4.1-flash",
+        "name": "DeepSeek: DeepSeek V4.1 Flash",
+        "description": "DeepSeek V4.1 Flash — это разреженная модель смеси экспертов от DeepSeek, представляющая экономичный уровень семейства V4.1. DeepSeek сообщает, что она превосходит V4 Pro по производительности, скорости и времени выполнения задач, поэтому она находится выше предыдущего флагмана, а не ниже.\n\nОна подх",
+        "context_length": 1048576,
+        "input_rub_per_token": 0.00000575984695,
+        "output_rub_per_token": 0.000022117812288,
+        "input_usd_per_1m": 0.0715,
+        "output_usd_per_1m": 0.2746,
+        "supports_vision": true,
+        "supports_tools": true,
+        "supports_structured_output": true,
+        "reasoning": true
+      }
+    },
     "z-ai/glm-5.3": {
       "canonical_id": "z-ai/glm-5.3",
       "vendor": "z-ai",
@@ -7230,50 +7252,6 @@
         "reasoning": false
       }
     },
-    "deepseek/deepseek-v4.1-flash": {
-      "canonical_id": "deepseek/deepseek-v4.1-flash",
-      "vendor": "deepseek",
-      "benchmark_sources": [
-        "routerai"
-      ],
-      "display_name": "DeepSeek: DeepSeek V4.1 Flash",
-      "routerai": {
-        "id": "deepseek/deepseek-v4.1-flash",
-        "name": "DeepSeek: DeepSeek V4.1 Flash",
-        "description": "DeepSeek V4.1 Flash — это разреженная модель смеси экспертов от DeepSeek, представляющая экономичный уровень семейства V4.1. DeepSeek сообщает, что она превосходит V4 Pro по производительности, скорости и времени выполнения задач, поэтому она находится выше предыдущего флагмана, а не ниже.\n\nОна подх",
-        "context_length": 1048576,
-        "input_rub_per_token": 0.0000051493031733,
-        "output_rub_per_token": 0.0000205972126932,
-        "input_usd_per_1m": 0.0639,
-        "output_usd_per_1m": 0.2557,
-        "supports_vision": true,
-        "supports_tools": true,
-        "supports_structured_output": true,
-        "reasoning": true
-      }
-    },
-    "deepseek/deepseek-v4-flash-0731": {
-      "canonical_id": "deepseek/deepseek-v4-flash-0731",
-      "vendor": "deepseek",
-      "benchmark_sources": [
-        "routerai"
-      ],
-      "display_name": "DeepSeek: DeepSeek V4 Flash 0731",
-      "routerai": {
-        "id": "deepseek/deepseek-v4-flash-0731",
-        "name": "DeepSeek: DeepSeek V4 Flash 0731",
-        "description": "DeepSeek V4 Flash 0731 — это модель с разреженной смесью экспертов от DeepSeek, с 13 миллиардами активных параметров из 284 миллиардов общих. Эта пересмотренная версия, прошедшая повторное обучение, подходит для кодирования, рассуждений и рабочих процессов агентов.",
-        "context_length": 1048576,
-        "input_rub_per_token": 0.00000511935196916,
-        "output_rub_per_token": 0.00001535805590748,
-        "input_usd_per_1m": 0.0635,
-        "output_usd_per_1m": 0.1906,
-        "supports_vision": false,
-        "supports_tools": true,
-        "supports_structured_output": true,
-        "reasoning": true
-      }
-    },
     "qwen/qwen-2.5-coder-32b-instruct": {
       "canonical_id": "qwen/qwen-2.5-coder-32b-instruct",
       "vendor": "qwen",
@@ -7294,6 +7272,28 @@
         "supports_tools": false,
         "supports_structured_output": true,
         "reasoning": false
+      }
+    },
+    "deepseek/deepseek-v4-flash-0731": {
+      "canonical_id": "deepseek/deepseek-v4-flash-0731",
+      "vendor": "deepseek",
+      "benchmark_sources": [
+        "routerai"
+      ],
+      "display_name": "DeepSeek: DeepSeek V4 Flash 0731",
+      "routerai": {
+        "id": "deepseek/deepseek-v4-flash-0731",
+        "name": "DeepSeek: DeepSeek V4 Flash 0731",
+        "description": "DeepSeek V4 Flash 0731 — это модель с разреженной смесью экспертов от DeepSeek, с 13 миллиардами активных параметров из 284 миллиардов общих. Эта пересмотренная версия, прошедшая повторное обучение, подходит для кодирования, рассуждений и рабочих процессов агентов.",
+        "context_length": 1048576,
+        "input_rub_per_token": 0.00000806378573,
+        "output_rub_per_token": 0.00001612757146,
+        "input_usd_per_1m": 0.1001,
+        "output_usd_per_1m": 0.2002,
+        "supports_vision": false,
+        "supports_tools": true,
+        "supports_structured_output": true,
+        "reasoning": true
       }
     },
     "qwen/qwen3.5-35b-a3b": {
@@ -7338,6 +7338,34 @@
         "supports_tools": true,
         "supports_structured_output": true,
         "reasoning": false
+      }
+    },
+    "openai/gpt-oss-120b": {
+      "canonical_id": "openai/gpt-oss-120b",
+      "vendor": "openai",
+      "benchmark_sources": [
+        "routerai",
+        "swe_bench_verified"
+      ],
+      "display_name": "OpenAI: gpt-oss-120b",
+      "routerai": {
+        "id": "openai/gpt-oss-120b",
+        "name": "OpenAI: gpt-oss-120b",
+        "description": "gpt-oss-120b — это языковая модель с открытыми весами от OpenAI, состоящая из 117 миллиардов параметров и использующая архитектуру Mixture-of-Experts (MoE). Она предназначена для задач, требующих высокого уровня рассуждений, агентности и универсального применения. В каждом прямом проходе активируетс",
+        "context_length": 131072,
+        "input_rub_per_token": 0.0000031417347,
+        "output_rub_per_token": 0.0000157086735,
+        "input_usd_per_1m": 0.039,
+        "output_usd_per_1m": 0.195,
+        "supports_vision": false,
+        "supports_tools": true,
+        "supports_structured_output": true,
+        "reasoning": true
+      },
+      "swe_bench_verified": {
+        "score": 0.26,
+        "raw_score": 26,
+        "date": "2025-08-07"
       }
     },
     "anthropic/claude-opus-5": {
@@ -7458,34 +7486,6 @@
         "reasoning": false
       }
     },
-    "openai/gpt-oss-120b": {
-      "canonical_id": "openai/gpt-oss-120b",
-      "vendor": "openai",
-      "benchmark_sources": [
-        "routerai",
-        "swe_bench_verified"
-      ],
-      "display_name": "OpenAI: gpt-oss-120b",
-      "routerai": {
-        "id": "openai/gpt-oss-120b",
-        "name": "OpenAI: gpt-oss-120b",
-        "description": "gpt-oss-120b — это языковая модель с открытыми весами от OpenAI, состоящая из 117 миллиардов параметров и использующая архитектуру Mixture-of-Experts (MoE). Она предназначена для задач, требующих высокого уровня рассуждений, агентности и универсального применения. В каждом прямом проходе активируетс",
-        "context_length": 131072,
-        "input_rub_per_token": 0.0000020944898,
-        "output_rub_per_token": 0.00000785433675,
-        "input_usd_per_1m": 0.026,
-        "output_usd_per_1m": 0.0975,
-        "supports_vision": false,
-        "supports_tools": true,
-        "supports_structured_output": true,
-        "reasoning": true
-      },
-      "swe_bench_verified": {
-        "score": 0.26,
-        "raw_score": 26,
-        "date": "2025-08-07"
-      }
-    },
     "openai/gpt-5.2": {
       "canonical_id": "openai/gpt-5.2",
       "vendor": "openai",
@@ -7542,10 +7542,10 @@
         "name": "Qwen: Qwen3.6 35B A3B",
         "description": "Qwen3.6-35B-A3B — это мультимодальная модель с открытым весом от Alibaba Cloud, содержащая 35 миллиардов общих параметров и 3 миллиарда активных параметров на токен. Она использует гибридную разреженную архитектуру смеси экспертов, объединяющую линейное внимание Gated DeltaNet с обычными слоями с уп",
         "context_length": 262144,
-        "input_rub_per_token": 0.0000052362245,
-        "output_rub_per_token": 0.000073307143,
-        "input_usd_per_1m": 0.065,
-        "output_usd_per_1m": 0.91,
+        "input_rub_per_token": 0.0000010472449,
+        "output_rub_per_token": 0.00000963465308,
+        "input_usd_per_1m": 0.013,
+        "output_usd_per_1m": 0.1196,
         "supports_vision": true,
         "supports_tools": true,
         "supports_structured_output": true,
@@ -7706,22 +7706,22 @@
         "reasoning": true
       }
     },
-    "qwen/qwen3-235b-a22b-2507": {
-      "canonical_id": "qwen/qwen3-235b-a22b-2507",
-      "vendor": "qwen",
+    "openai/gpt-oss-120b:exacto": {
+      "canonical_id": "openai/gpt-oss-120b:exacto",
+      "vendor": "openai",
       "benchmark_sources": [
         "routerai"
       ],
-      "display_name": "Qwen: Qwen3 235B A22B Instruct 2507",
+      "display_name": "OpenAI: gpt-oss-120b (exacto)",
       "routerai": {
-        "id": "qwen/qwen3-235b-a22b-2507",
-        "name": "Qwen: Qwen3 235B A22B Instruct 2507",
-        "description": "Qwen3-235B-A22B-Instruct-2507 — это многоязычная языковая модель с настройкой на выполнение инструкций, основанная на архитектуре Qwen3-235B, с 22 миллиардами активных параметров на каждый проход вперед. Она оптимизирована для генерации текста общего назначения, включая следование инструкциям, логич",
-        "context_length": 262144,
-        "input_rub_per_token": 0.000009163392875,
-        "output_rub_per_token": 0.0000366535715,
-        "input_usd_per_1m": 0.1138,
-        "output_usd_per_1m": 0.455,
+        "id": "openai/gpt-oss-120b:exacto",
+        "name": "OpenAI: gpt-oss-120b (exacto)",
+        "description": "gpt-oss-120b — это языковая модель Mixture-of-Experts (MoE) с открытыми весами и 117 миллиардами параметров от OpenAI, предназначенная для использования в задачах, требующих высокого уровня рассуждений, агентности и общего назначения. Она активирует 5,1 миллиарда параметров за один прямой проход и о",
+        "context_length": 131072,
+        "input_rub_per_token": 0.0000031417347,
+        "output_rub_per_token": 0.0000157086735,
+        "input_usd_per_1m": 0.039,
+        "output_usd_per_1m": 0.195,
         "supports_vision": false,
         "supports_tools": true,
         "supports_structured_output": true,
@@ -7772,22 +7772,22 @@
         "reasoning": true
       }
     },
-    "openai/gpt-oss-120b:exacto": {
-      "canonical_id": "openai/gpt-oss-120b:exacto",
-      "vendor": "openai",
+    "qwen/qwen3-235b-a22b-2507": {
+      "canonical_id": "qwen/qwen3-235b-a22b-2507",
+      "vendor": "qwen",
       "benchmark_sources": [
         "routerai"
       ],
-      "display_name": "OpenAI: gpt-oss-120b (exacto)",
+      "display_name": "Qwen: Qwen3 235B A22B Instruct 2507",
       "routerai": {
-        "id": "openai/gpt-oss-120b:exacto",
-        "name": "OpenAI: gpt-oss-120b (exacto)",
-        "description": "gpt-oss-120b — это языковая модель Mixture-of-Experts (MoE) с открытыми весами и 117 миллиардами параметров от OpenAI, предназначенная для использования в задачах, требующих высокого уровня рассуждений, агентности и общего назначения. Она активирует 5,1 миллиарда параметров за один прямой проход и о",
-        "context_length": 131072,
-        "input_rub_per_token": 0.0000020944898,
-        "output_rub_per_token": 0.00000785433675,
-        "input_usd_per_1m": 0.026,
-        "output_usd_per_1m": 0.0975,
+        "id": "qwen/qwen3-235b-a22b-2507",
+        "name": "Qwen: Qwen3 235B A22B Instruct 2507",
+        "description": "Qwen3-235B-A22B-Instruct-2507 — это многоязычная языковая модель с настройкой на выполнение инструкций, основанная на архитектуре Qwen3-235B, с 22 миллиардами активных параметров на каждый проход вперед. Она оптимизирована для генерации текста общего назначения, включая следование инструкциям, логич",
+        "context_length": 262144,
+        "input_rub_per_token": 0.000009163392875,
+        "output_rub_per_token": 0.0000366535715,
+        "input_usd_per_1m": 0.1138,
+        "output_usd_per_1m": 0.455,
         "supports_vision": false,
         "supports_tools": true,
         "supports_structured_output": true,
@@ -7805,11 +7805,11 @@
         "id": "qwen/qwen3.8-27b",
         "name": "Qwen: Qwen3.8 27B",
         "description": "Qwen3.8 27B — это модель с плотной архитектурой для обработки изображений и текста от Qwen. Она подходит для программирования, профессиональных рабочих процессов, исследований, мультимодального взаимодействия и длительных задач агентов, с возможностью включения или отключения гибкого мышления.",
-        "context_length": 1000000,
-        "input_rub_per_token": 0.00000115196939,
-        "output_rub_per_token": 0.00006471973482,
-        "input_usd_per_1m": 0.0143,
-        "output_usd_per_1m": 0.8034,
+        "context_length": 1024000,
+        "input_rub_per_token": 0.00000408425511,
+        "output_rub_per_token": 0.0001309056125,
+        "input_usd_per_1m": 0.0507,
+        "output_usd_per_1m": 1.625,
         "supports_vision": true,
         "supports_tools": true,
         "supports_structured_output": true,
@@ -8260,10 +8260,10 @@
         "name": "DeepSeek: DeepSeek V4 Flash 0423",
         "description": "DeepSeek V4 Flash — это оптимизированная по эффективности модель Mixture-of-Experts от DeepSeek с общим количеством параметров 284 миллиардов и 13 миллиардов активированных параметров, поддерживающая контекстное окно на 1 миллион токенов. Она разработана для быстрого вывода и высокопроизводительных ",
         "context_length": 1048576,
-        "input_rub_per_token": 0.00000480528322365,
-        "output_rub_per_token": 0.0000096105664473,
-        "input_usd_per_1m": 0.0597,
-        "output_usd_per_1m": 0.1193,
+        "input_rub_per_token": 0.0000099477793051,
+        "output_rub_per_token": 0.0000198955586102,
+        "input_usd_per_1m": 0.1235,
+        "output_usd_per_1m": 0.247,
         "supports_vision": false,
         "supports_tools": true,
         "supports_structured_output": true,
@@ -8380,23 +8380,23 @@
         "reasoning": false
       }
     },
-    "google/gemma-4-31b-it": {
-      "canonical_id": "google/gemma-4-31b-it",
-      "vendor": "google",
+    "cohere/command-r-08-2024": {
+      "canonical_id": "cohere/command-r-08-2024",
+      "vendor": "cohere",
       "benchmark_sources": [
         "routerai"
       ],
-      "display_name": "Google: Gemma 4 31B",
+      "display_name": "Cohere: Command R (08-2024)",
       "routerai": {
-        "id": "google/gemma-4-31b-it",
-        "name": "Google: Gemma 4 31B",
-        "description": "Gemma 4 31B Instruct — это плотная мультимодальная модель от Google DeepMind с 30,7 миллиардами параметров, поддерживающая текстовый и визуальный ввод с текстовым выводом. Обладает контекстным окном на 256 тысяч токенов, настраиваемым режимом мышления/рассуждения, возможностью нативного вызова функц",
-        "context_length": 262144,
-        "input_rub_per_token": 0.000010472449,
-        "output_rub_per_token": 0.0000356063266,
-        "input_usd_per_1m": 0.13,
-        "output_usd_per_1m": 0.442,
-        "supports_vision": true,
+        "id": "cohere/command-r-08-2024",
+        "name": "Cohere: Command R (08-2024)",
+        "description": "command-r-08-2024 — это обновление модели [Command R](/models/models/cohere/command-r) с улучшенной производительностью для многоязычной генерации с дополнением извлечением (RAG) и использования инструментов. В более широком смысле, она лучше справляется с математикой, кодом и рассуждениями и являет",
+        "context_length": 128000,
+        "input_rub_per_token": 0.0000157086735,
+        "output_rub_per_token": 0.000062834694,
+        "input_usd_per_1m": 0.195,
+        "output_usd_per_1m": 0.78,
+        "supports_vision": false,
         "supports_tools": true,
         "supports_structured_output": true,
         "reasoning": false
@@ -8418,6 +8418,28 @@
         "output_rub_per_token": 0.000094252041,
         "input_usd_per_1m": 0.39,
         "output_usd_per_1m": 1.17,
+        "supports_vision": true,
+        "supports_tools": true,
+        "supports_structured_output": true,
+        "reasoning": false
+      }
+    },
+    "google/gemma-4-31b-it": {
+      "canonical_id": "google/gemma-4-31b-it",
+      "vendor": "google",
+      "benchmark_sources": [
+        "routerai"
+      ],
+      "display_name": "Google: Gemma 4 31B",
+      "routerai": {
+        "id": "google/gemma-4-31b-it",
+        "name": "Google: Gemma 4 31B",
+        "description": "Gemma 4 31B Instruct — это плотная мультимодальная модель от Google DeepMind с 30,7 миллиардами параметров, поддерживающая текстовый и визуальный ввод с текстовым выводом. Обладает контекстным окном на 256 тысяч токенов, настраиваемым режимом мышления/рассуждения, возможностью нативного вызова функц",
+        "context_length": 262144,
+        "input_rub_per_token": 0.000010472449,
+        "output_rub_per_token": 0.0000356063266,
+        "input_usd_per_1m": 0.13,
+        "output_usd_per_1m": 0.442,
         "supports_vision": true,
         "supports_tools": true,
         "supports_structured_output": true,
@@ -8463,28 +8485,6 @@
         "input_usd_per_1m": 0.065,
         "output_usd_per_1m": 0.195,
         "supports_vision": true,
-        "supports_tools": true,
-        "supports_structured_output": true,
-        "reasoning": false
-      }
-    },
-    "cohere/command-r-08-2024": {
-      "canonical_id": "cohere/command-r-08-2024",
-      "vendor": "cohere",
-      "benchmark_sources": [
-        "routerai"
-      ],
-      "display_name": "Cohere: Command R (08-2024)",
-      "routerai": {
-        "id": "cohere/command-r-08-2024",
-        "name": "Cohere: Command R (08-2024)",
-        "description": "command-r-08-2024 — это обновление модели [Command R](/models/models/cohere/command-r) с улучшенной производительностью для многоязычной генерации с дополнением извлечением (RAG) и использования инструментов. В более широком смысле, она лучше справляется с математикой, кодом и рассуждениями и являет",
-        "context_length": 128000,
-        "input_rub_per_token": 0.0000157086735,
-        "output_rub_per_token": 0.000062834694,
-        "input_usd_per_1m": 0.195,
-        "output_usd_per_1m": 0.78,
-        "supports_vision": false,
         "supports_tools": true,
         "supports_structured_output": true,
         "reasoning": false
@@ -8546,10 +8546,10 @@
         "name": "Z.ai: GLM 5.1",
         "description": "GLM-5.1 — это флагманская открытая модель от Z.ai, разработанная для проектирования сложных систем и долгосрочных рабочих процессов агентов. Созданная для опытных разработчиков, она обеспечивает производительность промышленного уровня при выполнении крупномасштабных программных задач, соперничая с в",
         "context_length": 204800,
-        "input_rub_per_token": 0.000094126371612,
-        "output_rub_per_token": 0.000295825739352,
-        "input_usd_per_1m": 1.1684,
-        "output_usd_per_1m": 3.6722,
+        "input_rub_per_token": 0.000094252041,
+        "output_rub_per_token": 0.000303701021,
+        "input_usd_per_1m": 1.17,
+        "output_usd_per_1m": 3.77,
         "supports_vision": false,
         "supports_tools": true,
         "supports_structured_output": true,
@@ -8662,10 +8662,10 @@
         "name": "DeepSeek: DeepSeek V4 Pro 0813",
         "description": "DeepSeek V4 Pro 0813 — это крупномасштабная модель смеси экспертов от DeepSeek. Это GA-релиз DeepSeek V4 Pro.",
         "context_length": 1048576,
-        "input_rub_per_token": 0.0000416091343668,
-        "output_rub_per_token": 0.0001248274031004,
-        "input_usd_per_1m": 0.5165,
-        "output_usd_per_1m": 1.5495,
+        "input_rub_per_token": 0.00009896464305,
+        "output_rub_per_token": 0.0001759371432,
+        "input_usd_per_1m": 1.2285,
+        "output_usd_per_1m": 2.184,
         "supports_vision": false,
         "supports_tools": true,
         "supports_structured_output": true,
@@ -8838,10 +8838,10 @@
         "name": "Xiaomi: MiMo-V2.6-Flash",
         "description": "MiMo-V2.6-Flash — это модель с открытым исходным кодом, разработанная Xiaomi. Построенная на архитектуре Mixture-of-Experts с общим числом параметров 309 миллиардов и 15 миллиардов активируемых на каждый токен, она использует гибридный механизм внимания для повышения вычислительной эффективности. Мо",
         "context_length": 1050000,
-        "input_rub_per_token": 0.00000911103063,
-        "output_rub_per_token": 0.00001958347963,
-        "input_usd_per_1m": 0.1131,
-        "output_usd_per_1m": 0.2431,
+        "input_rub_per_token": 0.000010472449,
+        "output_rub_per_token": 0.0000293228572,
+        "input_usd_per_1m": 0.13,
+        "output_usd_per_1m": 0.364,
         "supports_vision": true,
         "supports_tools": true,
         "supports_structured_output": true,
@@ -9168,10 +9168,10 @@
         "name": "DeepSeek: DeepSeek V4 Pro 0423",
         "description": "DeepSeek V4 Pro — это крупномасштабная модель Mixture-of-Experts от DeepSeek с общим количеством параметров 1,6 триллиона и 49 миллиардами активированных параметров, поддерживающая контекстное окно в 1 миллион токенов. Она разработана для продвинутого рассуждения, кодирования и работы агентов с длин",
         "context_length": 1048576,
-        "input_rub_per_token": 0.000033903967180356,
-        "output_rub_per_token": 0.000067807934360712,
-        "input_usd_per_1m": 0.4209,
-        "output_usd_per_1m": 0.8417,
+        "input_rub_per_token": 0.0001319528574,
+        "output_rub_per_token": 0.000219921429,
+        "input_usd_per_1m": 1.638,
+        "output_usd_per_1m": 2.73,
         "supports_vision": false,
         "supports_tools": true,
         "supports_structured_output": true,
@@ -9234,10 +9234,10 @@
         "name": "Z.ai: GLM 5.2",
         "description": "GLM 5.2 — это крупномасштабная модель рассуждений от Z.ai. Она поддерживает ввод и вывод текста с контекстным окном в 1 миллион токенов и подходит для долгосрочных рабочих процессов агентов, проектного уровня программной инженерии и сложной многоэтапной автоматизации.\n\nПоддерживаются уровни рассужде",
         "context_length": 1048576,
-        "input_rub_per_token": 0.00001979292861,
-        "output_rub_per_token": 0.00006220634706,
-        "input_usd_per_1m": 0.2457,
-        "output_usd_per_1m": 0.7722,
+        "input_rub_per_token": 0.00000816851022,
+        "output_rub_per_token": 0.000146614286,
+        "input_usd_per_1m": 0.1014,
+        "output_usd_per_1m": 1.82,
         "supports_vision": false,
         "supports_tools": true,
         "supports_structured_output": true,
@@ -9256,10 +9256,10 @@
         "name": "OpenAI: gpt-oss-20b",
         "description": "gpt-oss-20b — это модель с открытыми весами на 21 миллиард параметров, выпущенная OpenAI под лицензией Apache 2.0. Она использует архитектуру Mixture-of-Experts (MoE) с 3,6 миллиардами активных параметров на каждый прямой проход, оптимизированную для инференса с низкой задержкой и развертывания на п",
         "context_length": 131072,
-        "input_rub_per_token": 5.2362245e-7,
-        "output_rub_per_token": 0.00000198976531,
-        "input_usd_per_1m": 0.0065,
-        "output_usd_per_1m": 0.0247,
+        "input_rub_per_token": 0.00000146614286,
+        "output_rub_per_token": 0.00000596929593,
+        "input_usd_per_1m": 0.0182,
+        "output_usd_per_1m": 0.0741,
         "supports_vision": false,
         "supports_tools": true,
         "supports_structured_output": true,
@@ -10312,35 +10312,35 @@
         "name": "Qwen: Qwen3.5-9B",
         "description": "Qwen3.5-9B — это мультимодальная базовая модель из семейства Qwen3.5, разработанная для обеспечения мощных возможностей в области рассуждений, программирования и визуального понимания в эффективной архитектуре с 9 миллиардами параметров. Она использует унифицированный дизайн для работы с визуальной ",
         "context_length": 262144,
-        "input_rub_per_token": 0.00000178031633,
-        "output_rub_per_token": 0.00000261811225,
-        "input_usd_per_1m": 0.0221,
-        "output_usd_per_1m": 0.0325,
+        "input_rub_per_token": 0.00000408425511,
+        "output_rub_per_token": 0.00000596929593,
+        "input_usd_per_1m": 0.0507,
+        "output_usd_per_1m": 0.0741,
         "supports_vision": true,
         "supports_tools": true,
         "supports_structured_output": true,
         "reasoning": false
       }
     },
-    "meta-llama/llama-guard-4-12b": {
-      "canonical_id": "meta-llama/llama-guard-4-12b",
-      "vendor": "meta-llama",
+    "qwen/qwen3-vl-30b-a3b-instruct": {
+      "canonical_id": "qwen/qwen3-vl-30b-a3b-instruct",
+      "vendor": "qwen",
       "benchmark_sources": [
         "routerai"
       ],
-      "display_name": "Meta: Llama Guard 4 12B",
+      "display_name": "Qwen: Qwen3 VL 30B A3B Instruct",
       "routerai": {
-        "id": "meta-llama/llama-guard-4-12b",
-        "name": "Meta: Llama Guard 4 12B",
-        "description": "Llama Guard 4 — это мультимодальная предобученная модель, основанная на Llama 4 Scout и доработанная для классификации безопасности контента. Как и предыдущие версии, она может использоваться для классификации контента как во входных данных LLM (классификация запросов), так и в ответах LLM (классифи",
-        "context_length": 163840,
-        "input_rub_per_token": 0.0000188504082,
-        "output_rub_per_token": 0.0000188504082,
-        "input_usd_per_1m": 0.234,
-        "output_usd_per_1m": 0.234,
+        "id": "qwen/qwen3-vl-30b-a3b-instruct",
+        "name": "Qwen: Qwen3 VL 30B A3B Instruct",
+        "description": "Qwen3-VL-30B-A3B-Instruct — это мультимодальная модель, объединяющая мощную генерацию текста с визуальным пониманием изображений и видео. Вариант Instruct оптимизирован для выполнения инструкций в общих мультимодальных задачах. Она превосходно справляется с восприятием реальных и синтетических катег",
+        "context_length": 262144,
+        "input_rub_per_token": 0.0000157086735,
+        "output_rub_per_token": 0.000062834694,
+        "input_usd_per_1m": 0.195,
+        "output_usd_per_1m": 0.78,
         "supports_vision": true,
-        "supports_tools": false,
-        "supports_structured_output": false,
+        "supports_tools": true,
+        "supports_structured_output": true,
         "reasoning": false
       }
     },
@@ -10388,25 +10388,25 @@
         "reasoning": false
       }
     },
-    "qwen/qwen3-vl-30b-a3b-instruct": {
-      "canonical_id": "qwen/qwen3-vl-30b-a3b-instruct",
-      "vendor": "qwen",
+    "meta-llama/llama-guard-4-12b": {
+      "canonical_id": "meta-llama/llama-guard-4-12b",
+      "vendor": "meta-llama",
       "benchmark_sources": [
         "routerai"
       ],
-      "display_name": "Qwen: Qwen3 VL 30B A3B Instruct",
+      "display_name": "Meta: Llama Guard 4 12B",
       "routerai": {
-        "id": "qwen/qwen3-vl-30b-a3b-instruct",
-        "name": "Qwen: Qwen3 VL 30B A3B Instruct",
-        "description": "Qwen3-VL-30B-A3B-Instruct — это мультимодальная модель, объединяющая мощную генерацию текста с визуальным пониманием изображений и видео. Вариант Instruct оптимизирован для выполнения инструкций в общих мультимодальных задачах. Она превосходно справляется с восприятием реальных и синтетических катег",
-        "context_length": 262144,
-        "input_rub_per_token": 0.0000157086735,
-        "output_rub_per_token": 0.000062834694,
-        "input_usd_per_1m": 0.195,
-        "output_usd_per_1m": 0.78,
+        "id": "meta-llama/llama-guard-4-12b",
+        "name": "Meta: Llama Guard 4 12B",
+        "description": "Llama Guard 4 — это мультимодальная предобученная модель, основанная на Llama 4 Scout и доработанная для классификации безопасности контента. Как и предыдущие версии, она может использоваться для классификации контента как во входных данных LLM (классификация запросов), так и в ответах LLM (классифи",
+        "context_length": 163840,
+        "input_rub_per_token": 0.0000188504082,
+        "output_rub_per_token": 0.0000188504082,
+        "input_usd_per_1m": 0.234,
+        "output_usd_per_1m": 0.234,
         "supports_vision": true,
-        "supports_tools": true,
-        "supports_structured_output": true,
+        "supports_tools": false,
+        "supports_structured_output": false,
         "reasoning": false
       }
     },
@@ -11102,28 +11102,6 @@
         "reasoning": false
       }
     },
-    "meta-llama/llama-3.2-1b-instruct": {
-      "canonical_id": "meta-llama/llama-3.2-1b-instruct",
-      "vendor": "meta-llama",
-      "benchmark_sources": [
-        "routerai"
-      ],
-      "display_name": "Meta: Llama 3.2 1B Instruct",
-      "routerai": {
-        "id": "meta-llama/llama-3.2-1b-instruct",
-        "name": "Meta: Llama 3.2 1B Instruct",
-        "description": "Llama 3.2 1B — это языковая модель с одним миллиардом параметров, ориентированная на эффективное выполнение задач обработки естественного языка, таких как суммаризация, диалог и многоязычный анализ текста. Ее меньший размер позволяет эффективно работать в условиях ограниченных ресурсов, сохраняя при",
-        "context_length": 60000,
-        "input_rub_per_token": 0.00000282756123,
-        "output_rub_per_token": 0.00002104962249,
-        "input_usd_per_1m": 0.0351,
-        "output_usd_per_1m": 0.2613,
-        "supports_vision": false,
-        "supports_tools": false,
-        "supports_structured_output": false,
-        "reasoning": false
-      }
-    },
     "google/gemma-3-27b-it": {
       "canonical_id": "google/gemma-3-27b-it",
       "vendor": "google",
@@ -11143,6 +11121,28 @@
         "supports_vision": true,
         "supports_tools": true,
         "supports_structured_output": true,
+        "reasoning": false
+      }
+    },
+    "meta-llama/llama-3.2-1b-instruct": {
+      "canonical_id": "meta-llama/llama-3.2-1b-instruct",
+      "vendor": "meta-llama",
+      "benchmark_sources": [
+        "routerai"
+      ],
+      "display_name": "Meta: Llama 3.2 1B Instruct",
+      "routerai": {
+        "id": "meta-llama/llama-3.2-1b-instruct",
+        "name": "Meta: Llama 3.2 1B Instruct",
+        "description": "Llama 3.2 1B — это языковая модель с одним миллиардом параметров, ориентированная на эффективное выполнение задач обработки естественного языка, таких как суммаризация, диалог и многоязычный анализ текста. Ее меньший размер позволяет эффективно работать в условиях ограниченных ресурсов, сохраняя при",
+        "context_length": 60000,
+        "input_rub_per_token": 0.00000282756123,
+        "output_rub_per_token": 0.00002104962249,
+        "input_usd_per_1m": 0.0351,
+        "output_usd_per_1m": 0.2613,
+        "supports_vision": false,
+        "supports_tools": false,
+        "supports_structured_output": false,
         "reasoning": false
       }
     },
@@ -12298,28 +12298,6 @@
         "reasoning": false
       }
     },
-    "x-ai/grok-4.3": {
-      "canonical_id": "x-ai/grok-4.3",
-      "vendor": "x-ai",
-      "benchmark_sources": [
-        "routerai"
-      ],
-      "display_name": "SpaceXAI: Grok 4.3",
-      "routerai": {
-        "id": "x-ai/grok-4.3",
-        "name": "SpaceXAI: Grok 4.3",
-        "description": "Grok 4.3 — это модель рассуждений от xAI. Она принимает текстовые и графические входные данные с текстовым выводом и подходит для агентных рабочих процессов, задач по следованию инструкциям и приложений, требующих высокой точности фактов. Уровень усилий для рассуждений можно настроить на отсутствие/",
-        "context_length": 1000000,
-        "input_rub_per_token": 0.00014399617375,
-        "output_rub_per_token": 0.0002879923475,
-        "input_usd_per_1m": 1.7875,
-        "output_usd_per_1m": 3.575,
-        "supports_vision": true,
-        "supports_tools": true,
-        "supports_structured_output": true,
-        "reasoning": true
-      }
-    },
     "bytedance-seed/seed-2-1-turbo": {
       "canonical_id": "bytedance-seed/seed-2-1-turbo",
       "vendor": "bytedance-seed",
@@ -12340,6 +12318,28 @@
         "supports_tools": true,
         "supports_structured_output": true,
         "reasoning": false
+      }
+    },
+    "x-ai/grok-4.3": {
+      "canonical_id": "x-ai/grok-4.3",
+      "vendor": "x-ai",
+      "benchmark_sources": [
+        "routerai"
+      ],
+      "display_name": "SpaceXAI: Grok 4.3",
+      "routerai": {
+        "id": "x-ai/grok-4.3",
+        "name": "SpaceXAI: Grok 4.3",
+        "description": "Grok 4.3 — это модель рассуждений от xAI. Она принимает текстовые и графические входные данные с текстовым выводом и подходит для агентных рабочих процессов, задач по следованию инструкциям и приложений, требующих высокой точности фактов. Уровень усилий для рассуждений можно настроить на отсутствие/",
+        "context_length": 1000000,
+        "input_rub_per_token": 0.00014399617375,
+        "output_rub_per_token": 0.0002879923475,
+        "input_usd_per_1m": 1.7875,
+        "output_usd_per_1m": 3.575,
+        "supports_vision": true,
+        "supports_tools": true,
+        "supports_structured_output": true,
+        "reasoning": true
       }
     },
     "xiaomi/mimo-v2.6-pro-ultraspeed": {
@@ -12518,28 +12518,6 @@
         "reasoning": true
       }
     },
-    "bytedance-seed/seed-2.0-lite": {
-      "canonical_id": "bytedance-seed/seed-2.0-lite",
-      "vendor": "bytedance-seed",
-      "benchmark_sources": [
-        "routerai"
-      ],
-      "display_name": "ByteDance Seed: Seed-2.0-Lite",
-      "routerai": {
-        "id": "bytedance-seed/seed-2.0-lite",
-        "name": "ByteDance Seed: Seed-2.0-Lite",
-        "description": "Seed-2.0-Lite — это сбалансированная модель, разработанная для высокочастотных корпоративных рабочих нагрузок, оптимизируя как возможности, так и затраты. Ее общая производительность превосходит предыдущую версию Seed-1.8. Она хорошо подходит для производственных задач, таких как обработка неструкту",
-        "context_length": 262144,
-        "input_rub_per_token": 0.0000261811225,
-        "output_rub_per_token": 0.00020944898,
-        "input_usd_per_1m": 0.325,
-        "output_usd_per_1m": 2.6,
-        "supports_vision": true,
-        "supports_tools": true,
-        "supports_structured_output": true,
-        "reasoning": true
-      }
-    },
     "z-ai/glm-5-turbo": {
       "canonical_id": "z-ai/glm-5-turbo",
       "vendor": "z-ai",
@@ -12560,6 +12538,28 @@
         "supports_tools": true,
         "supports_structured_output": true,
         "reasoning": false
+      }
+    },
+    "bytedance-seed/seed-2.0-lite": {
+      "canonical_id": "bytedance-seed/seed-2.0-lite",
+      "vendor": "bytedance-seed",
+      "benchmark_sources": [
+        "routerai"
+      ],
+      "display_name": "ByteDance Seed: Seed-2.0-Lite",
+      "routerai": {
+        "id": "bytedance-seed/seed-2.0-lite",
+        "name": "ByteDance Seed: Seed-2.0-Lite",
+        "description": "Seed-2.0-Lite — это сбалансированная модель, разработанная для высокочастотных корпоративных рабочих нагрузок, оптимизируя как возможности, так и затраты. Ее общая производительность превосходит предыдущую версию Seed-1.8. Она хорошо подходит для производственных задач, таких как обработка неструкту",
+        "context_length": 262144,
+        "input_rub_per_token": 0.0000261811225,
+        "output_rub_per_token": 0.00020944898,
+        "input_usd_per_1m": 0.325,
+        "output_usd_per_1m": 2.6,
+        "supports_vision": true,
+        "supports_tools": true,
+        "supports_structured_output": true,
+        "reasoning": true
       }
     },
     "mistralai/mistral-nemo": {
@@ -12672,6 +12672,28 @@
         "reasoning": false
       }
     },
+    "z-ai/glm-5v-turbo": {
+      "canonical_id": "z-ai/glm-5v-turbo",
+      "vendor": "z-ai",
+      "benchmark_sources": [
+        "routerai"
+      ],
+      "display_name": "Z.ai: GLM 5V Turbo",
+      "routerai": {
+        "id": "z-ai/glm-5v-turbo",
+        "name": "Z.ai: GLM 5V Turbo",
+        "description": "GLM-5V-Turbo — это первая нативная мультимодальная модель-основа агента от Z.ai, созданная для задач, основанных на зрении и управляемых агентами. Она нативно обрабатывает изображения, видео и текстовые данные, превосходно справляется с планированием на длительный срок, сложным кодированием и выполн",
+        "context_length": 202752,
+        "input_rub_per_token": 0.000125669388,
+        "output_rub_per_token": 0.00041889796,
+        "input_usd_per_1m": 1.56,
+        "output_usd_per_1m": 5.2,
+        "supports_vision": true,
+        "supports_tools": true,
+        "supports_structured_output": true,
+        "reasoning": false
+      }
+    },
     "qwen/qwen3-vl-8b-instruct": {
       "canonical_id": "qwen/qwen3-vl-8b-instruct",
       "vendor": "qwen",
@@ -12713,28 +12735,6 @@
         "supports_vision": true,
         "supports_tools": false,
         "supports_structured_output": false,
-        "reasoning": false
-      }
-    },
-    "z-ai/glm-5v-turbo": {
-      "canonical_id": "z-ai/glm-5v-turbo",
-      "vendor": "z-ai",
-      "benchmark_sources": [
-        "routerai"
-      ],
-      "display_name": "Z.ai: GLM 5V Turbo",
-      "routerai": {
-        "id": "z-ai/glm-5v-turbo",
-        "name": "Z.ai: GLM 5V Turbo",
-        "description": "GLM-5V-Turbo — это первая нативная мультимодальная модель-основа агента от Z.ai, созданная для задач, основанных на зрении и управляемых агентами. Она нативно обрабатывает изображения, видео и текстовые данные, превосходно справляется с планированием на длительный срок, сложным кодированием и выполн",
-        "context_length": 202752,
-        "input_rub_per_token": 0.000125669388,
-        "output_rub_per_token": 0.00041889796,
-        "input_usd_per_1m": 1.56,
-        "output_usd_per_1m": 5.2,
-        "supports_vision": true,
-        "supports_tools": true,
-        "supports_structured_output": true,
         "reasoning": false
       }
     },
@@ -13024,6 +13024,28 @@
         "reasoning": false
       }
     },
+    "deepseek/deepseek-chat": {
+      "canonical_id": "deepseek/deepseek-chat",
+      "vendor": "deepseek",
+      "benchmark_sources": [
+        "routerai"
+      ],
+      "display_name": "DeepSeek: DeepSeek V3",
+      "routerai": {
+        "id": "deepseek/deepseek-chat",
+        "name": "DeepSeek: DeepSeek V3",
+        "description": "DeepSeek-V3 — это последняя модель от команды DeepSeek, основанная на инструкциях и кодировании предыдущих версий. Предварительно обученная на почти 15 триллионах токенов, модель, согласно отчетам, превосходит другие модели с открытым исходным кодом и соперничает с ведущими моделями с закрытым исход",
+        "context_length": 163840,
+        "input_rub_per_token": 0.0000335118368,
+        "output_rub_per_token": 0.0000932047961,
+        "input_usd_per_1m": 0.416,
+        "output_usd_per_1m": 1.157,
+        "supports_vision": false,
+        "supports_tools": true,
+        "supports_structured_output": true,
+        "reasoning": false
+      }
+    },
     "cognitivecomputations/dolphin-mistral-24b-venice-edition": {
       "canonical_id": "cognitivecomputations/dolphin-mistral-24b-venice-edition",
       "vendor": "cognitivecomputations",
@@ -13068,28 +13090,6 @@
         "reasoning": false
       }
     },
-    "deepseek/deepseek-chat": {
-      "canonical_id": "deepseek/deepseek-chat",
-      "vendor": "deepseek",
-      "benchmark_sources": [
-        "routerai"
-      ],
-      "display_name": "DeepSeek: DeepSeek V3",
-      "routerai": {
-        "id": "deepseek/deepseek-chat",
-        "name": "DeepSeek: DeepSeek V3",
-        "description": "DeepSeek-V3 — это последняя модель от команды DeepSeek, основанная на инструкциях и кодировании предыдущих версий. Предварительно обученная на почти 15 триллионах токенов, модель, согласно отчетам, превосходит другие модели с открытым исходным кодом и соперничает с ведущими моделями с закрытым исход",
-        "context_length": 163840,
-        "input_rub_per_token": 0.0000335118368,
-        "output_rub_per_token": 0.0000932047961,
-        "input_usd_per_1m": 0.416,
-        "output_usd_per_1m": 1.157,
-        "supports_vision": false,
-        "supports_tools": true,
-        "supports_structured_output": true,
-        "reasoning": false
-      }
-    },
     "qwen/qwen3-coder-30b-a3b-instruct": {
       "canonical_id": "qwen/qwen3-coder-30b-a3b-instruct",
       "vendor": "qwen",
@@ -13108,6 +13108,28 @@
         "output_usd_per_1m": 0.364,
         "supports_vision": false,
         "supports_tools": true,
+        "supports_structured_output": true,
+        "reasoning": false
+      }
+    },
+    "google/lyria-3-pro-preview": {
+      "canonical_id": "google/lyria-3-pro-preview",
+      "vendor": "google",
+      "benchmark_sources": [
+        "routerai"
+      ],
+      "display_name": "Google: Lyria 3 Pro Preview",
+      "routerai": {
+        "id": "google/lyria-3-pro-preview",
+        "name": "Google: Lyria 3 Pro Preview",
+        "description": "Полноформатные песни оцениваются в 8₽ за песню. Lyria 3 — это семейство моделей генерации музыки от Google, доступное через API Gemini. С помощью Lyria 3 вы можете создавать высококачественное стерео-аудио с частотой 48 кГц из текстовых подсказок или изображений. Эти модели обеспечивают структурную ",
+        "context_length": 1048576,
+        "input_rub_per_token": 0,
+        "output_rub_per_token": 0,
+        "input_usd_per_1m": 0,
+        "output_usd_per_1m": 0,
+        "supports_vision": true,
+        "supports_tools": false,
         "supports_structured_output": true,
         "reasoning": false
       }
@@ -13132,28 +13154,6 @@
         "supports_tools": true,
         "supports_structured_output": true,
         "reasoning": true
-      }
-    },
-    "google/lyria-3-pro-preview": {
-      "canonical_id": "google/lyria-3-pro-preview",
-      "vendor": "google",
-      "benchmark_sources": [
-        "routerai"
-      ],
-      "display_name": "Google: Lyria 3 Pro Preview",
-      "routerai": {
-        "id": "google/lyria-3-pro-preview",
-        "name": "Google: Lyria 3 Pro Preview",
-        "description": "Полноформатные песни оцениваются в 8₽ за песню. Lyria 3 — это семейство моделей генерации музыки от Google, доступное через API Gemini. С помощью Lyria 3 вы можете создавать высококачественное стерео-аудио с частотой 48 кГц из текстовых подсказок или изображений. Эти модели обеспечивают структурную ",
-        "context_length": 1048576,
-        "input_rub_per_token": 0,
-        "output_rub_per_token": 0,
-        "input_usd_per_1m": 0,
-        "output_usd_per_1m": 0,
-        "supports_vision": true,
-        "supports_tools": false,
-        "supports_structured_output": true,
-        "reasoning": false
       }
     },
     "prism-ml/ternary-bonsai-2-27b": {
@@ -13930,28 +13930,6 @@
         "reasoning": false
       }
     },
-    "inception/mercury-3": {
-      "canonical_id": "inception/mercury-3",
-      "vendor": "inception",
-      "benchmark_sources": [
-        "routerai"
-      ],
-      "display_name": "Inception: Mercury 3",
-      "routerai": {
-        "id": "inception/mercury-3",
-        "name": "Inception: Mercury 3",
-        "description": "Mercury 3 — это языковая модель на основе диффузии от Inception, и на сегодняшний день это самая мощная модель лаборатории. Она подходит для агентных рабочих процессов и приложений реального времени, где задержка имеет значение, таких как поисковые агенты, голосовые конвейеры и кодирующие субагенты.",
-        "context_length": 1000000,
-        "input_rub_per_token": 0.000010472449,
-        "output_rub_per_token": 0.0000366535715,
-        "input_usd_per_1m": 0.13,
-        "output_usd_per_1m": 0.455,
-        "supports_vision": false,
-        "supports_tools": true,
-        "supports_structured_output": true,
-        "reasoning": true
-      }
-    },
     "aion-labs/aion-3.5-mini": {
       "canonical_id": "aion-labs/aion-3.5-mini",
       "vendor": "aion-labs",
@@ -13990,6 +13968,28 @@
         "output_rub_per_token": 0.000020944898,
         "input_usd_per_1m": 0.065,
         "output_usd_per_1m": 0.26,
+        "supports_vision": false,
+        "supports_tools": true,
+        "supports_structured_output": true,
+        "reasoning": true
+      }
+    },
+    "inception/mercury-3": {
+      "canonical_id": "inception/mercury-3",
+      "vendor": "inception",
+      "benchmark_sources": [
+        "routerai"
+      ],
+      "display_name": "Inception: Mercury 3",
+      "routerai": {
+        "id": "inception/mercury-3",
+        "name": "Inception: Mercury 3",
+        "description": "Mercury 3 — это языковая модель на основе диффузии от Inception, и на сегодняшний день это самая мощная модель лаборатории. Она подходит для агентных рабочих процессов и приложений реального времени, где задержка имеет значение, таких как поисковые агенты, голосовые конвейеры и кодирующие субагенты.",
+        "context_length": 1000000,
+        "input_rub_per_token": 0.000010472449,
+        "output_rub_per_token": 0.0000366535715,
+        "input_usd_per_1m": 0.13,
+        "output_usd_per_1m": 0.455,
         "supports_vision": false,
         "supports_tools": true,
         "supports_structured_output": true,
@@ -14304,28 +14304,6 @@
         "reasoning": true
       }
     },
-    "aion-labs/aion-rp-llama-3.1-8b": {
-      "canonical_id": "aion-labs/aion-rp-llama-3.1-8b",
-      "vendor": "aion-labs",
-      "benchmark_sources": [
-        "routerai"
-      ],
-      "display_name": "AionLabs: Aion-RP 1.0 (8B)",
-      "routerai": {
-        "id": "aion-labs/aion-rp-llama-3.1-8b",
-        "name": "AionLabs: Aion-RP 1.0 (8B)",
-        "description": "Aion-RP-Llama-3.1-8B занимает первое место в части оценки персонажей в бенчмарке RPBench-Auto, который является специфическим для ролевых игр вариантом Arena-Hard-Auto, где LLM оценивают ответы друг друга. Это базовая модель с тонкой настройкой, а не модель с инструкциями, разработанная для создания",
-        "context_length": 32768,
-        "input_rub_per_token": 0.000083779592,
-        "output_rub_per_token": 0.000167559184,
-        "input_usd_per_1m": 1.04,
-        "output_usd_per_1m": 2.08,
-        "supports_vision": false,
-        "supports_tools": false,
-        "supports_structured_output": false,
-        "reasoning": false
-      }
-    },
     "meta/muse-spark-1.3": {
       "canonical_id": "meta/muse-spark-1.3",
       "vendor": "meta",
@@ -14346,6 +14324,28 @@
         "supports_tools": true,
         "supports_structured_output": true,
         "reasoning": true
+      }
+    },
+    "aion-labs/aion-rp-llama-3.1-8b": {
+      "canonical_id": "aion-labs/aion-rp-llama-3.1-8b",
+      "vendor": "aion-labs",
+      "benchmark_sources": [
+        "routerai"
+      ],
+      "display_name": "AionLabs: Aion-RP 1.0 (8B)",
+      "routerai": {
+        "id": "aion-labs/aion-rp-llama-3.1-8b",
+        "name": "AionLabs: Aion-RP 1.0 (8B)",
+        "description": "Aion-RP-Llama-3.1-8B занимает первое место в части оценки персонажей в бенчмарке RPBench-Auto, который является специфическим для ролевых игр вариантом Arena-Hard-Auto, где LLM оценивают ответы друг друга. Это базовая модель с тонкой настройкой, а не модель с инструкциями, разработанная для создания",
+        "context_length": 32768,
+        "input_rub_per_token": 0.000083779592,
+        "output_rub_per_token": 0.000167559184,
+        "input_usd_per_1m": 1.04,
+        "output_usd_per_1m": 2.08,
+        "supports_vision": false,
+        "supports_tools": false,
+        "supports_structured_output": false,
+        "reasoning": false
       }
     },
     "mistralai/ministral-8b-2512": {
@@ -14800,10 +14800,10 @@
         "name": "DeepSeek: DeepSeek V4 Pro 0813",
         "description": "DeepSeek V4 Pro 0813 — это крупномасштабная модель смеси экспертов от DeepSeek. Это GA-релиз DeepSeek V4 Pro.",
         "context_length": 1048576,
-        "input_rub_per_token": 0.0000416091343668,
-        "output_rub_per_token": 0.0001248274031004,
-        "input_usd_per_1m": 0.5165,
-        "output_usd_per_1m": 1.5495,
+        "input_rub_per_token": 0.00009896464305,
+        "output_rub_per_token": 0.0001759371432,
+        "input_usd_per_1m": 1.2285,
+        "output_usd_per_1m": 2.184,
         "supports_vision": false,
         "supports_tools": true,
         "supports_structured_output": true,
