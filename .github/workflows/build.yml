@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
-    paths: ["src/**", "package.json", ".github/workflows/build.yml"]
+    paths: ["src/**", "tests/**", "package.json", ".github/workflows/build.yml"]
 
 permissions:
   contents: write
@@ -28,6 +28,9 @@ jobs:
 
       - name: Install
         run: bun install
+
+      - name: Test
+        run: bun test
 
       - name: Build supplement
         run: bun src/build.ts

@@ -96,8 +96,3 @@ export function getEnvFingerprint(): EnvFingerprint {
 export function sha256(input: string): string {
   return createHash("sha256").update(input, "utf8").digest("hex");
 }
-
-/** SHA-256 hex digest of a byte sequence (UTF-8 encoded). */
-export function sha256Bytes(s: string): string {
-  return sha256(s);
-}

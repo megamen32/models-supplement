@@ -75,11 +75,3 @@ export function normalizeModelName(raw: string): string {
   n = n.replace(/^-|-$/g, "");
   return n;
 }
-
-/** Extract a base "family" key that ignores version qualifiers (-thinking, -preview).
- *  Useful when consumers want to group all variants of a model family. */
-export function familyKey(raw: string): string {
-  return normalizeModelName(raw)
-    .replace(/-thinking(?:-minimal)?$/, "")
-    .replace(/-(preview|beta|alpha|latest|codex|experimental)$/, "");
-}

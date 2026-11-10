@@ -13,8 +13,8 @@ the same shape as models.dev):
 | Source | What | Why it's not in upstream |
 |--------|------|--------------------------|
 | models.dev | Base provider/model catalog, capabilities, limits, and pricing | Canonical base data |
-| Arena AI leaderboard | ELO + quality scores | Upstream doesn't track arena |
-| AlpacaEval 2.0 LC | Length-controlled winrate | Upstream doesn't track alpaca |
+| Arena AI leaderboard | Real ELO rows only (text + code) | Upstream doesn't track arena |
+| AlpacaEval 2.0 LC | Length-controlled winrate, attached only to models already known | Upstream doesn't track alpaca |
 | RouterAI (routerai.ru) | 300+ LLM models with RUB pricing | Russian provider, not in upstream |
 | HLE (Humanity's Last Exam) | Frontier expert-level benchmark (CAIS) | Hard-to-find in upstream |
 | SWE-bench Pro | Code-agent benchmark from CAIS Dashboard | Held out from upstream |
@@ -25,9 +25,9 @@ the same shape as models.dev):
 ## Architecture
 
 ```
-Consumer (AutoTelegramViews / TG_Commentator)
+Consumer (AutoTelegramViews / TG_Commentator / LastHumanCommit)
   ├── supplement.json         ← models.dev base + arena, RUB pricing, and all benchmark scores
-  └── coding-benchmarks.json  ← one primary coding score per model
+  └── coding-benchmarks.json  ← how well each model writes code (per-benchmark scores, standing, coverage)
 ```
 
 Upstream is fetched on every build. If the live request fails, the previous
@@ -37,20 +37,64 @@ unchanged upstream record under `models_dev`; consumers can do
 `supplement.models["<vendor>/<model>"]` and get the base catalog plus all extra
 facts at once.
 
-## Output schema (v2.0, model-centric)
+### Source status: nothing is invented, failures are visible
+
+Every source returns `{ok, records, error?}`. A source that fails adds nothing
+new: its fields are carried over from the previous `supplement.json`, and
+`sources.<name>` says so:
+
+```ts
+sources: {
+  upstream | arena | alpaca_lc | routerai | hle | swe_bench_leaderboard: {
+    url: string,
+    status: "ok" | "stale" | "absent",   // stale = failed, previous data carried; absent = failed, nothing to carry
+    error?: string,                        // why the live fetch failed
+    last_ok_at?: string,                   // when this source last delivered live data
+    carried?: number,                      // values carried over (stale only)
+  }
+}
+```
+
+With no previous file a failed source leaves its fields absent. An `arena`
+field exists only with a real Arena score (`elo > 0`); AlpacaEval rows that
+match no known model are dropped (there are no `unknown/...` ids). A failing
+RouterAI, CAIS or SWE-bench source no longer aborts the build.
+
+## Model ids (schema 3.0 — ids changed)
+
+One model has exactly one id. Every source goes through the single pure
+`canonicalId(vendor, name)` in `src/canonical.ts`:
+
+- vendor is lower-cased and run through one alias table (`xai`→`x-ai`,
+  `meta`→`meta-llama`, `zhipuai`/`zai`→`z-ai`, `mistral`→`mistralai`, ...); a
+  missing vendor is inferred from the model family, otherwise the row is dropped;
+- version numbers keep the dot (`claude-opus-5.5`, never `5-5`); dates and
+  parenthesised annotations are dropped;
+- Anthropic names are `claude-<family>-<version>`;
+- moving aliases (`~anthropic/claude-opus-latest`) are not models and are not emitted;
+- when a model exists in models.dev, **its id is the reference spelling** and
+  wins (`xai/grok-4.7`, `anthropic/claude-opus-5-5`); twins from other sources
+  merge into that one entry, so price and scores sit together.
+
+`checks.ts` fails the build when two ids differ only by `.`/`-` or by vendor
+alias, or when an id starts with `~`. **Ids changed relative to schema 2.0**
+(about 450 twin and fabricated ids merged or removed); consumers keyed by an old
+dashed id should look up the models.dev spelling.
+
+## Output schema (v3.0, model-centric)
 
 ```ts
 {
   generated_at: string,
-  schema_version: "2.0",
+  schema_version: "3.0",
   provenance: { git, env, sources: FetchStat[], output_sha256, dry_run },
-  currency: { usd_rub, source, fetched_at },
+  currency: { usd_rub, source, fetched_at } | null,   // carried when RouterAI failed
   models: {
     "<vendor>/<model>": {
       canonical_id: "anthropic/claude-opus-4-6",
       vendor: "anthropic",
       display_name: "Claude Opus 4.6",
-      models_dev: { provider_id, provider_name, model: { /* models.dev fields */ } },
+      models_dev?:  { provider_id, provider_name, model: { /* models.dev fields */ } },
       arena?:       { elo, score, rank, leaderboard, ci, votes, confidence, license, sources, last_updated, fetched_at },
       alpaca_lc?:   { winrate, lc_winrate, n },
       routerai?:    { id, name, description, context_length, input_rub_per_token, output_rub_per_token,
@@ -65,98 +109,58 @@ facts at once.
     }
   },
   unmatched_display_names: { hle, swebench_pro, swe_bench_verified, swe_bench_lite, swe_bench_multilingual },
-  sources: { upstream, arena, routerai, hle, swe_bench_leaderboard },
+  sources: { <name>: { url, status, error?, last_ok_at?, carried? } },   // see "Source status"
 }
 ```
 
-Each `models[]` entry only has sub-records for sources that contain the model. `unmatched_display_names` surfaces HLE/SWE-bench entries whose vendor couldn't be inferred (typically agent systems like TRAE, Bloop, Warp — not models).
+Each `models[]` entry only has sub-records for sources that contain the model.
+`unmatched_display_names` surfaces HLE/SWE-bench entries whose vendor couldn't be inferred.
 
 ## Coding benchmark manifest
 
-`coding-benchmarks.json` is generated from the completed `supplement.json` and
-keeps one coding result per canonical model id. The primary score is selected
-in this order: **SWE-bench Pro**, **SWE-bench Verified**, **SWE-bench Lite**,
-then **SWE-bench Multilingual**. A model is omitted when it has no finite score
-in any of those splits. Each record contains the canonical id, display name,
-human-readable benchmark name, normalized score (0–1), raw published score,
-benchmark date when available, and source URL.
+`coding-benchmarks.json` answers "how well does each model write code". It is
+generated from the completed `supplement.json` (schema `1.1`; the 1.0 keys and
+every per-model field are unchanged, new fields are additions).
 
-The manifest also records the SHA-256 of the exact `supplement.json` bytes,
-the source artifact's generated time and git state, and the relevant fetch
-statistics. This lets a consumer verify which supplement produced a score
-without loading the full catalog.
+- `models[id]` keeps the old primary row (`source`, `benchmark`, `normalized_score`,
+  `score`, `raw_score`, `source_url`, `date`): first of SWE-bench Pro, Verified,
+  Lite, Multilingual. Top-level `metric` stays `"swebench_pro"` (consumers filter
+  rows with `source == metric`).
+- `models[id].benchmarks` holds **each benchmark's score separately**; the scales
+  are never mixed.
+- `models[id].coding = { score, basis, rank, of }`: `score` is the mean of
+  per-benchmark **percentiles** (0–100, one decimal) among models that have that
+  benchmark, `basis` lists the benchmarks that went in (a benchmark needs at least
+  5 ranked models), `rank` is 1 = best (ties share a rank). A model with no coding
+  benchmark has no `coding` and is not in `models` — never a guess.
+- `metrics`: the benchmarks used for `coding.score`.
+- `scaffolds`: leaderboard rows that are agent scaffolds, not models (names with
+  `" + "`, `agent`, `lingxi`, `cortexa`, `w/ review`). Listed here, never ranked.
+- `coverage`: the current flagships (fixed list in `src/coding-benchmarks.ts`) with
+  `present` (in the catalog), `scored` (has a coding score) and `benchmarks`.
+  `scored: false` is a data gap — leaderboards lag new models — not a bad model.
 
-```ts
-{
-  schema_version: "1.0",
-  generated_at: string,
-  source: "supplement.json",
-  metric: "swebench_pro",
-  models: {
-    "anthropic/claude-opus-4-6": {
-      canonical_id: "anthropic/claude-opus-4-6",
-      display_name: "Claude Opus 4.6",
-      source: "swebench_pro",
-      benchmark: "SWE-bench Pro",
-      benchmark_name: "SWE-bench Pro",
-      normalized_score: 0.61,
-      score: 0.61,
-      raw_score: 61,
-      date: "2026-01-15",
-      source_url: "https://dashboard.safe.ai/api/models"
-    }
-  },
-  sources: { swebench_pro: string, swe_bench_verified: string, ... },
-  provenance: {
-    source_artifact: "supplement.json",
-    source_sha256: string,
-    source_generated_at: string,
-    source_git: { commit, dirty, branch },
-    source_fetches: FetchStat[]
-  }
-}
-```
-
-## Canonical-id mapping
-
-`src/canonical.ts` resolves three different naming styles to the same `vendor/name` form:
-
-| Source | Raw name | → Canonical |
-|--------|----------|-------------|
-| arena | `claude-opus-4-6` (vendor="Anthropic") | `anthropic/claude-opus-4-6` |
-| arena | `glm-5.2 (max)` (vendor="Z.AI") | `z-ai/glm-5.2 (max)` |
-| HLE | `Opus 4.6` (provider="anthropic") | `anthropic/claude-opus-4-6` |
-| HLE | `GPT-5.5` (provider="openai") | `openai/gpt-5-5` |
-| SWE-bench | `live-SWE-agent + Claude 4.5 Opus medium (20251101)` | `anthropic/claude-4-5-opus-medium` |
-| SWE-bench | `Bloop` | *(unmatched — agent system, not a model)* |
-| routerai | `qwen/qwen3-next-80b-a3b-thinking` | `qwen/qwen3-next-80b-a3b-thinking` (passthrough) |
-
-Rules (`canonical.ts`):
-1. **HLE**: trust the API's `provider` field; canonicalize Anthropic names so "Opus" → "claude-opus".
-2. **SWE-bench**: no vendor field → infer from family prefix (claude/gpt/gemini/grok/etc). Unknown families go to `unmatched_display_names`.
-3. **arena**: arena entries have `vendor` field; the key itself is vendor-stripped.
-4. **routerai**: keys are already `vendor/name`; split on first `/`.
+The manifest also records the SHA-256 of the exact `supplement.json` bytes, the
+source artifact's generated time and git state, and the relevant fetch statistics.
 
 ## Build
 
 ```bash
 bun install
+bun test                      # unit tests (also run by CI before the build)
 bun src/build.ts              # build + write supplement.json and coding-benchmarks.json
 bun src/build.ts --dry-run    # preview only, no file written
 ```
-
-Output: `supplement.json` plus `coding-benchmarks.json` (pretty-printed; model count follows the live models.dev catalog)
 
 ## Reliability features
 
 Mirrors the manifest + sanity-check + diff-gate pattern from `llm-inference-benchmark` (Happynood, 2025).
 
-- **`provenance` block in output** — git commit/branch/dirty, bun/node version, per-source URL+bytes+SHA-256+duration, final artifact SHA-256. Lets consumers defend every number months later.
-- **Sanity checks** — built into `src/build.ts`. Fails the build if any source drops below threshold (arena<50, routerai<50, HLE<5, SWE-bench Verified<20, models with bad canonical_id, schema drift). Warnings for SWE-bench Lite/Multilingual underflow and unmatched display names.
-- **CI regression gate** — `.github/workflows/build.yml` runs `bun src/diff.ts` between `HEAD:supplement.json` and the new build; fails if any per-source count dropped >30% overnight.
+- **`provenance` block in output** — git commit/branch/dirty, bun/node version, per-source URL+bytes+SHA-256+duration, final artifact SHA-256.
+- **Sanity checks** — `src/checks.ts`. A source whose live fetch **succeeded** but collapsed is an error (real Arena rows < 50, RouterAI < 50, HLE < 5, SWE-bench Verified < 20); a **stale or absent** source is a warning (`source_stale`, `source_absent`) and its carried data is judged only as a warning. Errors also for a bad id, duplicate ids (dot/dash or vendor-alias twins, `~` ids) and schema drift. Warnings for SWE-bench Lite/Multilingual underflow and unmatched names.
+- **CI** — `.github/workflows/build.yml` runs `bun test`, the build, then `bun src/diff.ts` between `HEAD:supplement.json` and the new build (fails if any per-source count dropped >30%; skipped once when `schema_version` changed).
 
 ```bash
-# CI gate manually:
 git show HEAD:supplement.json > /tmp/prev.json
 bun src/diff.ts /tmp/prev.json supplement.json 30
 ```
@@ -172,17 +176,21 @@ the smaller `https://<user>.github.io/models-supplement/coding-benchmarks.json`.
 
 ```
 src/
-├── build.ts        # Main: parallel fetch all sources, merge to model-centric schema
+├── build.ts        # entry: fetch all sources in parallel, assemble, check, write
+├── assemble.ts     # pure: source results + previous file -> entries, states, currency
+├── source.ts       # pure: SourceResult, carry-over from previous file, source status
+├── merge.ts        # pure: one id per model, twin merge, drop fabricated rows
+├── canonical.ts    # the single canonicalId(vendor, name) + vendor alias table
+├── normalize.ts    # raw leaderboard name cleanup (scaffold prefix, vendor, dates)
 ├── upstream.ts     # models.dev fetch, flattening, provenance, and offline fallback
-├── build-types.ts  # Shared types: ModelEntry, Unmatched (avoids circular imports)
-├── arena.ts        # Arena AI + AlpacaEval scores
+├── arena.ts        # Arena AI + AlpacaEval fetch/parse
 ├── routerai.ts     # RouterAI models with RUB pricing
 ├── currency.ts     # CBR USD/RUB rates
 ├── scores.ts       # HLE + SWE-bench (Verified/Lite/Multilingual) + SWE-bench Pro
-├── coding-benchmarks.ts # primary coding-score manifest derived from supplement
-├── normalize.ts    # Shared model-name normalization (vendor/date/parenthesized strips)
-├── canonical.ts    # Source-specific → canonical (vendor/name) mapping
-├── provenance.ts   # git info, env fingerprint, SHA-256 helpers
+├── coding-benchmarks.ts # coding manifest: per-benchmark scores, percentile standing, scaffolds, coverage
+├── build-types.ts  # shared types
+├── provenance.ts   # git info, env fingerprint, SHA-256
 ├── checks.ts       # post-merge sanity checks (errors + warnings)
 └── diff.ts         # CI regression gate between two supplement.json files
+tests/              # bun test: canonical, merge, source, assemble, checks, parsers, coding view, upstream
 ```

@@ -11,30 +11,10 @@
 
 import { getUsdRubRate } from "./currency";
 import { sha256, type FetchStat } from "./provenance";
+import type { RouterAIModelEntry } from "./build-types";
 import { firstError, type SourceResult } from "./source";
 
 const ROUTERAI_BASE = "https://routerai.ru/api/v1";
-
-export interface RouterAIModelEntry {
-  id: string;
-  name?: string;
-  description?: string;
-  context_length?: number;
-  input_rub_per_token: number;
-  output_rub_per_token: number;
-  input_usd_per_1m: number;
-  output_usd_per_1m: number;
-  supports_vision: boolean;
-  supports_tools: boolean;
-  supports_structured_output: boolean;
-  reasoning: boolean;
-}
-
-export interface RouterAISupplement {
-  currency: { usd_rub: number; source: string; fetched_at: string };
-  models: Record<string, RouterAIModelEntry>;
-  meta: Record<string, unknown>;
-}
 
 interface RawRouterAIModel {
   id: string;

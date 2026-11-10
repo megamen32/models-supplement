@@ -8,12 +8,8 @@
  * The CBR publishes rates once per business day at ~14:00 MSK, so we cache
  * in-process for the rest of the day and refresh on each process start.
  *
- * Conversion model: every rate R is "1 base_currency = R target_currency".
- *   - `RUB_PER_USD = 74.77` means `1 USD = 74.77 RUB`
- *   - `convertPrice(0.05, "USD", "RUB") = 0.05 * 74.77 = 3.74 RUB`
- *
- * For the fork's primary use case (routerai.ru prices in RUB → USD/1M),
- * call `rubPerTokenToUsdPer1M(rubPerToken, rate)`.
+ * Every rate R is "1 base_currency = R target_currency": `1 USD = 74.77 RUB`.
+ * routerai.ts converts its RUB-per-token prices with the rate from here.
  */
 
 const CBR_XML_URL = "https://www.cbr-xml-daily.ru/daily_eng.xml";
@@ -159,61 +155,3 @@ export async function getUsdRubRate(forceRefresh = false): Promise<CurrencyRate>
     _inflight = null;
   }
 }
-
-/** Convert a numeric amount between two currencies given a USD-based rate. */
-export function convertPrice(amount: number, from: Currency, to: Currency, usdRub: number): number {
-  if (amount === 0) return 0;
-  // Convert FROM → USD → TO via the USD pivot
-  const toUsd: Record<Currency, number> = {
-    USD: 1,
-    RUB: 1 / usdRub,
-    EUR: 0, // not in scope — would need EUR/USD rate
-    CNY: 0,
-    GBP: 0,
-  };
-  const fromUsd: Record<Currency, number> = {
-    USD: 1,
-    RUB: usdRub,
-    EUR: 0,
-    CNY: 0,
-    GBP: 0,
-  };
-  const inUsd = amount * (toUsd[from] ?? 0);
-  const inTo = inUsd * (fromUsd[to] ?? 0);
-  return inTo;
-}
-
-/**
- * Convert a per-token RUB price to a per-million-tokens USD price.
- *
- * This is the workhorse used by sync-routerai.ts and any other script that
- * scrapes providers reporting prices in RUB per token.
- *
- *   rubPerToken = 0.00001, usdRub = 74.77
- *   → 0.00001 × 1_000_000 / 74.77 = 0.1337 USD / 1M tokens
- */
-export function rubPerTokenToUsdPer1M(rubPerToken: number, usdRub: number): number {
-  if (!rubPerToken || rubPerToken <= 0 || !usdRub || usdRub <= 0) return 0;
-  const usd = (rubPerToken * 1_000_000) / usdRub;
-  return Math.round(usd * 10_000) / 10_000;
-}
-
-/** Inverse: USD/1M → RUB/token (used when generating RUB variant JSON). */
-export function usdPer1MToRubPerToken(usdPer1M: number, usdRub: number): number {
-  if (!usdPer1M || usdPer1M <= 0 || !usdRub || usdRub <= 0) return 0;
-  const rubPer1M = usdPer1M * usdRub;
-  const rubPerToken = rubPer1M / 1_000_000;
-  return rubPerToken;
-}
-
-/** Reset in-process cache (for tests). */
-export function _resetCurrencyCache(): void {
-  _cache = null;
-  _inflight = null;
-}
-
-export const FX_ENDPOINTS = {
-  CBR_XML_URL,
-  CBR_JSON_URL,
-  FALLBACK_RATE: USD_RUB_FALLBACK,
-};
