@@ -15,7 +15,7 @@
  *   1. Strip "mini-SWE-agent +" prefix
  *   2. Strip vendor prefixes (anthropic/, meta-llama/, openai/, …)
  *   3. Drop parenthesized annotations ((high reasoning), (2025-08-22))
- *   4. Lowercase, collapse spaces/underscores/slashes to single dashes
+ *   4. Lowercase, collapse spaces/underscores/slashes to single dashes (dots stay)
  *   5. Drop ISO dates (YYYY-MM-DD) and 8-digit YYYYMMDD
  *   6. Trim leading/trailing dashes
  *
@@ -26,7 +26,7 @@
 
 const VENDOR_PREFIXES = [
   // lowercase + uppercase variants
-  "anthropic/", "openai/", "google/", "meta-llama/", "meta/",
+  "anthropic/", "openai/", "google/", "meta-llama/", "meta/", "x-ai/",
   "mistral/", "deepseek/", "xai/", "cohere/", "qwen/", "alibaba/",
   "nvidia/", "01-ai/", "phind/", "zerox/", "together/", "fireworks/",
   "perplexity/", "ai21/", "moonshotai/", "zhipuai/", "xiaomi/",
@@ -60,9 +60,10 @@ export function normalizeModelName(raw: string): string {
   // 3. Drop parenthesized annotations: "(2025-08-22)", "(high reasoning)", "(Max)"
   n = n.replace(/\s*\([^)]*\)\s*/g, " ");
 
-  // 4. Lowercase + collapse whitespace/underscores/slashes/dots to dashes
+  // 4. Lowercase + collapse whitespace/underscores/slashes to dashes.
+  //    Dots are kept: canonicalId() owns version formatting.
   n = n.toLowerCase()
-    .replace(/[\s._/]+/g, "-")
+    .replace(/[\s_/]+/g, "-")
     .replace(/-+/g, "-")
     .replace(/^-|-$/g, "");
 

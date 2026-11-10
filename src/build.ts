@@ -37,18 +37,13 @@ import { getEnvFingerprint, getGitInfo, sha256, type FetchStat } from "./provena
 import { formatReport, runChecks } from "./checks";
 import { fetchModelsDev, MODELS_DEV_URL } from "./upstream";
 import { buildCodingBenchmarkManifest } from "./coding-benchmarks";
-import {
-  arenaKeyToCanonical,
-  displayNameFromRaw,
-  hleToCanonical,
-  routeraiKeyToCanonical,
-  sweKeyToCanonical,
-} from "./canonical";
+import { canonicalId, displayNameFromRaw } from "./canonical";
+import { reconcileModels } from "./merge";
 import type { ModelEntry, Unmatched } from "./build-types";
 
 interface Supplement {
   generated_at: string;
-  schema_version: "2.0";
+  schema_version: "3.0";
   provenance: {
     git: { commit: string | null; dirty: boolean; branch: string | null };
     env: ReturnType<typeof getEnvFingerprint>;
@@ -205,7 +200,8 @@ async function main() {
   // 2. arena + alpaca_lc (merged via arena.ts)
   for (const [arenaKey, entry] of Object.entries(arenaResult.arena) as [string, ArenaEntry][]) {
     const vendor = entry.vendor || (arenaKey.includes("/") ? arenaKey.split("/")[0] : "");
-    const cid = arenaKeyToCanonical(arenaKey, vendor || "unknown");
+    const cid = canonicalId(vendor, arenaKey);
+    if (!cid) continue;
     const displayName = displayNameFromRaw(arenaKey);
     const m = ensureModel(models, cid, cid.split("/")[0], displayName);
     m.arena = {
@@ -230,7 +226,9 @@ async function main() {
 
   // 3. routerai
   for (const [key, entry] of Object.entries(routeraiResult.models) as [string, RouterAIModelEntry][]) {
-    const cid = routeraiKeyToCanonical(key);
+    const slash = key.indexOf("/");
+    const cid = slash < 0 ? canonicalId(null, key) : canonicalId(key.slice(0, slash), key.slice(slash + 1));
+    if (!cid) continue;
     const m = ensureModel(models, cid, cid.split("/")[0], entry.name);
     m.routerai = entry;
     addSource(m, "routerai");
@@ -239,7 +237,7 @@ async function main() {
   // 4. HLE
   for (const [normKey, entry] of Object.entries(hleResult.hle) as [string, ScoreEntry][]) {
     const provider = (entry.extras?.provider as string) ?? undefined;
-    const cid = hleToCanonical(normKey, provider);
+    const cid = canonicalId(provider, normKey);
     if (!cid) {
       unmatched.hle.push({ display_name: entry.raw_name, reason: "unknown_vendor" });
       continue;
@@ -258,7 +256,7 @@ async function main() {
   // 5. SWE-bench Pro (from HLE API)
   for (const [normKey, entry] of Object.entries(hleResult.swebench_pro) as [string, ScoreEntry][]) {
     const provider = (entry.extras?.provider as string) ?? undefined;
-    const cid = hleToCanonical(normKey, provider);
+    const cid = canonicalId(provider, normKey);
     if (!cid) {
       unmatched.swebench_pro.push({ display_name: entry.raw_name, reason: "unknown_vendor" });
       continue;
@@ -271,7 +269,7 @@ async function main() {
   // 6. SWE-bench Verified + Lite + Multilingual
   for (const split of ["swe_bench_verified", "swe_bench_lite", "swe_bench_multilingual"] as const) {
     for (const [normKey, entry] of Object.entries(sweResult[split]) as [string, ScoreEntry][]) {
-      const cid = sweKeyToCanonical(normKey);
+      const cid = canonicalId(null, normKey);
       if (!cid) {
         unmatched[split].push({ display_name: entry.raw_name, reason: "unknown_vendor" });
         continue;
@@ -281,6 +279,10 @@ async function main() {
       addSource(m, split);
     }
   }
+
+  const unified = reconcileModels(models);
+  for (const k of Object.keys(models)) delete models[k];
+  Object.assign(models, unified);
 
   const fetchStats: FetchStat[] = [
     upstreamResult.stat,
@@ -294,7 +296,7 @@ async function main() {
     provenance: Omit<Supplement["provenance"], "output_sha256" | "dry_run">;
   } = {
     generated_at: new Date().toISOString(),
-    schema_version: "2.0",
+    schema_version: "3.0",
     provenance: { git, env, sources: fetchStats },
     currency: routeraiResult.currency,
     models,

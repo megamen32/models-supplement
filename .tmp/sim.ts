@@ -1,0 +1,14 @@
+import { reconcileModels } from "../src/merge";
+import { findIdProblems } from "../src/checks";
+const d = JSON.parse(await Bun.file("supplement.json").text());
+const before = Object.keys(d.models).length;
+const out = reconcileModels(d.models);
+console.log(before, "->", Object.keys(out).length);
+console.log(findIdProblems(Object.keys(out)).slice(0, 30));
+for (const k of ["anthropic/claude-opus-5.5","anthropic/claude-opus-5-5"]) console.log(k, out[k] && Object.keys(out[k]));
+console.log(Object.keys(out).filter(k=>k.startsWith("~")||k.startsWith("unknown/")).length);
+const cnt = (m:any)=>Object.values(m).filter((x:any)=>x.models_dev).length;
+console.log("models_dev", cnt(d.models), cnt(out));
+const ids=new Set(Object.keys(out));
+const lost=Object.entries(d.models).filter(([k,v]:any)=>v.models_dev && !ids.has(k)).map(([k])=>k);
+console.log(lost.length, lost.slice(0,40));

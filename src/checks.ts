@@ -11,6 +11,7 @@
  */
 
 import type { ModelEntry } from "./build-types";
+import { idKey } from "./canonical";
 
 export interface CheckIssue {
   severity: "error" | "warn";
@@ -48,6 +49,20 @@ export interface Unmatched {
   swe_bench_verified: Array<{ display_name: string; reason: string }>;
   swe_bench_lite: Array<{ display_name: string; reason: string }>;
   swe_bench_multilingual: Array<{ display_name: string; reason: string }>;
+}
+
+/** Pure: ids that start with `~`, or that differ only by "."/"-" or by vendor alias. */
+export function findIdProblems(ids: string[]): string[] {
+  const problems: string[] = [];
+  const groups = new Map<string, string[]>();
+  for (const id of ids) {
+    if (id.startsWith("~") || id.includes("/~")) { problems.push(`moving alias emitted as a model: ${id}`); continue; }
+    if (!id.includes("/")) continue;
+    const key = idKey(id);
+    groups.set(key, [...(groups.get(key) ?? []), id]);
+  }
+  for (const g of groups.values()) if (g.length > 1) problems.push(`same model under several ids: ${g.join(" | ")}`);
+  return problems;
 }
 
 export interface CheckInput {
@@ -159,6 +174,11 @@ export function runChecks(input: CheckInput): CheckReport {
     });
   }
 
+  const idProblems = findIdProblems(Object.keys(models));
+  for (const p of idProblems) {
+    errors.push({ severity: "error", code: "duplicate_canonical_id", message: p });
+  }
+
   if (arenaMissing > 0) {
     errors.push({
       severity: "error",
@@ -247,7 +267,7 @@ export function runChecks(input: CheckInput): CheckReport {
       with_swe_verified: withSweVerified,
       with_swe_lite: withSweLite,
       with_swe_multilingual: withSweMulti,
-      duplicate_canonical_ids: 0,
+      duplicate_canonical_ids: idProblems.length,
       usd_rub: Number.isFinite(rate) ? rate : null,
       unmatched_hle: unmatchedHle,
       unmatched_swe: unmatchedSwe,
