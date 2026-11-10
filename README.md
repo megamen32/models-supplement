@@ -1,13 +1,18 @@
 # models-supplement
 
-Lightweight supplement layer for [models.dev](https://models.dev). Not a fork — just an add-on.
+Model catalog and benchmark supplement for [models.dev](https://models.dev). The
+upstream catalog is fetched as the base; this project adds benchmark, pricing,
+and arena records without dropping upstream capabilities.
 
 ## What it does
 
-Fetches seven data sources and merges them into a single `supplement.json` keyed by **canonical model id** (vendor/name, same shape as models.dev):
+Fetches the models.dev catalog plus supplemental data sources and merges them
+into a single `supplement.json` keyed by **canonical model id** (vendor/name,
+the same shape as models.dev):
 
 | Source | What | Why it's not in upstream |
 |--------|------|--------------------------|
+| models.dev | Base provider/model catalog, capabilities, limits, and pricing | Canonical base data |
 | Arena AI leaderboard | ELO + quality scores | Upstream doesn't track arena |
 | AlpacaEval 2.0 LC | Length-controlled winrate | Upstream doesn't track alpaca |
 | RouterAI (routerai.ru) | 300+ LLM models with RUB pricing | Russian provider, not in upstream |
@@ -21,11 +26,15 @@ Fetches seven data sources and merges them into a single `supplement.json` keyed
 
 ```
 Consumer (AutoTelegramViews / TG_Commentator)
-  ├── models.dev/api.json     ← upstream (BASE: KC, tool_call, structured_output)
-  └── supplement.json         ← this project (ADD: arena ELO, RUB pricing, benchmark scores)
+  └── supplement.json         ← models.dev base + arena, RUB pricing, and benchmark scores
 ```
 
-Upstream is always fresh. Supplement only adds what upstream doesn't have. **Same model_id → same key as models.dev**, so consumers can do `supplement.models["<vendor>/<model>"]` and get all extra facts at once.
+Upstream is fetched on every build. If the live request fails, the previous
+generated artifact is used as a bounded fallback and the failed request remains
+visible in `provenance.sources` with `fallback: true`. Each model keeps the
+unchanged upstream record under `models_dev`; consumers can do
+`supplement.models["<vendor>/<model>"]` and get the base catalog plus all extra
+facts at once.
 
 ## Output schema (v2.0, model-centric)
 
@@ -40,6 +49,7 @@ Upstream is always fresh. Supplement only adds what upstream doesn't have. **Sam
       canonical_id: "anthropic/claude-opus-4-6",
       vendor: "anthropic",
       display_name: "Claude Opus 4.6",
+      models_dev: { provider_id, provider_name, model: { /* models.dev fields */ } },
       arena?:       { elo, score, rank, leaderboard, ci, votes, confidence, license, sources, last_updated, fetched_at },
       alpaca_lc?:   { winrate, lc_winrate, n },
       routerai?:    { id, name, description, context_length, input_rub_per_token, output_rub_per_token,
@@ -88,7 +98,7 @@ bun src/build.ts              # build + write supplement.json
 bun src/build.ts --dry-run    # preview only, no file written
 ```
 
-Output: `supplement.json` (~480 KB pretty-printed, 651 model entries)
+Output: `supplement.json` (pretty-printed; model count follows the live models.dev catalog)
 
 ## Reliability features
 
@@ -115,6 +125,7 @@ Consumers fetch: `https://<user>.github.io/models-supplement/supplement.json`
 ```
 src/
 ├── build.ts        # Main: parallel fetch all sources, merge to model-centric schema
+├── upstream.ts     # models.dev fetch, flattening, provenance, and offline fallback
 ├── build-types.ts  # Shared types: ModelEntry, Unmatched (avoids circular imports)
 ├── arena.ts        # Arena AI + AlpacaEval scores
 ├── routerai.ts     # RouterAI models with RUB pricing

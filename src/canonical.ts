@@ -25,7 +25,7 @@ import { normalizeModelName } from "./normalize";
  */
 export function canonicalizeNameForVendor(name: string, vendor: string): string {
   if (vendor === "anthropic") {
-    if (/^(opus|sonnet|haiku|opus-4|sonnet-4|haiku-4|opus-3|sonnet-3|haiku-3)/.test(name)) {
+    if (/^(?:fable|opus|sonnet|haiku)(?:-|$)/.test(name)) {
       return `claude-${name}`;
     }
   }

@@ -6,7 +6,8 @@
   "scripts": {
     "build": "bun src/build.ts",
     "build:dry-run": "bun src/build.ts --dry-run",
-    "diff": "bun src/diff.ts"
+    "diff": "bun src/diff.ts",
+    "test": "bun test"
   },
   "devDependencies": {
     "@types/bun": "latest"
