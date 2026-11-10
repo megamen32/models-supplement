@@ -85,17 +85,56 @@ export interface CodingBenchmarkEntry {
   raw_score: number;
   source_url: string;
   date?: string;
+  /** Every coding benchmark this model has, each on its own scale (never mixed). */
+  benchmarks: Record<string, { score: number; raw_score: number; date?: string }>;
+  /** Cross-benchmark standing; absent when no benchmark with enough models covers the model. */
+  coding?: CodingStanding;
+}
+
+export interface CodingStanding {
+  /** Mean of per-benchmark percentiles (0-100, one decimal) among models having that benchmark. */
+  score: number;
+  /** Benchmarks that went into `score`. */
+  basis: string[];
+  /** 1 = best; ties share a rank. */
+  rank: number;
+  /** Number of models ranked. */
+  of: number;
+}
+
+export interface CodingCoverageRow {
+  /** The model exists in supplement.json. */
+  present: boolean;
+  /** It has at least one coding benchmark score. */
+  scored: boolean;
+  /** Id as spelled in supplement.json (when different from the key). */
+  id?: string;
+  /** Coding benchmarks it has. */
+  benchmarks?: string[];
+}
+
+/** Agent scaffold row (not a model): listed apart, never ranked. */
+export interface CodingScaffoldRow {
+  canonical_id: string;
+  display_name: string;
+  benchmarks: Record<string, { score: number; raw_score: number; date?: string }>;
 }
 
 /** Compact manifest consumed by coding-model classifiers. */
 export interface CodingBenchmarkManifest {
-  schema_version: "1.0";
+  schema_version: "1.1";
   generated_at: string;
   /** The artifact from which all records were derived. */
   source: "supplement.json";
   /** Preferred benchmark metric for classifiers and thresholding. */
   metric: "swebench_pro";
+  /** Benchmarks that went into `coding.score`, in priority order. */
+  metrics: string[];
   models: Record<string, CodingBenchmarkEntry>;
+  /** Agent scaffolds mapped to a model name by the leaderboards; not ranked. */
+  scaffolds: CodingScaffoldRow[];
+  /** Current flagships: scored true|false, so a missing score reads as a data gap. */
+  coverage: Record<string, CodingCoverageRow>;
   sources: Record<string, string>;
   provenance: {
     source_artifact: "supplement.json";

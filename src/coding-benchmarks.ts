@@ -9,9 +9,12 @@
  */
 
 import { sha256, type SourceFetch } from "./provenance";
+import { idKey } from "./canonical";
 import type {
   CodingBenchmarkEntry,
   CodingBenchmarkManifest,
+  CodingCoverageRow,
+  CodingScaffoldRow,
   ModelEntry,
 } from "./build-types";
 
@@ -80,28 +83,86 @@ function sourceUrl(
   return url(supplementSources?.swe_bench_leaderboard) ?? CODING_BENCHMARK_SOURCES[key];
 }
 
+/** Benchmarks with fewer ranked models than this do not enter coding.score. */
+export const MIN_BENCHMARK_MODELS = 5;
+
+/** Current flagships whose coding score a reader will look for. */
+export const COVERAGE_FLAGSHIPS = [
+  "anthropic/claude-fable-5.2", "anthropic/claude-opus-5.5", "anthropic/claude-sonnet-5.5",
+  "anthropic/claude-haiku-5.5", "openai/gpt-6-astra", "openai/gpt-6.1-sol", "openai/gpt-6.1-terra",
+  "openai/gpt-6-luna", "z-ai/glm-5.3", "z-ai/glm-5.3-flash", "x-ai/grok-4.7", "minimax/minimax-m3.1-flash",
+] as const;
+
+const SCAFFOLD_PATTERNS: RegExp[] = [
+  /\s\+\s|-\+-/,        // "X + Claude ..."
+  /agent/i,                // "...-agent-...", "SWE-agent"
+  /lingxi|cortexa/i,       // agent products named after the product, not the model
+  /review-heavy|\bw\//i,   // "Claude 3.7 Sonnet w/ Review Heavy"
+];
+
+/** Pure: a leaderboard row that is an agent scaffold rather than a model. */
+export function isScaffold(canonicalId: string, displayName?: string): boolean {
+  const text = `${canonicalId} ${displayName ?? ""}`;
+  return SCAFFOLD_PATTERNS.some((re) => re.test(text));
+}
+
+/** Pure: 0-100 standing of `value` among `all` (which contains it). Ties share the mid-rank. */
+export function percentile(value: number, all: number[]): number {
+  const n = all.length;
+  if (n <= 1) return 50;
+  const less = all.filter((v) => v < value).length;
+  const equal = all.filter((v) => v === value).length;
+  return (100 * (less + 0.5 * (equal - 1))) / (n - 1);
+}
+
+const round1 = (x: number): number => Math.round(x * 10) / 10;
+
+type Benchmarks = Record<string, { score: number; raw_score: number; date?: string }>;
+
+function scoresOf(model: CodingModel): Benchmarks {
+  const out: Benchmarks = {};
+  for (const { key } of PRIMARY_ORDER) {
+    const v = model[key];
+    if (hasFiniteScores(v)) {
+      out[key] = { score: v.score, raw_score: v.raw_score, ...(typeof v.date === "string" && v.date ? { date: v.date } : {}) };
+    }
+  }
+  return out;
+}
+
 /**
  * Build coding-benchmarks.json data without reading or writing files.
  *
  * Models with no finite coding score are omitted.  A score of zero is valid
  * and is retained; availability is determined by the field, not truthiness.
+ * Scaffold rows are listed in `scaffolds` and never ranked.  `coding.score`
+ * is the mean of per-benchmark percentiles, so benchmarks on different
+ * scales are never averaged raw.
  */
 export function buildCodingBenchmarkManifest(
   supplement: CodingSupplementInput,
   options: CodingManifestOptions = {},
 ): CodingBenchmarkManifest {
   const models: Record<string, CodingBenchmarkEntry> = {};
+  const scaffolds: CodingScaffoldRow[] = [];
   const sourceUrls: Record<string, string> = { ...CODING_BENCHMARK_SOURCES };
+  const bench = new Map<string, Benchmarks>();
 
   for (const canonicalId of Object.keys(supplement.models).sort()) {
     const model = supplement.models[canonicalId];
     if (!model) continue;
+    const benchmarks = scoresOf(model);
+    if (Object.keys(benchmarks).length === 0) continue;
+    const displayName = model.display_name?.trim() || canonicalId;
+    if (isScaffold(canonicalId, displayName)) {
+      scaffolds.push({ canonical_id: canonicalId, display_name: displayName, benchmarks });
+      continue;
+    }
+    bench.set(canonicalId, benchmarks);
 
     for (const candidate of PRIMARY_ORDER) {
-      const score = model[candidate.key];
-      if (!hasFiniteScores(score)) continue;
-
-      const displayName = model.display_name?.trim() || canonicalId;
+      const score = benchmarks[candidate.key];
+      if (!score) continue;
       const url = sourceUrl(candidate.key, supplement.sources);
       sourceUrls[candidate.key] = url;
       models[canonicalId] = {
@@ -114,10 +175,40 @@ export function buildCodingBenchmarkManifest(
         score: score.score,
         raw_score: score.raw_score,
         source_url: url,
-        ...(typeof score.date === "string" && score.date.length > 0 ? { date: score.date } : {}),
+        ...(score.date ? { date: score.date } : {}),
+        benchmarks,
       };
       break;
     }
+  }
+
+  // Per-benchmark score lists over real models only, then percentile mean.
+  const lists = new Map<string, number[]>();
+  for (const b of bench.values()) {
+    for (const [k, v] of Object.entries(b)) lists.set(k, [...(lists.get(k) ?? []), v.raw_score]);
+  }
+  const metrics = PRIMARY_ORDER.map((p) => p.key as string).filter((k) => (lists.get(k)?.length ?? 0) >= MIN_BENCHMARK_MODELS);
+  const standing = new Map<string, { score: number; basis: string[] }>();
+  for (const [id, b] of bench) {
+    const basis = metrics.filter((k) => b[k]);
+    if (basis.length === 0) continue;
+    const mean = basis.reduce((s, k) => s + percentile(b[k].raw_score, lists.get(k)!), 0) / basis.length;
+    standing.set(id, { score: round1(mean), basis });
+  }
+  const ranked = [...standing.values()].map((v) => v.score).sort((a, b) => b - a);
+  for (const [id, st] of standing) {
+    models[id].coding = { score: st.score, basis: st.basis, rank: ranked.findIndex((v) => v === st.score) + 1, of: ranked.length };
+  }
+
+  const coverage: Record<string, CodingCoverageRow> = {};
+  const byKey = new Map(Object.keys(supplement.models).map((id) => [idKey(id), id]));
+  for (const flagship of COVERAGE_FLAGSHIPS) {
+    const found = byKey.get(idKey(flagship));
+    if (!found) { coverage[flagship] = { present: false, scored: false }; continue; }
+    const have = Object.keys(scoresOf(supplement.models[found]!));
+    coverage[flagship] = have.length > 0
+      ? { present: true, scored: true, benchmarks: have, ...(found !== flagship ? { id: found } : {}) }
+      : { present: true, scored: false, ...(found !== flagship ? { id: found } : {}) };
   }
 
   const sourceText = JSON.stringify(supplement, null, 2);
@@ -130,11 +221,14 @@ export function buildCodingBenchmarkManifest(
     .map((entry) => ({ ...entry }));
 
   return {
-    schema_version: "1.0",
+    schema_version: "1.1",
     generated_at: options.generatedAt ?? supplement.generated_at ?? new Date().toISOString(),
     source: "supplement.json",
     metric: "swebench_pro",
+    metrics,
     models,
+    scaffolds,
+    coverage,
     sources: sourceUrls,
     provenance: {
       source_artifact: "supplement.json",
@@ -145,4 +239,3 @@ export function buildCodingBenchmarkManifest(
     },
   };
 }
-
