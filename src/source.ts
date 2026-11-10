@@ -47,7 +47,7 @@ export const SOURCE_STAT_NAMES: Record<string, string[]> = {
   swe_bench_leaderboard: ["swe_bench_leaderboard"],
   aider_polyglot: ["aider_polyglot"],
   livebench: ["livebench:table", "livebench:categories"],
-  terminal_bench: ["terminal_bench:root", "terminal_bench:listing", "terminal_bench:metadata"],
+  terminal_bench: ["terminal_bench:leaderboard"],
 };
 
 export interface PreviousSupplement {

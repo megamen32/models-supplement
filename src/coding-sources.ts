@@ -6,63 +6,380 @@ export const AIDER_URL = "https://raw.githubusercontent.com/Aider-AI/aider/main/
 export const LIVEBENCH_RELEASE = "20261106";
 export const LIVEBENCH_TABLE_URL = "https://livebench.ai/data/20261106/table.csv";
 export const LIVEBENCH_CATEGORIES_URL = "https://livebench.ai/data/20261106/categories.json";
-export const TERMINAL_ROOT_URL = "https://api.github.com/repos/laude-institute/terminal-bench-leaderboard/contents/results/terminal-bench-core@0.1.1?ref=main";
-export const TERMINAL_REPO_URL = "https://github.com/laude-institute/terminal-bench-leaderboard/tree/main/results/terminal-bench-core@0.1.1";
 
-export interface AiderEntry { score:number; raw_score:number; pass_rate_1?:number; test_cases?:number; edit_format?:string; command?:string; date?:string; source_url:string; }
-export interface LiveBenchEntry { score:number; raw_score:number; coding_score:number; long_agentic_score?:number; scores:Record<string,number>; release:string; source_url:string; categories_url:string; }
-export interface TerminalBenchRun { score:number; raw_score:number; dataset:string; dataset_version:string; agent:string; attempts?:number; pass_at_k?:Record<string,number>; source_url:string; date?:string; }
-export interface TerminalBenchEntry { score:number; raw_score:number; dataset:string; dataset_version:string; agent:string; attempts?:number; pass_at_k?:Record<string,number>; runs:TerminalBenchRun[]; source_url:string; }
+export const TERMINAL_BENCH_RELEASE = "2.1";
+export const TERMINAL_BENCH_PACKAGE = "terminal-bench/terminal-bench-2-1";
+export const TERMINAL_BENCH_NAME = "main";
+export const TERMINAL_BENCH_URL = "https://ofhuhcpkvzjlejydnvyd.supabase.co/functions/v1/leaderboard-read";
+export const TERMINAL_BENCH_PUBLISHABLE_KEY = "sb_publishable_Z-vuQbpvpG-PStjbh4yE0Q_e-d3MTIH";
+export const TERMINAL_REPO_URL = "https://github.com/harbor-framework/terminal-bench-2-1/tree/main/leaderboard";
 
-type JR<T> = { data:T; stat:FetchStat };
-async function text(url:string, timeout=30000):Promise<JR<string>> {
-  const t=performance.now(), fetched_at=new Date().toISOString();
-  const base=(x:Partial<FetchStat>={}):FetchStat=>({name:url,url,ok:false,fetched_at,duration_ms:Math.round(performance.now()-t),bytes:0,sha256:"",...x});
+export interface AiderVariant {
+  variant_id: string;
+  score: number;
+  raw_score: number;
+  pass_rate_1?: number;
+  test_cases?: number;
+  edit_format?: string;
+  command?: string;
+  model?: string;
+  date?: string;
+  variant_type: "model" | "agent";
+  source_url: string;
+}
+export interface AiderEntry {
+  score: number;
+  raw_score: number;
+  pass_rate_1?: number;
+  test_cases?: number;
+  edit_format?: string;
+  command?: string;
+  date?: string;
+  variants: AiderVariant[];
+  aggregation: "max_pass_rate_2";
+  source_url: string;
+}
+export interface LiveBenchEntry {
+  score: number;
+  raw_score: number;
+  coding_score: number;
+  long_agentic_score?: number;
+  scores: Record<string, number>;
+  release: string;
+  source_url: string;
+  categories_url: string;
+}
+export interface TerminalBenchRow {
+  model_display: string;
+  model_url?: string;
+  agent_display: string;
+  agent_url?: string;
+  reasoning_effort: string;
+  accuracy: number;
+  rank?: number;
+  metrics: Record<string, number>;
+  metadata: Record<string, unknown>;
+  source_url: string;
+}
+export interface TerminalBenchEntry {
+  score: number;
+  raw_score: number;
+  dataset: string;
+  dataset_version: string;
+  agent: string;
+  reasoning_effort: string;
+  rows: TerminalBenchRow[];
+  aggregation: "max_accuracy";
+  release: string;
+  source_url: string;
+}
+
+type JR<T> = { data: T; stat: FetchStat };
+
+async function text(url: string, timeout = 30000): Promise<JR<string>> {
+  const t = performance.now();
+  const fetched_at = new Date().toISOString();
+  const base = (x: Partial<FetchStat> = {}): FetchStat => ({
+    name: url,
+    url,
+    ok: false,
+    fetched_at,
+    duration_ms: Math.round(performance.now() - t),
+    bytes: 0,
+    sha256: "",
+    ...x,
+  });
   try {
-    const r=await fetch(url,{signal:AbortSignal.timeout(timeout),headers:{Accept:"text/plain,application/json","User-Agent":"models-supplement/1"}});
-    if(!r.ok)return{data:"",stat:base({error:"HTTP "+r.status})};
-    const body=await r.text(); const {sha256}=await import("./provenance");
-    return{data:body,stat:base({ok:true,bytes:body.length,sha256:sha256(body)})};
-  }catch(e){return{data:"",stat:base({error:String(e)})};}
+    const r = await fetch(url, {
+      signal: AbortSignal.timeout(timeout),
+      headers: { Accept: "text/plain,application/json", "User-Agent": "models-supplement/1" },
+    });
+    if (!r.ok) return { data: "", stat: base({ error: "HTTP " + r.status }) };
+    const body = await r.text();
+    const { sha256 } = await import("./provenance");
+    return { data: body, stat: base({ ok: true, bytes: body.length, sha256: sha256(body) }) };
+  } catch (e) {
+    return { data: "", stat: base({ error: String(e) }) };
+  }
 }
-async function json<T>(url:string,timeout=30000):Promise<JR<T>> {
-  const r=await text(url,timeout); if(!r.stat.ok)return{data:undefined as T,stat:r.stat};
-  try{return{data:JSON.parse(r.data) as T,stat:r.stat};}catch(e){return{data:undefined as T,stat:{...r.stat,ok:false,error:"invalid JSON: "+String(e)}};}
-}
-const num=(v:unknown):number|undefined=>{const n=typeof v==="number"?v:Number(v);return Number.isFinite(n)?n:undefined;};
-const scalar=(v:string):string|number|boolean|null=>{const s=v.trim().replace(/^["']|["']$/g,"");if(!s||s==="null")return null;if(s==="true")return true;if(s==="false")return false;const n=Number(s);return Number.isFinite(n)?n:s;};
 
-export function parseAiderYaml(s:string):Array<Record<string,string|number|boolean|null>>{
-  const out:Array<Record<string,string|number|boolean|null>>=[];let row:Record<string,string|number|boolean|null>|null=null;
-  for(const line of s.split(/\r?\n/)){const start=line.match(/^- dirname:\s*(.*)$/);if(start){row={dirname:scalar(start[1])};out.push(row);continue;}const f=line.match(/^\s{2}([A-Za-z0-9_]+):\s*(.*)$/);if(f&&row)row[f[1]]=scalar(f[2]);}return out;
+async function postJson<T>(url: string, body: unknown, timeout = 30000): Promise<JR<T>> {
+  const t = performance.now();
+  const fetched_at = new Date().toISOString();
+  const base = (x: Partial<FetchStat> = {}): FetchStat => ({
+    name: url,
+    url,
+    ok: false,
+    fetched_at,
+    duration_ms: Math.round(performance.now() - t),
+    bytes: 0,
+    sha256: "",
+    ...x,
+  });
+  try {
+    const r = await fetch(url, {
+      method: "POST",
+      signal: AbortSignal.timeout(timeout),
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        apikey: TERMINAL_BENCH_PUBLISHABLE_KEY,
+        "User-Agent": "models-supplement/1",
+      },
+      body: JSON.stringify(body),
+    });
+    if (!r.ok) return { data: undefined as T, stat: base({ error: "HTTP " + r.status }) };
+    const raw = await r.text();
+    const { sha256 } = await import("./provenance");
+    try {
+      return { data: JSON.parse(raw) as T, stat: base({ ok: true, bytes: raw.length, sha256: sha256(raw) }) };
+    } catch (e) {
+      return { data: undefined as T, stat: base({ error: "invalid JSON: " + String(e) }) };
+    }
+  } catch (e) {
+    return { data: undefined as T, stat: base({ error: String(e) }) };
+  }
 }
-function aiderId(row:Record<string,string|number|boolean|null>):string|null{
-  const model=typeof row.model==="string"?row.model:"";const command=typeof row.command==="string"?row.command:"";
-  if(!model||/[+]|architect|editor/i.test(model+" "+command))return null;
-  const m=command.match(/(?:^|\s)--model\s+["']?([^"'\\s]+)/);const raw=(m?.[1]??model).replace(/^openrouter\//,"");const slash=raw.indexOf("/");
-  return slash>=0?canonicalId(raw.slice(0,slash),raw.slice(slash+1)):canonicalId(null,raw);
+
+const num = (v: unknown): number | undefined => {
+  const n = typeof v === "number" ? v : Number(v);
+  return Number.isFinite(n) ? n : undefined;
+};
+const scalar = (v: string): string | number | boolean | null => {
+  const s = v.trim().replace(/^[\"']|[\"']$/g, "");
+  if (!s || s === "null") return null;
+  if (s === "true") return true;
+  if (s === "false") return false;
+  const n = Number(s);
+  return Number.isFinite(n) ? n : s;
+};
+
+export function canonicalCodingId(vendor: string | null | undefined, name: string): string | null {
+  return canonicalId(vendor, name.replace(/m3p1/gi, "m3.1"));
 }
-export async function fetchAider():Promise<SourceResult<Record<string,AiderEntry>>>{
-  const r=await text(AIDER_URL,60000), out:Record<string,AiderEntry>={};
-  if(r.stat.ok)for(const row of parseAiderYaml(r.data)){const id=aiderId(row),raw=num(row.pass_rate_2);if(!id||raw===undefined||raw<0)continue;const e:AiderEntry={score:raw/100,raw_score:raw,...(num(row.pass_rate_1)!==undefined?{pass_rate_1:num(row.pass_rate_1)}:{}),...(num(row.test_cases)!==undefined?{test_cases:num(row.test_cases)}:{}),...(typeof row.edit_format==="string"?{edit_format:row.edit_format}:{}),...(typeof row.command==="string"?{command:row.command}:{}),...(typeof row.date==="string"?{date:row.date}:{}),source_url:AIDER_URL};const old=out[id];out[id]=!old||((e.date??"")>(old.date??"")||((e.date??"")===(old.date??"")&&e.raw_score>=old.raw_score))?e:old;}
-  return{ok:r.stat.ok&&Object.keys(out).length>0,records:out,error:r.stat.error,stats:[{...r.stat,name:"aider_polyglot"}]};
+
+export function parseAiderYaml(s: string): Array<Record<string, string | number | boolean | null>> {
+  const out: Array<Record<string, string | number | boolean | null>> = [];
+  let row: Record<string, string | number | boolean | null> | null = null;
+  for (const line of s.split(/\r?\n/)) {
+    const start = line.match(/^- dirname:\s*(.*)$/);
+    if (start) {
+      row = { dirname: scalar(start[1]) };
+      out.push(row);
+      continue;
+    }
+    const f = line.match(/^\s{2}([A-Za-z0-9_]+):\s*(.*)$/);
+    if (f && row) row[f[1]] = scalar(f[2]);
+  }
+  return out;
 }
-function csvLine(line:string):string[]{const out:string[]=[];let value="",quoted=false;for(let i=0;i<line.length;i++){const ch=line[i];if(ch==='"'){if(quoted&&line[i+1]==='"'){value+='"';i++;}else quoted=!quoted;}else if(ch===','&&!quoted){out.push(value);value="";}else value+=ch;}out.push(value);return out;}
-export function parseLiveBenchCsv(s:string):Array<Record<string,string>>{const l=s.trim().split(/\r?\n/);if(l.length<2)return[];const h=csvLine(l[0]);return l.slice(1).filter(Boolean).map(x=>{const v=csvLine(x);return Object.fromEntries(h.map((k,i)=>[k,v[i]??""]));});}
-export async function fetchLiveBench():Promise<SourceResult<Record<string,LiveBenchEntry>>>{
-  const [t,c]=await Promise.all([text(LIVEBENCH_TABLE_URL),json<Record<string,unknown>>(LIVEBENCH_CATEGORIES_URL)]);const out:Record<string,LiveBenchEntry>={};
-  if(t.stat.ok)for(const row of parseLiveBenchCsv(t.data)){const coding=num(row.coding),id=row.model?canonicalId(null,row.model.trim()):null;if(!id||coding===undefined)continue;const scores:Record<string,number>={};for(const[k,v]of Object.entries(row)){if(k!=="model"&&num(v)!==undefined)scores[k]=num(v)!;}out[id]={score:coding/100,raw_score:coding,coding_score:coding,...(num(row.long_agentic)!==undefined?{long_agentic_score:num(row.long_agentic)}:{}),scores,release:LIVEBENCH_RELEASE,source_url:LIVEBENCH_TABLE_URL,categories_url:LIVEBENCH_CATEGORIES_URL};}
-  return{ok:t.stat.ok&&Object.keys(out).length>0,records:out,error:t.stat.error??c.stat.error,stats:[{...t.stat,name:"livebench:table"},{...c.stat,name:"livebench:categories"}]};
+
+function aiderVariantId(row: Record<string, string | number | boolean | null>): string {
+  return [row.dirname, row.date, row.command, row.edit_format]
+    .filter((v): v is string | number | boolean => v !== undefined && v !== null && v !== "")
+    .join("|");
 }
-type Api={name:string;path:string;type:string;url:string;download_url?:string|null};
-function fallback(path:string){const n=path.split("/").at(-1)??"",m=n.match(/^\d{8}_(.+?)_(.+)$/);return m?{agent:m[1],model:m[2].replace(/_/g," ")}:null;}
-function terminal(meta:Record<string,unknown>,path:string):{id:string;run:TerminalBenchRun}|null{
-  const f=fallback(path),model=typeof meta.model_name==="string"&&meta.model_name.trim()?meta.model_name.trim():f?.model;if(!model)return null;const id=canonicalId(null,model),score=num(meta.accuracy);if(!id||score===undefined||score<0)return null;const raw=score<=1?score*100:score;const run:TerminalBenchRun={score:raw/100,raw_score:raw,dataset:typeof meta.dataset_name==="string"?meta.dataset_name:"terminal-bench-core",dataset_version:typeof meta.dataset_version==="string"?meta.dataset_version:"0.1.1",agent:typeof meta.agent_name==="string"?meta.agent_name:(f?.agent??"unknown"),...(num(meta.n_attempts)!==undefined?{attempts:num(meta.n_attempts)}:{}),...(meta.pass_at_k&&typeof meta.pass_at_k==="object"?{pass_at_k:meta.pass_at_k as Record<string,number>}:{}),source_url:TERMINAL_REPO_URL+"/"+(path.split("/").at(-1)??"")+"/run_metadata.json",...(typeof meta.end_time==="string"?{date:meta.end_time.slice(0,10)}:{})};return{id,run};
+
+function aiderId(row: Record<string, string | number | boolean | null>): string | null {
+  const model = typeof row.model === "string" ? row.model : "";
+  const command = typeof row.command === "string" ? row.command : "";
+  const match = command.match(/(?:^|\s)--model\s+[\"']?([^\"'\s]+)/);
+  const raw = (match?.[1] ?? model).replace(/^openrouter\//, "");
+  if (!raw) return null;
+  const slash = raw.indexOf("/");
+  return slash >= 0 ? canonicalCodingId(raw.slice(0, slash), raw.slice(slash + 1)) : canonicalCodingId(null, raw);
 }
-export async function fetchTerminalBench():Promise<SourceResult<Record<string,TerminalBenchEntry>>>{
-  const root=await json<Api[]>(TERMINAL_ROOT_URL),out:Record<string,TerminalBenchEntry>={};if(!root.stat.ok||!Array.isArray(root.data))return{ok:false,records:out,error:root.stat.error,stats:[{...root.stat,name:"terminal_bench:root"}]};
-  const dirs=root.data.filter(x=>x.type==="dir"),lists=await Promise.all(dirs.map(d=>json<Api[]>(d.url))),meta=lists.flatMap(x=>x.stat.ok&&Array.isArray(x.data)?x.data.filter(e=>e.name==="run_metadata.json"&&e.download_url):[]),runs=await Promise.all(meta.map(e=>json<Record<string,unknown>>(e.download_url!,30000)));
-  for(let i=0;i<meta.length;i++){if(!runs[i].stat.ok||!runs[i].data)continue;const item=terminal(runs[i].data,meta[i].path);if(!item)continue;const old=out[item.id],all=[...(old?.runs??[]),item.run];const best=all.reduce((a,b)=>a.raw_score>=b.raw_score?a:b);out[item.id]={score:best.score,raw_score:best.raw_score,dataset:best.dataset,dataset_version:best.dataset_version,agent:best.agent,...(best.attempts!==undefined?{attempts:best.attempts}:{}),...(best.pass_at_k?{pass_at_k:best.pass_at_k}:{}),runs:all,source_url:TERMINAL_REPO_URL};}
-  const stats=[{...root.stat,name:"terminal_bench:root"},...lists.map(x=>({...x.stat,name:"terminal_bench:listing"})),...runs.map(x=>({...x.stat,name:"terminal_bench:metadata"}))];
-  return{ok:Object.keys(out).length>0,records:out,error:meta.length>0&&Object.keys(out).length===0?"no usable model scores":undefined,stats};
+
+function aiderVariant(row: Record<string, string | number | boolean | null>): AiderVariant | null {
+  const raw = num(row.pass_rate_2);
+  const id = aiderId(row);
+  if (!id || raw === undefined || raw < 0) return null;
+  const model = typeof row.model === "string" ? row.model : undefined;
+  const command = typeof row.command === "string" ? row.command : undefined;
+  const variant_type: "model" | "agent" =
+    /[+]|architect|editor/i.test((model ?? "") + " " + (command ?? "")) ? "agent" : "model";
+  return {
+    variant_id: aiderVariantId(row),
+    score: raw / 100,
+    raw_score: raw,
+    ...(num(row.pass_rate_1) !== undefined ? { pass_rate_1: num(row.pass_rate_1) } : {}),
+    ...(num(row.test_cases) !== undefined ? { test_cases: num(row.test_cases) } : {}),
+    ...(typeof row.edit_format === "string" ? { edit_format: row.edit_format } : {}),
+    ...(command ? { command } : {}),
+    ...(model ? { model } : {}),
+    ...(typeof row.date === "string" ? { date: row.date } : {}),
+    variant_type,
+    source_url: AIDER_URL,
+  };
+}
+
+export function aggregateAiderVariants(variants: AiderVariant[]): AiderEntry {
+  const unique = [...new Map(variants.map((v) => [v.variant_id, v])).values()];
+  const candidates = unique.filter((v) => v.variant_type === "model");
+  const pool = candidates.length ? candidates : unique;
+  const best = pool.reduce((a, b) => (a.raw_score >= b.raw_score ? a : b));
+  return {
+    score: best.score,
+    raw_score: best.raw_score,
+    ...(best.pass_rate_1 !== undefined ? { pass_rate_1: best.pass_rate_1 } : {}),
+    ...(best.test_cases !== undefined ? { test_cases: best.test_cases } : {}),
+    ...(best.edit_format ? { edit_format: best.edit_format } : {}),
+    ...(best.command ? { command: best.command } : {}),
+    ...(best.date ? { date: best.date } : {}),
+    variants: unique,
+    aggregation: "max_pass_rate_2",
+    source_url: AIDER_URL,
+  };
+}
+
+export async function fetchAider(): Promise<SourceResult<Record<string, AiderEntry>>> {
+  const r = await text(AIDER_URL, 60000);
+  const variants: Record<string, AiderVariant[]> = {};
+  if (r.stat.ok) {
+    for (const row of parseAiderYaml(r.data)) {
+      const v = aiderVariant(row);
+      const id = v ? aiderId(row) : null;
+      if (!v || !id) continue;
+      (variants[id] ??= []).push(v);
+    }
+  }
+  const out: Record<string, AiderEntry> = {};
+  for (const [id, rows] of Object.entries(variants)) out[id] = aggregateAiderVariants(rows);
+  return { ok: r.stat.ok && Object.keys(out).length > 0, records: out, error: r.stat.error, stats: [{ ...r.stat, name: "aider_polyglot" }] };
+}
+
+function csvLine(line: string): string[] {
+  const out: string[] = [];
+  let value = "";
+  let quoted = false;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (ch === "\"") {
+      if (quoted && line[i + 1] === "\"") {
+        value += "\"";
+        i++;
+      } else quoted = !quoted;
+    } else if (ch === "," && !quoted) {
+      out.push(value);
+      value = "";
+    } else value += ch;
+  }
+  out.push(value);
+  return out;
+}
+
+export function parseLiveBenchCsv(s: string): Array<Record<string, string>> {
+  const lines = s.trim().split(/\r?\n/);
+  if (lines.length < 2) return [];
+  const headers = csvLine(lines[0]);
+  return lines.slice(1).filter(Boolean).map((line) => {
+    const values = csvLine(line);
+    return Object.fromEntries(headers.map((key, i) => [key, values[i] ?? ""]));
+  });
+}
+
+export async function fetchLiveBench(): Promise<SourceResult<Record<string, LiveBenchEntry>>> {
+  const [table, categories] = await Promise.all([text(LIVEBENCH_TABLE_URL), text(LIVEBENCH_CATEGORIES_URL)]);
+  const out: Record<string, LiveBenchEntry> = {};
+  if (table.stat.ok) {
+    for (const row of parseLiveBenchCsv(table.data)) {
+      const coding = num(row.coding);
+      const id = row.model ? canonicalCodingId(null, row.model.trim()) : null;
+      if (!id || coding === undefined) continue;
+      const scores: Record<string, number> = {};
+      for (const [key, value] of Object.entries(row)) {
+        const score = num(value);
+        if (key !== "model" && score !== undefined) scores[key] = score;
+      }
+      out[id] = {
+        score: coding / 100,
+        raw_score: coding,
+        coding_score: coding,
+        ...(num(row.long_agentic) !== undefined ? { long_agentic_score: num(row.long_agentic) } : {}),
+        scores,
+        release: LIVEBENCH_RELEASE,
+        source_url: LIVEBENCH_TABLE_URL,
+        categories_url: LIVEBENCH_CATEGORIES_URL,
+      };
+    }
+  }
+  return {
+    ok: table.stat.ok && Object.keys(out).length > 0,
+    records: out,
+    error: table.stat.error ?? categories.stat.error,
+    stats: [{ ...table.stat, name: "livebench:table" }, { ...categories.stat, name: "livebench:categories" }],
+  };
+}
+
+type HarborLink = string | { label?: string; url?: string };
+type HarborRow = { id?: string; rank?: number; metadata?: Record<string, unknown>; metrics?: Record<string, unknown> };
+
+function linkLabel(value: unknown): string {
+  if (typeof value === "string") return value;
+  if (value && typeof value === "object" && typeof (value as HarborLink).label === "string") return (value as HarborLink).label!;
+  return "";
+}
+function linkUrl(value: unknown): string | undefined {
+  if (value && typeof value === "object" && typeof (value as HarborLink).url === "string") return (value as HarborLink).url;
+  return typeof value === "string" ? value : undefined;
+}
+
+export function parseHarborRow(row: HarborRow): { id: string; value: TerminalBenchRow } | null {
+  const metadata = row.metadata ?? {};
+  const metrics = row.metrics ?? {};
+  const display = linkLabel(metadata.model_display);
+  const rawModel = typeof metadata.model_id === "string" ? metadata.model_id : typeof metadata.model === "string" ? metadata.model : display;
+  const id = canonicalCodingId(null, rawModel);
+  const accuracy = num(metrics.accuracy);
+  if (!id || !display || accuracy === undefined || accuracy < 0) return null;
+  const agent = linkLabel(metadata.agent_display) || "unknown";
+  const effort = typeof metadata.reasoning_effort === "string" ? metadata.reasoning_effort : "none";
+  const numericMetrics: Record<string, number> = {};
+  for (const [key, value] of Object.entries(metrics)) {
+    const n = num(value);
+    if (n !== undefined) numericMetrics[key] = n;
+  }
+  const source_url = TERMINAL_BENCH_URL + "?package=" + encodeURIComponent(TERMINAL_BENCH_PACKAGE) + "&name=" + TERMINAL_BENCH_NAME;
+  return {
+    id,
+    value: {
+      model_display: display,
+      ...(linkUrl(metadata.model_display) ? { model_url: linkUrl(metadata.model_display) } : {}),
+      agent_display: agent,
+      ...(linkUrl(metadata.agent_display) ? { agent_url: linkUrl(metadata.agent_display) } : {}),
+      reasoning_effort: effort,
+      accuracy,
+      ...(typeof row.rank === "number" ? { rank: row.rank } : {}),
+      metrics: numericMetrics,
+      metadata,
+      source_url,
+    },
+  };
+}
+
+export async function fetchTerminalBench(): Promise<SourceResult<Record<string, TerminalBenchEntry>>> {
+  const response = await postJson<{ rows?: HarborRow[] }>(TERMINAL_BENCH_URL, { package: TERMINAL_BENCH_PACKAGE, name: TERMINAL_BENCH_NAME, page: 1, page_size: 500 }, 60000);
+  const out: Record<string, TerminalBenchEntry> = {};
+  if (response.stat.ok && Array.isArray(response.data?.rows)) {
+    for (const row of response.data.rows) {
+      const parsed = parseHarborRow(row);
+      if (!parsed) continue;
+      const old = out[parsed.id];
+      const rows = [...(old?.rows ?? []), parsed.value];
+      const best = rows.reduce((a, b) => (a.accuracy >= b.accuracy ? a : b));
+      out[parsed.id] = {
+        score: best.accuracy / 100,
+        raw_score: best.accuracy,
+        dataset: TERMINAL_BENCH_PACKAGE,
+        dataset_version: TERMINAL_BENCH_RELEASE,
+        agent: best.agent_display,
+        reasoning_effort: best.reasoning_effort,
+        rows,
+        aggregation: "max_accuracy",
+        release: TERMINAL_BENCH_RELEASE,
+        source_url: best.source_url,
+      };
+    }
+  }
+  return { ok: response.stat.ok && Object.keys(out).length > 0, records: out, error: response.stat.error, stats: [{ ...response.stat, name: "terminal_bench:leaderboard" }] };
 }

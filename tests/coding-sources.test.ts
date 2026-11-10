@@ -1,5 +1,5 @@
 import { expect, test } from "bun:test";
-import { parseAiderYaml, parseLiveBenchCsv } from "../src/coding-sources";
+import { aggregateAiderVariants, canonicalCodingId, parseAiderYaml, parseHarborRow, parseLiveBenchCsv, type AiderVariant } from "../src/coding-sources";
 import { buildCodingBenchmarkManifest } from "../src/coding-benchmarks";
 
 test("Aider parser keeps pass rates and command provenance", () => {
@@ -60,6 +60,20 @@ test("new coding sources remain per-source slices and do not change SWE primary 
         },
         benchmark_sources: [],
       },
+      "anthropic/claude-fable-5-2": {
+        canonical_id: "anthropic/claude-fable-5-2",
+        display_name: "Claude Fable 5.2",
+        livebench: {
+          score: 0.792,
+          raw_score: 79.2,
+          coding_score: 79.2,
+          scores: { coding: 79.2 },
+          release: "20261106",
+          source_url: "livebench",
+          categories_url: "categories",
+        },
+        benchmark_sources: [],
+      },
     },
   };
   const manifest = buildCodingBenchmarkManifest(supplement, { generatedAt: "t" });
@@ -74,4 +88,48 @@ test("new coding sources remain per-source slices and do not change SWE primary 
   expect(row.coding).toBeUndefined();
   expect(manifest.sources.aider_polyglot).toContain("Aider-AI");
   expect(manifest.sources.livebench_coding).toContain("20261106");
+  expect(manifest.models["anthropic/claude-fable-5-2"]).toMatchObject({
+    source: "livebench_coding",
+    raw_score: 79.2,
+    benchmark: "LiveBench Coding (20261106)",
+  });
+  expect(manifest.models["anthropic/claude-fable-5-2"]?.coding).toBeUndefined();
+});
+
+test("Aider keeps sibling variants and records explicit aggregation", () => {
+  const variants: AiderVariant[] = [
+    { variant_id: "plain", score: 0.42, raw_score: 42, variant_type: "model", source_url: "aider" },
+    { variant_id: "architect", score: 0.88, raw_score: 88, variant_type: "agent", source_url: "aider" },
+    { variant_id: "plain-new", score: 0.55, raw_score: 55, variant_type: "model", source_url: "aider" },
+  ];
+  const entry = aggregateAiderVariants(variants);
+  expect(entry.variants).toHaveLength(3);
+  expect(entry.raw_score).toBe(55);
+  expect(entry.aggregation).toBe("max_pass_rate_2");
+});
+
+test("Harbor TB2.1 row keeps Fable 5.2 and Astra model/agent/effort provenance", () => {
+  const parsed = parseHarborRow({
+    rank: 4,
+    metadata: {
+      model_display: { label: "Claude Fable 5.2", url: "https://anthropic.com" },
+      agent_display: { label: "Terminus 2", url: "https://harborframework.com" },
+      reasoning_effort: "high",
+    },
+    metrics: { accuracy: 79.2, pass_at_5: 0.84 },
+  });
+  expect(parsed?.id).toBe("anthropic/claude-fable-5.2");
+  expect(parsed?.value).toMatchObject({
+    model_display: "Claude Fable 5.2",
+    agent_display: "Terminus 2",
+    reasoning_effort: "high",
+    accuracy: 79.2,
+    rank: 4,
+  });
+});
+
+test("coding canonicalizer merges Minimax M3p1 and xai spellings", () => {
+  expect(canonicalCodingId(null, "Minimax M3p1 Flash")).toBe("minimax/minimax-m3.1-flash");
+  expect(canonicalCodingId("xai", "grok-4.7")).toBe("x-ai/grok-4.7");
+  expect(canonicalCodingId("x-ai", "grok-4.7")).toBe("x-ai/grok-4.7");
 });

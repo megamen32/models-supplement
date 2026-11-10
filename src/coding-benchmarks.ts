@@ -30,7 +30,7 @@ export const CODING_BENCHMARK_SOURCES = {
     "https://raw.githubusercontent.com/Aider-AI/aider/main/aider/website/_data/polyglot_leaderboard.yml",
   livebench_coding: "https://livebench.ai/data/20261106/table.csv",
   terminal_bench:
-    "https://github.com/laude-institute/terminal-bench-leaderboard/tree/main/results/terminal-bench-core@0.1.1",
+    "https://ofhuhcpkvzjlejydnvyd.supabase.co/functions/v1/leaderboard-read",
 } as const;
 
 const PRIMARY_ORDER = [
@@ -39,6 +39,12 @@ const PRIMARY_ORDER = [
   { key: "swe_bench_lite", benchmark: "SWE-bench Lite" },
   { key: "swe_bench_multilingual", benchmark: "SWE-bench Multilingual" },
 ] as const;
+
+const AUXILIARY_NAMES: Record<string, string> = {
+  aider_polyglot: "Aider Polyglot",
+  livebench_coding: "LiveBench Coding (20261106)",
+  terminal_bench: "Terminal-Bench 2.1",
+};
 
 type CodingModel = Pick<ModelEntry, "canonical_id" | "display_name"> & Partial<
   Pick<
@@ -197,25 +203,29 @@ export function buildCodingBenchmarkManifest(
     }
     bench.set(canonicalId, benchmarks);
 
-    for (const candidate of PRIMARY_ORDER) {
-      const score = benchmarks[candidate.key];
-      if (!score) continue;
-      const url = sourceUrl(candidate.key, supplement.sources);
-      sourceUrls[candidate.key] = url;
+    const primary = PRIMARY_ORDER.find((candidate) => benchmarks[candidate.key]);
+    const selected = primary
+      ? { key: primary.key, benchmark: primary.benchmark, score: benchmarks[primary.key]! }
+      : (() => {
+        const key = Object.keys(AUXILIARY_NAMES).find((candidate) => benchmarks[candidate]);
+        return key ? { key, benchmark: AUXILIARY_NAMES[key]!, score: benchmarks[key]! } : null;
+      })();
+    if (selected) {
+      const url = sourceUrl(selected.key as keyof typeof CODING_BENCHMARK_SOURCES, supplement.sources);
+      sourceUrls[selected.key] = url;
       models[canonicalId] = {
         canonical_id: canonicalId,
         display_name: displayName,
-        source: candidate.key,
-        benchmark: candidate.benchmark,
-        benchmark_name: candidate.benchmark,
-        normalized_score: score.score,
-        score: score.score,
-        raw_score: score.raw_score,
+        source: selected.key,
+        benchmark: selected.benchmark,
+        benchmark_name: selected.benchmark,
+        normalized_score: selected.score.score,
+        score: selected.score.score,
+        raw_score: selected.score.raw_score,
         source_url: url,
-        ...(score.date ? { date: score.date } : {}),
+        ...(selected.score.date ? { date: selected.score.date } : {}),
         benchmarks,
       };
-      break;
     }
   }
 
@@ -257,9 +267,7 @@ export function buildCodingBenchmarkManifest(
       entry.name === "aider_polyglot" ||
       entry.name === "livebench:table" ||
       entry.name === "livebench:categories" ||
-      entry.name === "terminal_bench:root" ||
-      entry.name === "terminal_bench:listing" ||
-      entry.name === "terminal_bench:metadata",
+      entry.name === "terminal_bench:leaderboard",
     )
     .map((entry) => ({ ...entry }));
 

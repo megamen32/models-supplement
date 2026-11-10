@@ -72,7 +72,7 @@ const SOURCE_URLS: Record<string, string> = {
   swe_bench_leaderboard: "https://raw.githubusercontent.com/SWE-bench/swe-bench.github.io/master/data/leaderboards.json",
   aider_polyglot: "https://raw.githubusercontent.com/Aider-AI/aider/main/aider/website/_data/polyglot_leaderboard.yml",
   livebench: "https://livebench.ai/data/20261106/table.csv",
-  terminal_bench: "https://github.com/laude-institute/terminal-bench-leaderboard/tree/main/results/terminal-bench-core@0.1.1",
+  terminal_bench: "https://ofhuhcpkvzjlejydnvyd.supabase.co/functions/v1/leaderboard-read",
 };
 
 function parseArgs(argv: string[]): { dryRun: boolean } {

@@ -21,6 +21,9 @@ the same shape as models.dev):
 | SWE-bench Verified | 500 human-validated GitHub-issue tasks | Not in upstream |
 | SWE-bench Lite | 300 curated coding tasks | Not in upstream |
 | SWE-bench Multilingual | 300 i18n coding tasks | Not in upstream |
+| Aider Polyglot | Aider 225-exercise pass_rate_2 with command/edit-format/date provenance | Independent source; never folded into SWE-bench Pro |
+| LiveBench release 20261106 | Coding and category scores from the pinned release | Fable 5.2 stays separate from Fable 5.1 |
+| Terminal-Bench 2.1 | Official Harbor rows with model, agent, reasoning effort and accuracy | Explicit max_accuracy aggregation; never folded into SWE-bench Pro |
 
 ## Architecture
 
@@ -142,6 +145,28 @@ every per-model field are unchanged, new fields are additions).
 
 The manifest also records the SHA-256 of the exact `supplement.json` bytes, the
 source artifact's generated time and git state, and the relevant fetch statistics.
+
+
+### Independent coding-source slices
+
+Aider Polyglot is fetched from the upstream YAML and stores every model or
+agent variant in aider_polyglot.variants. The model-level score is explicitly
+aggregated as max_pass_rate_2 over model variants; agent variants remain in the
+array and are never silently discarded.
+
+LiveBench is pinned to release 20261106. Its coding score is kept in
+livebench_coding and includes the release and table/categories URLs, so
+Claude Fable 5.2 is not substituted with Fable 5.1.
+
+Terminal-Bench 2.1 is read from Harbor's public leaderboard-read POST endpoint.
+Each model stores every published agent x model x reasoning-effort row with
+accuracy, rank, links and metrics. The model-level terminal_bench.score uses
+the explicit max_accuracy aggregation and retains all rows plus the Harbor
+package, release and endpoint provenance.
+
+These three slices are available in supplement.json and coding-benchmarks.json
+as independent benchmarks. They do not enter the SWE-bench Pro metric,
+cross-benchmark coding.score, or LHC model tiering.
 
 ## Build
 
