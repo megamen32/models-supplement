@@ -36,6 +36,7 @@ import { fetchHLE, fetchSWEbench, type ScoreEntry } from "./scores";
 import { getEnvFingerprint, getGitInfo, sha256, type FetchStat } from "./provenance";
 import { formatReport, runChecks } from "./checks";
 import { fetchModelsDev, MODELS_DEV_URL } from "./upstream";
+import { buildCodingBenchmarkManifest } from "./coding-benchmarks";
 import {
   arenaKeyToCanonical,
   displayNameFromRaw,
@@ -175,6 +176,7 @@ async function main() {
 
   const t0 = performance.now();
   const artifactPath = resolve(import.meta.dir, "..", "supplement.json");
+  const codingManifestPath = resolve(import.meta.dir, "..", "coding-benchmarks.json");
   const [upstreamResult, arenaResult, routeraiResult, hleResult, sweResult] = await Promise.all([
     fetchModelsDev(artifactPath),
     buildArenaSupplement(),
@@ -347,9 +349,19 @@ async function main() {
     process.exit(1);
   }
 
-  writeFileSync(artifactPath, JSON.stringify(supplement, null, 2));
+  const supplementBytes = JSON.stringify(supplement, null, 2);
+  const codingManifest = buildCodingBenchmarkManifest(supplement, {
+    sourceSha256: sha256(supplementBytes),
+    generatedAt: supplement.generated_at,
+  });
+  // The manifest is machine-consumed and generated on every build; keep it
+  // compact so it stays below repository file-size/line-count limits.
+  const codingManifestBytes = JSON.stringify(codingManifest);
+  writeFileSync(artifactPath, supplementBytes);
+  writeFileSync(codingManifestPath, codingManifestBytes);
   console.log(`\n=== Done in ${buildMs}ms: ${artifactPath} ===`);
   console.log(`  total models:        ${Object.keys(supplement.models).length}`);
+  console.log(`  coding manifest:     ${codingManifestPath} (${Object.keys(codingManifest.models).length} models)`);
   console.log(`  USD/RUB:             ${supplement.currency.usd_rub}`);
   console.log(`  output sha256:       ${supplement.provenance.output_sha256.slice(0, 16)}...`);
   const totalUnmatched = Object.values(supplement.unmatched_display_names).reduce((s, a) => s + a.length, 0);

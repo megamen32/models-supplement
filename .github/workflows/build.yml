@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
-    paths: ["src/**", "package.json"]
+    paths: ["src/**", "package.json", ".github/workflows/build.yml"]
 
 permissions:
   contents: write
@@ -45,7 +45,7 @@ jobs:
         run: |
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git config user.name "github-actions[bot]"
-          git add supplement.json
+          git add supplement.json coding-benchmarks.json
           if [[ -n "$(git status --porcelain)" ]]; then
             git commit -m "chore: refresh supplement.json"
             git push
@@ -57,6 +57,7 @@ jobs:
         run: |
           mkdir -p public
           cp supplement.json public/
+          cp coding-benchmarks.json public/
           cp .nojekyll public/
 
       - name: Deploy to GitHub Pages
