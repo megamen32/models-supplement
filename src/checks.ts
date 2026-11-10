@@ -11,6 +11,7 @@
  */
 
 import type { ModelEntry } from "./build-types";
+import { idKey } from "./canonical";
 
 export interface CheckIssue {
   severity: "error" | "warn";
@@ -50,13 +51,27 @@ export interface Unmatched {
   swe_bench_multilingual: Array<{ display_name: string; reason: string }>;
 }
 
+/** Pure: ids that start with `~`, or that differ only by "."/"-" or by vendor alias. */
+export function findIdProblems(ids: string[]): string[] {
+  const problems: string[] = [];
+  const groups = new Map<string, string[]>();
+  for (const id of ids) {
+    if (id.startsWith("~") || id.includes("/~")) { problems.push(`moving alias emitted as a model: ${id}`); continue; }
+    if (!id.includes("/")) continue;
+    const key = idKey(id);
+    groups.set(key, [...(groups.get(key) ?? []), id]);
+  }
+  for (const g of groups.values()) if (g.length > 1) problems.push(`same model under several ids: ${g.join(" | ")}`);
+  return problems;
+}
+
 export interface CheckInput {
-  arena: Record<string, unknown>;
-  routerai: Record<string, unknown>;
-  currency: { usd_rub: number; source: string };
+  currency: { usd_rub: number; source: string } | null;
   models?: Record<string, ModelEntry>;
   unmatched?: Unmatched;
   upstream?: { model_count: number; live: boolean };
+  /** Per-source status. A source that is not "ok" is judged as a warning, never an error. */
+  sources?: Record<string, { status: "ok" | "stale" | "absent"; error?: string }>;
 }
 
 /** Minimum counts we expect from healthy sources. Tuned to catch outages. */
@@ -71,37 +86,25 @@ export function runChecks(input: CheckInput): CheckReport {
   const errors: CheckIssue[] = [];
   const warnings: CheckIssue[] = [];
 
-  const arenaEntries = Object.keys(input.arena).length;
-  const routeraiEntries = Object.keys(input.routerai).length;
-
-  if (arenaEntries < MIN_ARENA) {
-    errors.push({
-      severity: "error",
-      code: "arena_underflow",
-      message: `arena has ${arenaEntries} entries, expected >= ${MIN_ARENA} (source likely down)`,
-    });
-  }
-  if (routeraiEntries < MIN_ROUTERAI) {
-    errors.push({
-      severity: "error",
-      code: "routerai_underflow",
-      message: `routerai has ${routeraiEntries} models, expected >= ${MIN_ROUTERAI} (source likely down)`,
-    });
+  const sources = input.sources ?? {};
+  /** A live source that collapsed is an error; carried or missing data is a warning. */
+  const sev = (name: string): "error" | "warn" => ((sources[name]?.status ?? "ok") === "ok" ? "error" : "warn");
+  const issue = (name: string, code: string, message: string) =>
+    (sev(name) === "error" ? errors : warnings).push({ severity: sev(name), code, message });
+  for (const [name, st] of Object.entries(sources)) {
+    if (st.status === "stale") warnings.push({ severity: "warn", code: "source_stale", message: `${name}: live fetch failed, data carried over from the previous supplement (${st.error ?? "no error text"})` });
+    if (st.status === "absent") warnings.push({ severity: "warn", code: "source_absent", message: `${name}: live fetch failed and there is nothing to carry over (${st.error ?? "no error text"})` });
   }
 
-  const rate = input.currency.usd_rub;
-  if (!Number.isFinite(rate) || rate <= 0) {
-    errors.push({
-      severity: "error",
-      code: "currency_invalid",
-      message: `USD/RUB rate is ${rate}, expected positive number`,
-    });
+  const rate = input.currency?.usd_rub ?? NaN;
+  if (!input.currency) {
+    if ((sources.routerai?.status ?? "ok") === "ok") {
+      errors.push({ severity: "error", code: "currency_invalid", message: "USD/RUB rate missing" });
+    }
+  } else if (!Number.isFinite(rate) || rate <= 0) {
+    errors.push({ severity: "error", code: "currency_invalid", message: `USD/RUB rate is ${rate}, expected positive number` });
   } else if (rate < 30 || rate > 300) {
-    warnings.push({
-      severity: "warn",
-      code: "currency_outlier",
-      message: `USD/RUB rate ${rate} is outside plausible range 30..300`,
-    });
+    warnings.push({ severity: "warn", code: "currency_outlier", message: `USD/RUB rate ${rate} is outside plausible range 30..300` });
   }
 
   // Models view stats
@@ -159,6 +162,18 @@ export function runChecks(input: CheckInput): CheckReport {
     });
   }
 
+  if (withArena < MIN_ARENA) {
+    issue("arena", "arena_underflow", `arena has ${withArena} real entries, expected >= ${MIN_ARENA}`);
+  }
+  if (withRouterai < MIN_ROUTERAI) {
+    issue("routerai", "routerai_underflow", `routerai has ${withRouterai} models, expected >= ${MIN_ROUTERAI}`);
+  }
+
+  const idProblems = findIdProblems(Object.keys(models));
+  for (const p of idProblems) {
+    errors.push({ severity: "error", code: "duplicate_canonical_id", message: p });
+  }
+
   if (arenaMissing > 0) {
     errors.push({
       severity: "error",
@@ -183,18 +198,10 @@ export function runChecks(input: CheckInput): CheckReport {
 
   // Benchmark coverage thresholds
   if (withHle < MIN_HLE) {
-    errors.push({
-      severity: "error",
-      code: "hle_underflow",
-      message: `HLE has ${withHle} entries, expected >= ${MIN_HLE}`,
-    });
+    issue("hle", "hle_underflow", `HLE has ${withHle} entries, expected >= ${MIN_HLE}`);
   }
   if (withSweVerified < MIN_SWE_VERIFIED) {
-    errors.push({
-      severity: "error",
-      code: "swe_verified_underflow",
-      message: `SWE-bench Verified has ${withSweVerified} entries, expected >= ${MIN_SWE_VERIFIED}`,
-    });
+    issue("swe_bench_leaderboard", "swe_verified_underflow", `SWE-bench Verified has ${withSweVerified} entries, expected >= ${MIN_SWE_VERIFIED}`);
   }
   if (withSweLite < MIN_SWE_LITE) {
     warnings.push({
@@ -247,7 +254,7 @@ export function runChecks(input: CheckInput): CheckReport {
       with_swe_verified: withSweVerified,
       with_swe_lite: withSweLite,
       with_swe_multilingual: withSweMulti,
-      duplicate_canonical_ids: 0,
+      duplicate_canonical_ids: idProblems.length,
       usd_rub: Number.isFinite(rate) ? rate : null,
       unmatched_hle: unmatchedHle,
       unmatched_swe: unmatchedSwe,

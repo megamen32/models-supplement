@@ -90,8 +90,15 @@ function main(): void {
     process.exit(0);
   }
 
-  const prev = counts(JSON.parse(readFileSync(prevPath, "utf8")));
-  const curr = counts(JSON.parse(readFileSync(currPath, "utf8")));
+  const prevDoc = JSON.parse(readFileSync(prevPath, "utf8")) as { schema_version?: string };
+  const currDoc = JSON.parse(readFileSync(currPath, "utf8")) as { schema_version?: string };
+  if (prevDoc.schema_version !== currDoc.schema_version) {
+    console.log("=== regression diff ===");
+    console.log(`  schema ${prevDoc.schema_version} -> ${currDoc.schema_version}: ids were migrated, counts are not comparable — skipping gate once`);
+    process.exit(0);
+  }
+  const prev = counts(prevDoc);
+  const curr = counts(currDoc);
 
   const rows = [
     row("models_total", prev.models_total, curr.models_total),
