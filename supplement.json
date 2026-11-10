@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-11-10T14:01:56.855Z",
+  "generated_at": "2026-11-10T14:11:28.649Z",
   "schema_version": "2.0",
   "provenance": {
     "git": {
-      "commit": "084282a",
+      "commit": "b361251",
       "dirty": true,
       "branch": "main"
     },
@@ -12,14 +12,14 @@
       "bun_version": "1.4.4",
       "os": "linux node",
       "arch": "x64",
-      "ci": "github-actions:42829963380"
+      "ci": "github-actions:42831533493"
     },
     "sources": [
       {
         "name": "models_dev",
         "url": "https://models.dev/api.json",
-        "fetched_at": "2026-11-10T14:01:51.365Z",
-        "duration_ms": 397,
+        "fetched_at": "2026-11-10T14:11:25.834Z",
+        "duration_ms": 266,
         "bytes": 5989307,
         "sha256": "8edbff850cadfacb066a00dba8291c1e72743565687073940f73c51984b93201",
         "ok": true
@@ -27,8 +27,8 @@
       {
         "name": "arena:text",
         "url": "https://api.wulong.dev/arena-ai-leaderboards/v1/leaderboard?name=text",
-        "fetched_at": "2026-11-10T14:01:51.056Z",
-        "duration_ms": 119,
+        "fetched_at": "2026-11-10T14:11:25.677Z",
+        "duration_ms": 151,
         "bytes": 0,
         "sha256": "",
         "ok": false,
@@ -37,7 +37,7 @@
       {
         "name": "arena:code",
         "url": "https://api.wulong.dev/arena-ai-leaderboards/v1/leaderboard?name=code",
-        "fetched_at": "2026-11-10T14:01:51.087Z",
+        "fetched_at": "2026-11-10T14:11:25.708Z",
         "duration_ms": 31,
         "bytes": 0,
         "sha256": "",
@@ -47,8 +47,8 @@
       {
         "name": "alpaca_lc",
         "url": "https://raw.githubusercontent.com/tatsu-lab/alpaca_eval/main/src/alpaca_eval/leaderboards/data_AlpacaEval_2/weighted_alpaca_eval_gpt4_turbo_leaderboard.csv",
-        "fetched_at": "2026-11-10T14:01:51.181Z",
-        "duration_ms": 93,
+        "fetched_at": "2026-11-10T14:11:25.875Z",
+        "duration_ms": 167,
         "bytes": 28339,
         "sha256": "fe32bf85c2f7429038faa4c9a884d1d131726454ff84a4b810a91c1c7a2aa0e9",
         "ok": true
@@ -56,8 +56,8 @@
       {
         "name": "routerai:models",
         "url": "https://routerai.ru/api/v1/models",
-        "fetched_at": "2026-11-10T14:01:56.835Z",
-        "duration_ms": 4376,
+        "fetched_at": "2026-11-10T14:11:28.623Z",
+        "duration_ms": 914,
         "bytes": 765097,
         "sha256": "07b74a1b3dcc1f3fbdaa0b48d8d99353b1857ac40ecacde61d3796e028e1c30d",
         "ok": true
@@ -65,8 +65,8 @@
       {
         "name": "cais_dashboard",
         "url": "https://dashboard.safe.ai/api/models",
-        "fetched_at": "2026-11-10T14:01:50.938Z",
-        "duration_ms": 253,
+        "fetched_at": "2026-11-10T14:11:25.527Z",
+        "duration_ms": 307,
         "bytes": 41721,
         "sha256": "f3c1b5e54bfba3ea60ac699b91ea6e484726ccd13dd05a9cfc2bf23e5cc86264",
         "ok": true
@@ -74,20 +74,20 @@
       {
         "name": "swe_bench_leaderboard",
         "url": "https://raw.githubusercontent.com/SWE-bench/swe-bench.github.io/master/data/leaderboards.json",
-        "fetched_at": "2026-11-10T14:01:50.938Z",
-        "duration_ms": 202,
+        "fetched_at": "2026-11-10T14:11:25.528Z",
+        "duration_ms": 1004,
         "bytes": 4091442,
         "sha256": "83cd949a9582f4dd68b0a07148cd86ff0eae6a05b0f2d2298a8f3717baf89d2d",
         "ok": true
       }
     ],
-    "output_sha256": "2d2cda91b08f99a93b4459c0527c8d8ab84e799d5447e809d90a74c7ccfadcbf",
+    "output_sha256": "64d7275fd0461b35c364797710bfc6e1c45fa9045dfcb5411acfdbba06588403",
     "dry_run": false
   },
   "currency": {
     "usd_rub": 82.7536,
     "source": "CBR XML (cbr-xml-daily.ru/daily_eng.xml)",
-    "fetched_at": "2026-11-10T14:01:51.568Z"
+    "fetched_at": "2026-11-10T14:11:26.235Z"
   },
   "models": {
     "echo/echo": {
