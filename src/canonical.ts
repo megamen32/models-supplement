@@ -1,134 +1,108 @@
 /**
- * canonical.ts — Map source-specific model identifiers to canonical
- * `vendor/name` form (the same shape models.dev uses).
+ * canonical.ts — the ONE place that turns (vendor, model name) from any
+ * source into a canonical `vendor/name` id.
  *
- * Why: HLE gives "Opus 4.6", arena gives "claude-opus-4-6", SWE-bench gives
- * "claude-4-5-opus-medium". All three refer to Anthropic Claude variants.
- * A consumer of supplement.json should be able to do
- *   supplement.models["anthropic/claude-opus-4-6"]
- * and get a single merged record with arena, hle, swebench data combined.
+ * Rules:
+ *   - vendor: lower-case, run through VENDOR_ALIASES (xai→x-ai, meta→meta-llama, …).
+ *     Missing/"unknown" vendor is inferred from the model family; no match → null.
+ *   - name: lower-case, dates dropped, separators collapsed to "-", version
+ *     numbers keep the dot ("claude-opus-4.6", never "4-6").
+ *   - moving aliases (`~anthropic/claude-opus-latest`) are not models → null.
  *
- * Sources of vendor info, in priority order:
- *   1. Explicit field: HLE API gives `provider` per model — use it.
- *   2. arena entries have `vendor` field — use it.
- *   3. SWE-bench has no vendor field — infer from model family prefix
- *      (claude/gpt/gemini/etc). Unknown families go to `unmatched_display_names`.
- *   4. routerai keys are already `vendor/name` — split on first `/`.
+ * All functions are pure.
  */
 
-import { normalizeModelName } from "./normalize";
+const VENDOR_ALIASES: Record<string, string> = {
+  xai: "x-ai", "x.ai": "x-ai",
+  meta: "meta-llama", muse: "meta-llama",
+  zhipu: "z-ai", zhipuai: "z-ai", zai: "z-ai", "z.ai": "z-ai",
+  mistral: "mistralai",
+  rekaai: "reka",
+  alibaba: "qwen",
+  deepmind: "google",
+  moonshot: "moonshotai",
+  "01ai": "01-ai",
+  "bytedance-seed": "bytedance",
+};
 
-/**
- * Normalize model name for canonical form, given the vendor.
- *   - anthropic: ensure "claude-" prefix (HLE drops it, arena keeps it)
- *   - others: passthrough
- */
-export function canonicalizeNameForVendor(name: string, vendor: string): string {
-  if (vendor === "anthropic") {
-    if (/^(opus|sonnet|haiku|opus-4|sonnet-4|haiku-4|opus-3|sonnet-3|haiku-3)/.test(name)) {
-      return `claude-${name}`;
-    }
-  }
-  return name;
-}
-
-/** Vendor inference for normalized model names (lower-case, dash-separated). */
+/** Vendor inference for a canonical-style model name (lower-case, dashed). */
 const FAMILY_TO_VENDOR: Array<[RegExp, string]> = [
-  [/^(claude|opus|sonnet|haiku)/, "anthropic"],
+  [/^(claude|opus|sonnet|haiku|fable)/, "anthropic"],
   [/^(gpt|o[1-9](-|$))/, "openai"],
-  [/^gemini/, "google"],
-  [/^grok/, "xai"],
+  [/^(gemini|gemma)/, "google"],
+  [/^grok/, "x-ai"],
   [/^deepseek/, "deepseek"],
   [/^kimi/, "moonshotai"],
   [/^glm/, "z-ai"],
   [/^qwen/, "qwen"],
-  [/^llama/, "meta"],
-  [/^mistral/, "mistral"],
-  [/^minimax-?m/, "MiniMax"],   // us!
+  [/^(llama|muse-)/, "meta-llama"],
+  [/^mistral/, "mistralai"],
+  [/^minimax-?m/, "minimax"],
   [/^mai-/, "microsoft"],
   [/^nemotron/, "nvidia"],
   [/^zaya/, "zyphra"],
   [/^ornith/, "deepreinforce"],
   [/^laguna/, "poolside"],
-  [/^hy3/, "tencent"],
+  [/^(hy3|hunyuan)/, "tencent"],
   [/^doubao-/, "bytedance"],
-  [/^hunyuan/, "tencent"],
-  [/^sonar/, "perplexity"],      // Sonar is Perplexity's model
-  [/^lingxi/, "alibaba"],
+  [/^sonar/, "perplexity"],
 ];
 
-const PROVIDER_NORMALIZE: Record<string, string> = {
-  anthropic: "anthropic", openai: "openai", google: "google", deepmind: "google",
-  meta: "meta", mistral: "mistral", deepseek: "deepseek", xai: "xai", cohere: "cohere",
-  qwen: "qwen", alibaba: "qwen", nvidia: "nvidia", moonshotai: "moonshotai",
-  moonshot: "moonshotai", zhipuai: "zhipuai", xiaomi: "xiaomi",
-  "z-ai": "z-ai", "z.ai": "z-ai", "zai": "z-ai",
-  "01-ai": "01-ai", "01ai": "01-ai",
-  perplexity: "perplexity", minimax: "MiniMax", microsoft: "microsoft", bytedance: "bytedance",
-  tencent: "tencent", poolside: "poolside", deepreinforce: "deepreinforce",
-  zyphra: "zyphra",
-};
+export function canonicalVendor(vendor: string): string {
+  const v = vendor.toLowerCase().trim();
+  return VENDOR_ALIASES[v] ?? v;
+}
 
-/** Infer canonical `<vendor>/<model>` from a normalized lower-case model name. */
-export function inferCanonicalFromName(normName: string): string | null {
-  for (const [re, vendor] of FAMILY_TO_VENDOR) {
-    if (re.test(normName)) {
-      return `${vendor}/${normName}`;
-    }
-  }
+/** Restore "4-6" → "4.6" between single digits; leave sizes ("3-8b") and dates alone. */
+function restoreDots(n: string): string {
+  return n.replace(/(?<![\d.])(\d)-(\d)(?!\d|[bmk](?:-|$))/g, "$1.$2");
+}
+
+/** Lower-case dashed name with dates dropped and versions dotted. Not vendor-aware. */
+export function cleanName(raw: string): string {
+  let n = raw.toLowerCase().trim();
+  n = n.replace(/\(\s*[\d-]+\s*\)/g, " ");        // "(2025-08-22)"
+  n = n.replace(/[()]/g, " ");                      // "glm-5.2 (max)" → "glm-5.2 max"
+  n = n.replace(/[\s_/]+/g, "-").replace(/-+/g, "-");
+  n = n.replace(/-\d{4}-\d{2}-\d{2}/g, "").replace(/-\d{8}\b/g, "");
+  n = n.replace(/^-|-$/g, "");
+  return restoreDots(n);
+}
+
+function fixAnthropic(n: string): string {
+  if (/^(opus|sonnet|haiku|fable)(-|$)/.test(n)) n = `claude-${n}`;
+  // claude-4-opus / claude-4.5-opus-medium → claude-opus-4 / claude-opus-4.5-medium (v4+ naming)
+  return n.replace(/^claude-([4-9](?:\.\d)?)-(opus|sonnet|haiku|fable)/, "claude-$2-$1");
+}
+
+function fixDeepseek(n: string): string {
+  return n.replace(/^deepseek-(\d)/, "deepseek-v$1");
+}
+
+export function inferVendor(name: string): string | null {
+  const n = cleanName(name);
+  for (const [re, vendor] of FAMILY_TO_VENDOR) if (re.test(n)) return vendor;
   return null;
 }
 
-/** HLE: trust the API's `provider` field. Falls back to name inference. */
-export function hleToCanonical(normName: string, provider?: string): string | null {
-  if (provider) {
-    const v = PROVIDER_NORMALIZE[provider.toLowerCase().trim()] ?? provider.toLowerCase().trim();
-    const normalized = canonicalizeNameForVendor(normName, v);
-    return `${v}/${normalized}`;
-  }
-  return inferCanonicalFromName(normName);
+/** The single entry point: `vendor/name`, or null when the model cannot be identified. */
+export function canonicalId(vendor: string | null | undefined, name: string): string | null {
+  const v0 = (vendor ?? "").trim();
+  if (v0.startsWith("~") || name.trim().startsWith("~")) return null;
+  const n0 = cleanName(name);
+  if (!n0) return null;
+  const v = v0 && v0.toLowerCase() !== "unknown" ? canonicalVendor(v0) : inferVendor(n0);
+  if (!v) return null;
+  let n = n0;
+  if (v === "anthropic") n = fixAnthropic(n);
+  if (v === "deepseek") n = fixDeepseek(n);
+  return `${v}/${n}`;
 }
 
-/** SWE-bench: no vendor field — name inference only, with anthropic normalization. */
-export function sweKeyToCanonical(normName: string): string | null {
-  const inferred = inferCanonicalFromName(normName);
-  if (!inferred) return null;
-  const slash = inferred.indexOf("/");
-  const vendor = inferred.slice(0, slash);
-  const name = inferred.slice(slash + 1);
-  return `${vendor}/${canonicalizeNameForVendor(name, vendor)}`;
-}
-
-/** arena: arena keys are vendor-stripped, but the entry carries `vendor`. */
-export function arenaKeyToCanonical(arenaKey: string, vendor: string): string {
-  const v = PROVIDER_NORMALIZE[vendor.toLowerCase().trim()] ?? vendor.toLowerCase().trim();
-  return `${v}/${arenaKey}`;
-}
-
-/** routerai: keys are already `vendor/name` — split on first `/`. */
-export function routeraiKeyToCanonical(routeraiKey: string): string {
-  const slash = routeraiKey.indexOf("/");
-  if (slash < 0) {
-    // Defensive: no vendor prefix — infer
-    const inferred = inferCanonicalFromName(routeraiKey);
-    return inferred ?? `unknown/${routeraiKey}`;
-  }
-  const vendorRaw = routeraiKey.slice(0, slash).toLowerCase();
-  const vendor = PROVIDER_NORMALIZE[vendorRaw] ?? vendorRaw;
-  const name = routeraiKey.slice(slash + 1);
-  return `${vendor}/${name}`;
-}
-
-/** Best-effort display name for a model (used in supplement entry). */
+/** Best-effort display name for a model (strip scaffold prefix and trailing parenthesis). */
 export function displayNameFromRaw(raw: string): string {
-  // Strip common scaffolding suffixes for human readability
   return raw
-    .replace(/^.*?\+\s*/, "")              // "X + Claude 4.5 Opus" → "Claude 4.5 Opus"
-    .replace(/\s*\([^)]*\)\s*$/, "")        // "Foo (2025-08-22)" → "Foo"
+    .replace(/^.*?\+\s*/, "")
+    .replace(/\s*\([^)]*\)\s*$/, "")
     .trim();
-}
-
-/** Convenience: normalize a raw model name from any source. */
-export function normalize(raw: string): string {
-  return normalizeModelName(raw);
 }
