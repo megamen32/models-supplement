@@ -26,6 +26,11 @@ export const CODING_BENCHMARK_SOURCES = {
     "https://raw.githubusercontent.com/SWE-bench/swe-bench.github.io/master/data/leaderboards.json",
   swe_bench_multilingual:
     "https://raw.githubusercontent.com/SWE-bench/swe-bench.github.io/master/data/leaderboards.json",
+  aider_polyglot:
+    "https://raw.githubusercontent.com/Aider-AI/aider/main/aider/website/_data/polyglot_leaderboard.yml",
+  livebench_coding: "https://livebench.ai/data/20261106/table.csv",
+  terminal_bench:
+    "https://ofhuhcpkvzjlejydnvyd.supabase.co/functions/v1/leaderboard-read",
 } as const;
 
 const PRIMARY_ORDER = [
@@ -35,6 +40,12 @@ const PRIMARY_ORDER = [
   { key: "swe_bench_multilingual", benchmark: "SWE-bench Multilingual" },
 ] as const;
 
+const AUXILIARY_NAMES: Record<string, string> = {
+  aider_polyglot: "Aider Polyglot",
+  livebench_coding: "LiveBench Coding (20261106)",
+  terminal_bench: "Terminal-Bench 2.1",
+};
+
 type CodingModel = Pick<ModelEntry, "canonical_id" | "display_name"> & Partial<
   Pick<
     ModelEntry,
@@ -42,6 +53,9 @@ type CodingModel = Pick<ModelEntry, "canonical_id" | "display_name"> & Partial<
     | "swe_bench_verified"
     | "swe_bench_lite"
     | "swe_bench_multilingual"
+    | "aider_polyglot"
+    | "livebench"
+    | "terminal_bench"
   >
 >;
 
@@ -79,8 +93,11 @@ function sourceUrl(
     typeof v === "string" ? v : v?.url;
   // Keep source URLs in sync with supplement.json when a caller has customized
   // them, while retaining authoritative defaults for hand-built fixtures.
-  if (key === "swebench_pro") return url(supplementSources?.hle) ?? CODING_BENCHMARK_SOURCES[key];
-  return url(supplementSources?.swe_bench_leaderboard) ?? CODING_BENCHMARK_SOURCES[key];
+  const sourceKey =
+    key === "swebench_pro" ? "hle" :
+    key.startsWith("swe_bench_") ? "swe_bench_leaderboard" :
+    key;
+  return url(supplementSources?.[sourceKey]) ?? CODING_BENCHMARK_SOURCES[key];
 }
 
 /** Benchmarks with fewer ranked models than this do not enter coding.score. */
@@ -127,6 +144,32 @@ function scoresOf(model: CodingModel): Benchmarks {
       out[key] = { score: v.score, raw_score: v.raw_score, ...(typeof v.date === "string" && v.date ? { date: v.date } : {}) };
     }
   }
+
+  // These sources stay as independent slices in benchmarks. They are
+  // intentionally excluded from PRIMARY_ORDER and therefore never alter
+  // coding.score or the SWE-bench Pro threshold used by classifiers.
+  const aider = model.aider_polyglot;
+  if (hasFiniteScores(aider)) {
+    out.aider_polyglot = {
+      score: aider.score,
+      raw_score: aider.raw_score,
+      ...(typeof aider.date === "string" && aider.date ? { date: aider.date } : {}),
+    };
+  }
+  const livebench = model.livebench;
+  if (livebench && Number.isFinite(livebench.coding_score)) {
+    out.livebench_coding = {
+      score: livebench.coding_score / 100,
+      raw_score: livebench.coding_score,
+    };
+  }
+  const terminal = model.terminal_bench;
+  if (hasFiniteScores(terminal)) {
+    out.terminal_bench = {
+      score: terminal.score,
+      raw_score: terminal.raw_score,
+    };
+  }
   return out;
 }
 
@@ -160,25 +203,29 @@ export function buildCodingBenchmarkManifest(
     }
     bench.set(canonicalId, benchmarks);
 
-    for (const candidate of PRIMARY_ORDER) {
-      const score = benchmarks[candidate.key];
-      if (!score) continue;
-      const url = sourceUrl(candidate.key, supplement.sources);
-      sourceUrls[candidate.key] = url;
+    const primary = PRIMARY_ORDER.find((candidate) => benchmarks[candidate.key]);
+    const selected = primary
+      ? { key: primary.key, benchmark: primary.benchmark, score: benchmarks[primary.key]! }
+      : (() => {
+        const key = Object.keys(AUXILIARY_NAMES).find((candidate) => benchmarks[candidate]);
+        return key ? { key, benchmark: AUXILIARY_NAMES[key]!, score: benchmarks[key]! } : null;
+      })();
+    if (selected) {
+      const url = sourceUrl(selected.key as keyof typeof CODING_BENCHMARK_SOURCES, supplement.sources);
+      sourceUrls[selected.key] = url;
       models[canonicalId] = {
         canonical_id: canonicalId,
         display_name: displayName,
-        source: candidate.key,
-        benchmark: candidate.benchmark,
-        benchmark_name: candidate.benchmark,
-        normalized_score: score.score,
-        score: score.score,
-        raw_score: score.raw_score,
+        source: selected.key,
+        benchmark: selected.benchmark,
+        benchmark_name: selected.benchmark,
+        normalized_score: selected.score.score,
+        score: selected.score.score,
+        raw_score: selected.score.raw_score,
         source_url: url,
-        ...(score.date ? { date: score.date } : {}),
+        ...(selected.score.date ? { date: selected.score.date } : {}),
         benchmarks,
       };
-      break;
     }
   }
 
@@ -216,7 +263,11 @@ export function buildCodingBenchmarkManifest(
     .filter((entry) =>
       entry.name === "cais_dashboard" ||
       entry.name === "swe_bench_leaderboard" ||
-      entry.name === "hle_api",
+      entry.name === "hle_api" ||
+      entry.name === "aider_polyglot" ||
+      entry.name === "livebench:table" ||
+      entry.name === "livebench:categories" ||
+      entry.name === "terminal_bench:leaderboard",
     )
     .map((entry) => ({ ...entry }));
 

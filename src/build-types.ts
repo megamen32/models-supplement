@@ -64,6 +64,20 @@ export interface ModelEntry {
   swe_bench_verified?: { score: number; raw_score: number; date?: string };
   swe_bench_lite?: { score: number; raw_score: number; date?: string };
   swe_bench_multilingual?: { score: number; raw_score: number; date?: string };
+  aider_polyglot?: {
+    score: number; raw_score: number; pass_rate_1?: number; test_cases?: number;
+    edit_format?: string; command?: string; date?: string; source_url: string;
+    variants: Array<Record<string, unknown>>; aggregation: "max_pass_rate_2";
+  };
+  livebench?: {
+    score: number; raw_score: number; coding_score: number; long_agentic_score?: number;
+    scores: Record<string, number>; release: string; source_url: string; categories_url: string;
+  };
+  terminal_bench?: {
+    score: number; raw_score: number; dataset: string; dataset_version: string;
+    agent: string; reasoning_effort: string; rows: Array<Record<string, unknown>>;
+    aggregation: "max_accuracy"; release: string; source_url: string;
+  };
   benchmark_sources: string[];
 }
 
