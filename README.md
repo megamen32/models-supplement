@@ -26,7 +26,8 @@ the same shape as models.dev):
 
 ```
 Consumer (AutoTelegramViews / TG_Commentator)
-  └── supplement.json         ← models.dev base + arena, RUB pricing, and benchmark scores
+  ├── supplement.json         ← models.dev base + arena, RUB pricing, and all benchmark scores
+  └── coding-benchmarks.json  ← one primary coding score per model
 ```
 
 Upstream is fetched on every build. If the live request fails, the previous
@@ -70,6 +71,52 @@ facts at once.
 
 Each `models[]` entry only has sub-records for sources that contain the model. `unmatched_display_names` surfaces HLE/SWE-bench entries whose vendor couldn't be inferred (typically agent systems like TRAE, Bloop, Warp — not models).
 
+## Coding benchmark manifest
+
+`coding-benchmarks.json` is generated from the completed `supplement.json` and
+keeps one coding result per canonical model id. The primary score is selected
+in this order: **SWE-bench Pro**, **SWE-bench Verified**, **SWE-bench Lite**,
+then **SWE-bench Multilingual**. A model is omitted when it has no finite score
+in any of those splits. Each record contains the canonical id, display name,
+human-readable benchmark name, normalized score (0–1), raw published score,
+benchmark date when available, and source URL.
+
+The manifest also records the SHA-256 of the exact `supplement.json` bytes,
+the source artifact's generated time and git state, and the relevant fetch
+statistics. This lets a consumer verify which supplement produced a score
+without loading the full catalog.
+
+```ts
+{
+  schema_version: "1.0",
+  generated_at: string,
+  source: "supplement.json",
+  metric: "swebench_pro",
+  models: {
+    "anthropic/claude-opus-4-6": {
+      canonical_id: "anthropic/claude-opus-4-6",
+      display_name: "Claude Opus 4.6",
+      source: "swebench_pro",
+      benchmark: "SWE-bench Pro",
+      benchmark_name: "SWE-bench Pro",
+      normalized_score: 0.61,
+      score: 0.61,
+      raw_score: 61,
+      date: "2026-01-15",
+      source_url: "https://dashboard.safe.ai/api/models"
+    }
+  },
+  sources: { swebench_pro: string, swe_bench_verified: string, ... },
+  provenance: {
+    source_artifact: "supplement.json",
+    source_sha256: string,
+    source_generated_at: string,
+    source_git: { commit, dirty, branch },
+    source_fetches: FetchStat[]
+  }
+}
+```
+
 ## Canonical-id mapping
 
 `src/canonical.ts` resolves three different naming styles to the same `vendor/name` form:
@@ -94,11 +141,11 @@ Rules (`canonical.ts`):
 
 ```bash
 bun install
-bun src/build.ts              # build + write supplement.json
+bun src/build.ts              # build + write supplement.json and coding-benchmarks.json
 bun src/build.ts --dry-run    # preview only, no file written
 ```
 
-Output: `supplement.json` (pretty-printed; model count follows the live models.dev catalog)
+Output: `supplement.json` plus `coding-benchmarks.json` (pretty-printed; model count follows the live models.dev catalog)
 
 ## Reliability features
 
@@ -118,7 +165,8 @@ bun src/diff.ts /tmp/prev.json supplement.json 30
 
 GitHub Actions builds daily at 06:00 UTC and deploys to GitHub Pages.
 
-Consumers fetch: `https://<user>.github.io/models-supplement/supplement.json`
+Consumers fetch `https://<user>.github.io/models-supplement/supplement.json` or
+the smaller `https://<user>.github.io/models-supplement/coding-benchmarks.json`.
 
 ## Files
 
@@ -131,6 +179,7 @@ src/
 ├── routerai.ts     # RouterAI models with RUB pricing
 ├── currency.ts     # CBR USD/RUB rates
 ├── scores.ts       # HLE + SWE-bench (Verified/Lite/Multilingual) + SWE-bench Pro
+├── coding-benchmarks.ts # primary coding-score manifest derived from supplement
 ├── normalize.ts    # Shared model-name normalization (vendor/date/parenthesized strips)
 ├── canonical.ts    # Source-specific → canonical (vendor/name) mapping
 ├── provenance.ts   # git info, env fingerprint, SHA-256 helpers
