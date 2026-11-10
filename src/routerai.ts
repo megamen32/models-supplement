@@ -1,140 +1,83 @@
 /**
- * routerai.ts — Fetch RouterAI (routerai.ru) model catalog.
- *
- * RouterAI is a Russian LLM aggregator that prices in RUB per token.
- * We fetch the live catalog, keep RUB pricing as-is, and also compute
- * USD/1M equivalents using the current CBR rate.
- *
- * Output: a lookup keyed by model id with both RUB and USD pricing +
- * capability flags (vision, tools, structured_output, reasoning).
+ * routerai.ts — RouterAI (routerai.ru) catalog with RUB pricing.
+ * Pure parser + thin fetcher; a failure returns `{ok:false}`, it never throws.
  */
 
-import { getUsdRubRate } from "./currency";
-import { sha256, type FetchStat } from "./provenance";
+import { getUsdRubRate, rubPerTokenToUsdPer1M } from "./currency";
+import { canonicalId } from "./canonical";
+import type { RouterAIModelEntry } from "./build-types";
+import { failedResult, fetchText, type Contribution, type SourceResult } from "./source";
 
-const ROUTERAI_BASE = "https://routerai.ru/api/v1";
+export const ROUTERAI_URL = "https://routerai.ru/api/v1/models";
 
-export interface RouterAIModelEntry {
+interface RawModel {
   id: string;
   name?: string;
   description?: string;
-  context_length?: number;
-  input_rub_per_token: number;
-  output_rub_per_token: number;
-  input_usd_per_1m: number;
-  output_usd_per_1m: number;
-  supports_vision: boolean;
-  supports_tools: boolean;
-  supports_structured_output: boolean;
-  reasoning: boolean;
-}
-
-export interface RouterAISupplement {
-  currency: { usd_rub: number; source: string; fetched_at: string };
-  models: Record<string, RouterAIModelEntry>;
-  meta: Record<string, unknown>;
-}
-
-interface RawRouterAIModel {
-  id: string;
-  name?: string;
-  description?: string;
-  created?: number;
   context_length?: number | null;
-  architecture?: {
-    input_modalities?: string[];
-    output_modalities?: string[];
-  };
+  architecture?: { input_modalities?: string[]; output_modalities?: string[] };
   pricing?: { prompt?: number; completion?: number };
   supported_parameters?: string[];
 }
 
-function rubPerTokenToUsdPer1M(rubPerToken: number, usdRub: number): number {
-  if (!rubPerToken || rubPerToken <= 0) return 0;
-  return Math.round(((rubPerToken * 1_000_000) / usdRub) * 10000) / 10000;
-}
-
-function isLLM(m: RawRouterAIModel): boolean {
+function isLLM(m: RawModel): boolean {
   const out = m.architecture?.output_modalities ?? [];
   return out.includes("text") && !out.includes("video") && !out.includes("image");
 }
 
-export async function buildRouterAISupplement(): Promise<RouterAISupplement & { fetch_stats: FetchStat[] }> {
-  const fx = await getUsdRubRate();
-  console.log(`[routerai] USD/RUB: ${fx.rate} (${fx.source})`);
+export function parseRouterAI(text: string, usdRub: number): SourceResult {
+  let body: RawModel[] | { data?: RawModel[] };
+  try { body = JSON.parse(text); } catch { return failedResult("not JSON"); }
+  const catalog = Array.isArray(body) ? body : body?.data;
+  if (!Array.isArray(catalog)) return failedResult("no model list");
 
-  const url = `${ROUTERAI_BASE}/models`;
-  const t0 = performance.now();
-  const res = await fetch(url, {
-    headers: { Accept: "application/json" },
-    signal: AbortSignal.timeout(30_000),
-  });
-  const duration_ms = Math.round(performance.now() - t0);
-
-  if (!res.ok) {
-    throw new Error(`routerai.ru /models HTTP ${res.status}`);
-  }
-
-  const text = await res.text();
-  const body = JSON.parse(text) as RawRouterAIModel[] | { data?: RawRouterAIModel[] };
-  const catalog = Array.isArray(body) ? body : body.data ?? [];
-  const llm = catalog.filter(isLLM);
-  console.log(`[routerai] fetched ${catalog.length} models (${llm.length} LLM, ${text.length}B)`);
-
-  const models: Record<string, RouterAIModelEntry> = {};
-  let free = 0;
-
+  // Shortest raw id first: when a dated id collapses onto an undated one, the undated wins.
+  const llm = catalog.filter((m) => m && typeof m.id === "string" && isLLM(m)).sort((a, b) => a.id.length - b.id.length);
+  const records: Contribution[] = [];
   for (const m of llm) {
+    const slash = m.id.indexOf("/");
+    const id = slash < 0 ? canonicalId(null, m.id) : canonicalId(m.id.slice(0, slash), m.id.slice(slash + 1));
+    if (!id) continue;
     const promptRub = m.pricing?.prompt ?? 0;
     const completionRub = m.pricing?.completion ?? 0;
     const inp = m.architecture?.input_modalities ?? [];
     const params = m.supported_parameters ?? [];
-    const id = m.id.toLowerCase();
-
-    models[m.id] = {
+    const lid = m.id.toLowerCase();
+    const value: RouterAIModelEntry = {
       id: m.id,
       name: m.name,
       description: m.description?.slice(0, 300),
       context_length: m.context_length ?? undefined,
       input_rub_per_token: promptRub,
       output_rub_per_token: completionRub,
-      input_usd_per_1m: rubPerTokenToUsdPer1M(promptRub, fx.rate),
-      output_usd_per_1m: rubPerTokenToUsdPer1M(completionRub, fx.rate),
+      input_usd_per_1m: rubPerTokenToUsdPer1M(promptRub, usdRub),
+      output_usd_per_1m: rubPerTokenToUsdPer1M(completionRub, usdRub),
       supports_vision: inp.includes("image"),
       supports_tools: params.includes("tools") || params.includes("tool_choice"),
       supports_structured_output:
-        params.includes("response_format") ||
-        params.includes("structured_outputs") ||
-        params.includes("json_schema"),
+        params.includes("response_format") || params.includes("structured_outputs") || params.includes("json_schema"),
       reasoning:
-        id.includes("thinking") || id.includes("reasoning") ||
+        lid.includes("thinking") || lid.includes("reasoning") ||
         params.includes("reasoning_effort") || params.includes("thinking_budget"),
     };
-
-    if (promptRub === 0 && completionRub === 0) free++;
+    records.push({ id, field: "routerai", value, display_name: m.name });
   }
+  return { ok: true, records };
+}
 
-  console.log(`[routerai] ${Object.keys(models).length} models indexed (${free} free)`);
-
-  return {
-    currency: { usd_rub: fx.rate, source: fx.source, fetched_at: fx.fetchedAt },
-    models,
-    meta: {
-      model_count: Object.keys(models).length,
-      free_count: free,
-      source: ROUTERAI_BASE,
-      fetched_at: new Date().toISOString(),
-    },
-    fetch_stats: [
-      {
-        name: "routerai:models",
-        url,
-        fetched_at: new Date().toISOString(),
-        duration_ms,
-        bytes: text.length,
-        sha256: sha256(text),
-        ok: true,
-      },
-    ],
-  };
+export async function fetchRouterAI(): Promise<SourceResult> {
+  try {
+    const fx = await getUsdRubRate();
+    if (fx.source.startsWith("fallback")) return failedResult("no live USD/RUB rate");
+    const { text, stat } = await fetchText("routerai", ROUTERAI_URL, { headers: { Accept: "application/json" } });
+    if (text === undefined) return failedResult(stat.error ?? "fetch failed", stat);
+    const r = parseRouterAI(text, fx.rate);
+    return {
+      ...r,
+      stat: r.ok ? stat : { ...stat, ok: false, error: r.error },
+      meta: { currency: { usd_rub: fx.rate, source: fx.source, fetched_at: fx.fetchedAt } },
+    };
+  } catch (e) {
+    return failedResult(String(e));
+  }
 }

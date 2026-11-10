@@ -1,199 +1,101 @@
 /**
- * scores.ts — Fetch benchmark scores from authoritative JSON endpoints.
+ * scores.ts — benchmark scores from two official JSON endpoints.
  *
- * Two sources, both official:
- *   1. HLE (Humanity's Last Exam) — CAIS Dashboard, https://dashboard.safe.ai/api/models
- *      Single endpoint returns ~80 models with hle, swebench_pro,
- *      hle_calibration_error fields. Same org that created HLE.
+ *   cais:       HLE + SWE-bench Pro (CAIS dashboard, one request)
+ *   swe_bench:  SWE-bench Verified / Lite / Multilingual (official leaderboards.json)
  *
- *   2. SWE-bench — Official leaderboard JSON, raw GitHub
- *      https://raw.githubusercontent.com/SWE-bench/swe-bench.github.io/master/data/leaderboards.json
- *      Single file (~7 MB) contains all splits: verified, lite, multilingual,
- *      multimodal, bash-only, test.
- *
- * Each fetcher returns:
- *   { data: { [normalizedModelName]: ScoreEntry }, stat: FetchStat }
- *
- * Where ScoreEntry preserves raw_name + raw_score (so consumers can verify
- * provenance) and exposes score in [0, 1].
+ * Pure parsers; display names are resolved through resolveDisplayName().
  */
 
-import { sha256, type FetchStat } from "./provenance";
 import { normalizeModelName } from "./normalize";
+import { displayNameFromRaw, resolveDisplayName } from "./canonical";
+import { failedResult, runSource, type Contribution, type SourceResult, type UnmatchedItem } from "./source";
 
-export interface ScoreEntry {
-  raw_name: string;
-  score: number;          // normalized 0..1
-  raw_score: number;      // original (e.g., 38.4 for 38.4%)
-  date?: string;
-  sources: string[];
-  extras?: Record<string, unknown>;
-}
-
-const HLE_API = "https://dashboard.safe.ai/api/models";
-// Match the public lastexam.ai client for this official cross-origin API.
-// Generic server-side requests are rejected with HTTP 403.
-const HLE_PUBLIC_HEADERS = {
+export const HLE_URL = "https://dashboard.safe.ai/api/models";
+// Match the public lastexam.ai client for this cross-origin API (generic requests get 403).
+export const HLE_HEADERS = {
   Origin: "https://lastexam.ai",
   Referer: "https://lastexam.ai/",
   Accept: "application/json",
   "User-Agent": "Mozilla/5.0",
 };
-const SWE_LEADERBOARD_URL =
+export const SWE_URL =
   "https://raw.githubusercontent.com/SWE-bench/swe-bench.github.io/master/data/leaderboards.json";
 
 interface HleModel {
   name: string;
-  id?: string;
   provider?: string;
   releaseDate?: string;
   scores?: Record<string, number | null | undefined>;
-  modelCardUrl?: string;
 }
 
-async function fetchJson<T>(url: string, timeoutMs = 30_000, headers?: HeadersInit): Promise<{ data: T; stat: FetchStat }> {
-  const t0 = performance.now();
-  const fetched_at = new Date().toISOString();
-  const baseStat = (overrides: Partial<FetchStat> = {}): FetchStat => ({
-    name: url,
-    url, fetched_at,
-    duration_ms: Math.round(performance.now() - t0),
-    bytes: 0, sha256: "", ok: false, ...overrides,
-  });
-  try {
-    const res = await fetch(url, { headers, signal: AbortSignal.timeout(timeoutMs) });
-    if (!res.ok) return { data: undefined as unknown as T, stat: baseStat({ error: `HTTP ${res.status}` }) };
-    const text = await res.text();
-    const data = JSON.parse(text) as T;
-    return {
-      data,
-      stat: baseStat({ bytes: text.length, sha256: sha256(text), ok: true }),
-    };
-  } catch (e) {
-    return { data: undefined as unknown as T, stat: baseStat({ error: String(e) }) };
-  }
-}
+const pct = (x: number) => Math.round((x / 100) * 10000) / 10000;
 
-/** Fetch HLE + SWE-bench Pro from CAIS Dashboard. */
-export async function fetchHLE(): Promise<{
-  hle: Record<string, ScoreEntry>;
-  swebench_pro: Record<string, ScoreEntry>;
-  stat: FetchStat;
-}> {
-  const { data: models, stat } = await fetchJson<HleModel[]>(HLE_API, 30_000, HLE_PUBLIC_HEADERS);
+export function parseCais(text: string): SourceResult {
+  let models: HleModel[];
+  try { models = JSON.parse(text); } catch { return failedResult("not JSON"); }
+  if (!Array.isArray(models)) return failedResult("not an array");
 
-  const hle: Record<string, ScoreEntry> = {};
-  const swebenchPro: Record<string, ScoreEntry> = {};
-
-  if (!Array.isArray(models)) {
-    return { hle, swebench_pro: swebenchPro, stat: { ...stat, name: "hle_api", ok: false, error: stat.error ?? "not array" } };
-  }
-
+  const records: Contribution[] = [];
+  const unmatched: UnmatchedItem[] = [];
   for (const m of models) {
     if (!m?.name || !m.scores) continue;
-    const normKey = normalizeModelName(m.name);
-
-    const hleScore = m.scores.hle;
-    if (typeof hleScore === "number" && hleScore >= 0) {
-      hle[normKey] = {
-        raw_name: m.name,
-        score: Math.round(hleScore / 100 * 10000) / 10000,
-        raw_score: hleScore,
-        date: m.releaseDate,
-        sources: ["hle"],
-        extras: {
-          calibration_error: m.scores.hle_calibration_error ?? null,
-          model_id: m.id ?? null,
-          provider: m.provider ?? null,
-        },
-      };
+    const res = resolveDisplayName(m.name, m.provider);
+    const wants: Array<[string, unknown]> = [];
+    const hle = m.scores.hle;
+    if (typeof hle === "number" && hle >= 0) {
+      wants.push(["hle", {
+        score: pct(hle), raw_score: hle, date: m.releaseDate,
+        calibration_error: m.scores.hle_calibration_error ?? null, provider: m.provider ?? undefined,
+      }]);
     }
-
-    const swePro = m.scores.swebench_pro;
-    if (typeof swePro === "number" && swePro >= 0) {
-      swebenchPro[normKey] = {
-        raw_name: m.name,
-        score: Math.round(swePro / 100 * 10000) / 10000,
-        raw_score: swePro,
-        date: m.releaseDate,
-        sources: ["swe_bench_pro"],
-      };
+    const pro = m.scores.swebench_pro;
+    if (typeof pro === "number" && pro >= 0) wants.push(["swebench_pro", { score: pct(pro), raw_score: pro, date: m.releaseDate }]);
+    for (const [field, value] of wants) {
+      if (res.id) records.push({ id: res.id, field, value, display_name: displayNameFromRaw(m.name) });
+      else unmatched.push({ field, display_name: m.name, reason: "unknown_vendor", kind: res.kind });
     }
   }
-
-  return {
-    hle,
-    swebench_pro: swebenchPro,
-    stat: { ...stat, name: "cais_dashboard", ok: stat.ok },
-  };
+  return { ok: true, records, unmatched };
 }
 
-interface SweLeaderboard {
-  name: string;
-  results: SweResult[];
-}
-interface SweResult {
-  name: string;
-  resolved?: number;
-  date?: string;
-  folder?: string;
-}
+const SWE_SPLITS: Record<string, string> = {
+  verified: "swe_bench_verified", lite: "swe_bench_lite", multilingual: "swe_bench_multilingual",
+};
 
-/** Fetch SWE-bench Verified + Lite + Multilingual from official leaderboard JSON. */
-export async function fetchSWEbench(): Promise<{
-  swe_bench_verified: Record<string, ScoreEntry>;
-  swe_bench_lite: Record<string, ScoreEntry>;
-  swe_bench_multilingual: Record<string, ScoreEntry>;
-  stats: FetchStat[];
-}> {
-  const { data, stat } = await fetchJson<{ leaderboards: SweLeaderboard[] }>(SWE_LEADERBOARD_URL, 60_000);
-  const stats: FetchStat[] = [{ ...stat, name: "swe_bench_leaderboard" }];
+interface SweResult { name: string; resolved?: number; date?: string }
 
-  const out = {
-    swe_bench_verified: {} as Record<string, ScoreEntry>,
-    swe_bench_lite: {} as Record<string, ScoreEntry>,
-    swe_bench_multilingual: {} as Record<string, ScoreEntry>,
-  };
+export function parseSwe(text: string): SourceResult {
+  let body: { leaderboards?: Array<{ name: string; results?: SweResult[] }> };
+  try { body = JSON.parse(text); } catch { return failedResult("not JSON"); }
+  if (!Array.isArray(body?.leaderboards)) return failedResult("no leaderboards");
 
-  if (!data?.leaderboards) return { ...out, stats };
-
-  // Prefer the most recent entry per (model, split). SWE-bench often has
-  // multiple rows for the same model (different runs / scaffolds).
-  const map: Record<keyof typeof out, Map<string, ScoreEntry>> = {
-    swe_bench_verified: new Map(),
-    swe_bench_lite: new Map(),
-    swe_bench_multilingual: new Map(),
-  };
-
-  for (const lb of data.leaderboards) {
-    const splitName = lb.name.toLowerCase();
-    let target: keyof typeof out | null = null;
-    let sourceTag: string | null = null;
-    if (splitName === "verified") { target = "swe_bench_verified"; sourceTag = "swe_bench_verified"; }
-    else if (splitName === "lite") { target = "swe_bench_lite"; sourceTag = "swe_bench_lite"; }
-    else if (splitName === "multilingual") { target = "swe_bench_multilingual"; sourceTag = "swe_bench_multilingual"; }
-    if (!target || !sourceTag) continue;
-
+  const best = new Map<string, Contribution & { date: string }>();
+  const unmatched: UnmatchedItem[] = [];
+  for (const lb of body.leaderboards) {
+    const field = SWE_SPLITS[lb.name?.toLowerCase()];
+    if (!field) continue;
     for (const r of lb.results ?? []) {
       if (typeof r.resolved !== "number" || r.resolved < 0) continue;
-      const key = normalizeModelName(r.name);
-      const entry: ScoreEntry = {
-        raw_name: r.name,
-        score: Math.round(r.resolved / 100 * 10000) / 10000,
-        raw_score: r.resolved,
-        date: r.date,
-        sources: [sourceTag],
-      };
-      const existing = map[target].get(key);
-      if (!existing || (existing.date ?? "") < (r.date ?? "")) {
-        map[target].set(key, entry);
+      const res = resolveDisplayName(normalizeModelName(r.name) || r.name, undefined, r.name);
+      if (!res.id) {
+        unmatched.push({ field, display_name: r.name, reason: "unknown_vendor", kind: res.kind });
+        continue;
+      }
+      const key = `${field}|${res.id}`;
+      const date = r.date ?? "";
+      const prev = best.get(key);
+      // Several runs per model: keep the most recent; on equal dates the higher score.
+      if (!prev || prev.date < date || (prev.date === date && (prev.value as { raw_score: number }).raw_score < r.resolved)) {
+        best.set(key, {
+          id: res.id, field, date, display_name: displayNameFromRaw(r.name),
+          value: { score: pct(r.resolved), raw_score: r.resolved, date: r.date },
+        });
       }
     }
   }
-
-  for (const k of Object.keys(map) as (keyof typeof out)[]) {
-    out[k] = Object.fromEntries(map[k]);
-  }
-
-  return { ...out, stats };
+  return { ok: true, records: [...best.values()].map(({ date: _d, ...c }) => c), unmatched };
 }
+
+export const fetchCais = () => runSource("cais", HLE_URL, parseCais, { headers: HLE_HEADERS });
+export const fetchSwe = () => runSource("swe_bench", SWE_URL, parseSwe, { timeoutMs: 60_000 });

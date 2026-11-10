@@ -26,23 +26,22 @@ export interface RouterAIModelEntry {
   reasoning: boolean;
 }
 
+export interface ArenaBoard {
+  elo: number;
+  score: number;
+  rank: number;
+  ci: number;
+  votes: number;
+  confidence: string;
+  license: string;
+  last_updated?: string;
+}
+
 export interface ModelEntry {
   canonical_id: string;
   display_name?: string;
   vendor?: string;
-  arena?: {
-    elo: number;
-    score: number;
-    rank: number;
-    leaderboard: string;
-    ci: number;
-    votes: number;
-    confidence: string;
-    license: string;
-    sources: string[];
-    last_updated?: string;
-    fetched_at?: string;
-  };
+  arena?: { text?: ArenaBoard; code?: ArenaBoard };
   alpaca_lc?: AlpacaLcEntry;
   routerai?: RouterAIModelEntry;
   hle?: {
@@ -59,10 +58,5 @@ export interface ModelEntry {
   benchmark_sources: string[];
 }
 
-export interface Unmatched {
-  hle: Array<{ display_name: string; reason: string }>;
-  swebench_pro: Array<{ display_name: string; reason: string }>;
-  swe_bench_verified: Array<{ display_name: string; reason: string }>;
-  swe_bench_lite: Array<{ display_name: string; reason: string }>;
-  swe_bench_multilingual: Array<{ display_name: string; reason: string }>;
-}
+/** Leaderboard names that matched no model, keyed by field ("hle", "swe_bench_verified", …). */
+export type Unmatched = Record<string, Array<{ display_name: string; reason: string; kind?: "scaffold" | "model" }>>;
