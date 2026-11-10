@@ -21,6 +21,7 @@ import { readFileSync, existsSync } from "node:fs";
 
 interface Counter {
   models_total: number;
+  models_with_models_dev: number;
   models_with_arena: number;
   models_with_routerai: number;
   models_with_hle: number;
@@ -35,6 +36,7 @@ function counts(doc: unknown): Counter {
   const d = doc as {
     models?: Record<string, {
       arena?: unknown;
+      models_dev?: unknown;
       routerai?: unknown;
       hle?: unknown;
       swebench_pro?: unknown;
@@ -47,6 +49,7 @@ function counts(doc: unknown): Counter {
   const models = Object.values(d.models ?? {});
   return {
     models_total: models.length,
+    models_with_models_dev: models.filter((m) => m.models_dev).length,
     models_with_arena: models.filter((m) => m.arena).length,
     models_with_routerai: models.filter((m) => m.routerai).length,
     models_with_hle: models.filter((m) => m.hle).length,
@@ -92,6 +95,7 @@ function main(): void {
 
   const rows = [
     row("models_total", prev.models_total, curr.models_total),
+    row("models_with_models_dev", prev.models_with_models_dev, curr.models_with_models_dev),
     row("models_with_arena", prev.models_with_arena, curr.models_with_arena),
     row("models_with_routerai", prev.models_with_routerai, curr.models_with_routerai),
     row("models_with_hle", prev.models_with_hle, curr.models_with_hle),
@@ -107,7 +111,7 @@ function main(): void {
   console.log(`  ${"threshold".padEnd(22)} ${threshold}%`);
 
   const failures: string[] = [];
-  const labels = ["models_total", "models_with_arena", "models_with_routerai", "models_with_hle", "models_with_swe_v", "models_with_swe_l", "models_with_swe_m", "models_with_swe_pro"];
+  const labels = ["models_total", "models_with_models_dev", "models_with_arena", "models_with_routerai", "models_with_hle", "models_with_swe_v", "models_with_swe_l", "models_with_swe_m", "models_with_swe_pro"];
   for (let i = 0; i < rows.length; i++) {
     if (rows[i].drop > threshold) {
       failures.push(`${labels[i]} dropped ${rows[i].drop.toFixed(1)}% (>${threshold}%)`);

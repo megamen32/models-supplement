@@ -36,6 +36,10 @@ export interface SourceFetch {
   bytes: number;
   sha256: string;
   error?: string;
+  /** True when the live source failed and a prior artifact was used. */
+  fallback?: boolean;
+  /** Path or other bounded source of fallback data; never a secret. */
+  fallback_source?: string;
 }
 
 /** Alias used by source modules (arena, routerai) for their fetch stats. */

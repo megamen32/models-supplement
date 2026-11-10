@@ -30,6 +30,14 @@ export interface ModelEntry {
   canonical_id: string;
   display_name?: string;
   vendor?: string;
+  /** Base metadata copied from models.dev, kept separate from supplements. */
+  models_dev?: {
+    provider_id: string;
+    provider_name?: string;
+    provider_api?: string;
+    provider_doc?: string;
+    model: Record<string, unknown>;
+  };
   arena?: {
     elo: number;
     score: number;

@@ -27,6 +27,7 @@ export interface CheckReport {
 
 export interface CheckStats {
   total_models: number;
+  with_models_dev: number;
   with_arena: number;
   with_alpaca_lc: number;
   with_routerai: number;
@@ -55,6 +56,7 @@ export interface CheckInput {
   currency: { usd_rub: number; source: string };
   models?: Record<string, ModelEntry>;
   unmatched?: Unmatched;
+  upstream?: { model_count: number; live: boolean };
 }
 
 /** Minimum counts we expect from healthy sources. Tuned to catch outages. */
@@ -105,12 +107,13 @@ export function runChecks(input: CheckInput): CheckReport {
   // Models view stats
   const models = input.models ?? {};
   const totalModels = Object.keys(models).length;
-  let withArena = 0, withAlpaca = 0, withRouterai = 0, withHle = 0;
+  let withModelsDev = 0, withArena = 0, withAlpaca = 0, withRouterai = 0, withHle = 0;
   let withSwePro = 0, withSweVerified = 0, withSweLite = 0, withSweMulti = 0;
   let arenaMissing = 0, routeraiMissing = 0;
   let routeraiWithUsd = 0;
 
   for (const [cid, m] of Object.entries(models)) {
+    if (m.models_dev) withModelsDev++;
     if (m.arena) withArena++;
     if (m.alpaca_lc) withAlpaca++;
     if (m.routerai) {
@@ -140,6 +143,20 @@ export function runChecks(input: CheckInput): CheckReport {
         message: `model entry has no vendor prefix: ${cid}`,
       });
     }
+  }
+
+  if ((input.upstream?.model_count ?? withModelsDev) === 0) {
+    errors.push({
+      severity: "error",
+      code: "models_dev_empty",
+      message: "models.dev has no usable models (live fetch failed and no previous artifact was available)",
+    });
+  } else if (input.upstream && !input.upstream.live) {
+    warnings.push({
+      severity: "warn",
+      code: "models_dev_fallback",
+      message: `models.dev live fetch failed; using ${input.upstream.model_count} models from the previous artifact`,
+    });
   }
 
   if (arenaMissing > 0) {
@@ -221,6 +238,7 @@ export function runChecks(input: CheckInput): CheckReport {
     warnings,
     stats: {
       total_models: totalModels,
+      with_models_dev: withModelsDev,
       with_arena: withArena,
       with_alpaca_lc: withAlpaca,
       with_routerai: withRouterai,
@@ -249,6 +267,7 @@ export function formatReport(r: CheckReport): string {
   lines.push("");
   lines.push("=== stats ===");
   lines.push(`  total models:          ${r.stats.total_models}`);
+  lines.push(`  with models.dev:       ${r.stats.with_models_dev}`);
   lines.push(`    with arena:          ${r.stats.with_arena}`);
   lines.push(`    with alpaca_lc:      ${r.stats.with_alpaca_lc}`);
   lines.push(`    with routerai:       ${r.stats.with_routerai}`);
