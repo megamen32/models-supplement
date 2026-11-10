@@ -28,17 +28,17 @@
  * SHA-256, output SHA-256) so consumers can defend the numbers months later.
  */
 
-import { writeFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { buildArenaSupplement, type ArenaEntry } from "./arena";
-import { buildRouterAISupplement, type RouterAIModelEntry } from "./routerai";
-import { fetchHLE, fetchSWEbench, type ScoreEntry } from "./scores";
+import { fetchAlpaca, fetchArena } from "./arena";
+import { fetchRouterAI } from "./routerai";
+import { fetchHLE, fetchSWEbench } from "./scores";
 import { getEnvFingerprint, getGitInfo, sha256, type FetchStat } from "./provenance";
 import { formatReport, runChecks } from "./checks";
 import { fetchModelsDev, MODELS_DEV_URL } from "./upstream";
 import { buildCodingBenchmarkManifest } from "./coding-benchmarks";
-import { canonicalId, displayNameFromRaw } from "./canonical";
-import { reconcileModels } from "./merge";
+import { assemble } from "./assemble";
+import { firstError, parsePrevious, type SourceState } from "./source";
 import type { ModelEntry, Unmatched } from "./build-types";
 
 interface Supplement {
@@ -55,43 +55,24 @@ interface Supplement {
     usd_rub: number;
     source: string;
     fetched_at: string;
-  };
+  } | null;
   models: Record<string, ModelEntry>;
   unmatched_display_names: Unmatched;
-  sources: {
-    upstream: string;
-    arena: string;
-    routerai: string;
-    hle: string;
-    swe_bench_leaderboard: string;
-  };
+  /** One state per source: url + status ok|stale|absent (+ error, last_ok_at). */
+  sources: Record<string, SourceState>;
 }
+
+const SOURCE_URLS: Record<string, string> = {
+  upstream: MODELS_DEV_URL,
+  arena: "https://api.wulong.dev/arena-ai-leaderboards/v1/leaderboard",
+  alpaca_lc: "https://raw.githubusercontent.com/tatsu-lab/alpaca_eval/main/src/alpaca_eval/leaderboards/data_AlpacaEval_2/weighted_alpaca_eval_gpt4_turbo_leaderboard.csv",
+  routerai: "https://routerai.ru/api/v1/models",
+  hle: "https://dashboard.safe.ai/api/models",
+  swe_bench_leaderboard: "https://raw.githubusercontent.com/SWE-bench/swe-bench.github.io/master/data/leaderboards.json",
+};
 
 function parseArgs(argv: string[]): { dryRun: boolean } {
   return { dryRun: argv.includes("--dry-run") };
-}
-
-function ensureModel(
-  models: Record<string, ModelEntry>,
-  canonicalId: string,
-  vendor: string,
-  displayName?: string,
-): ModelEntry {
-  let m = models[canonicalId];
-  if (!m) {
-    m = {
-      canonical_id: canonicalId,
-      vendor,
-      benchmark_sources: [],
-    };
-    models[canonicalId] = m;
-  }
-  if (displayName && !m.display_name) m.display_name = displayName;
-  return m;
-}
-
-function addSource(m: ModelEntry, source: string): void {
-  if (!m.benchmark_sources.includes(source)) m.benchmark_sources.push(source);
 }
 
 function printDryRunSummary(s: Supplement): void {
@@ -136,7 +117,10 @@ function printDryRunSummary(s: Supplement): void {
   console.log(`    with swe_lite:    ${sweLEntries}`);
   console.log(`    with swe_multilin:${sweMEntries}`);
   console.log(`    with models.dev:  ${upstreamEntries}`);
-  console.log(`  USD/RUB:            ${s.currency.usd_rub} (${s.currency.source})`);
+  console.log(`  USD/RUB:            ${s.currency ? `${s.currency.usd_rub} (${s.currency.source})` : "(none)"}`);
+  for (const [name, st] of Object.entries(s.sources)) {
+    console.log(`  source ${name.padEnd(22)} ${st.status}${st.error ? `  (${st.error.slice(0, 80)})` : ""}`);
+  }
   console.log(`  sources ok:         ${s.provenance.sources.filter((x) => x.ok).length}/${s.provenance.sources.length}`);
   const upstream = s.provenance.sources.find((x) => x.name === "models_dev");
   if (upstream?.fallback) console.log(`  models.dev:         fallback (${upstream.fallback_source})`);
@@ -172,10 +156,15 @@ async function main() {
   const t0 = performance.now();
   const artifactPath = resolve(import.meta.dir, "..", "supplement.json");
   const codingManifestPath = resolve(import.meta.dir, "..", "coding-benchmarks.json");
-  const [upstreamResult, arenaResult, routeraiResult, hleResult, sweResult] = await Promise.all([
+  let prevText = "";
+  try { prevText = readFileSync(artifactPath, "utf8"); } catch { /* first build */ }
+  const prev = prevText ? parsePrevious(prevText) : null;
+
+  const [upstreamResult, arenaResult, alpacaResult, routeraiResult, hleResult, sweResult] = await Promise.all([
     fetchModelsDev(artifactPath),
-    buildArenaSupplement(),
-    buildRouterAISupplement(),
+    fetchArena(),
+    fetchAlpaca(),
+    fetchRouterAI(),
     fetchHLE(),
     fetchSWEbench(),
   ]);
@@ -183,111 +172,45 @@ async function main() {
 
   const git = getGitInfo();
   const env = getEnvFingerprint();
+  const generatedAt = new Date().toISOString();
 
-  const models: Record<string, ModelEntry> = {};
-  const unmatched: Unmatched = {
-    hle: [], swebench_pro: [], swe_bench_verified: [], swe_bench_lite: [], swe_bench_multilingual: [],
-  };
-
-  // 1. Seed the model map from models.dev.  Supplemental sources below then
-  // overlay benchmark and provider-specific facts onto the same records.
-  for (const [cid, upstream] of Object.entries(upstreamResult.models)) {
-    const modelName = typeof upstream.model.name === "string" ? upstream.model.name : undefined;
-    const m = ensureModel(models, cid, cid.split("/")[0], modelName);
-    m.models_dev = upstream;
-  }
-
-  // 2. arena + alpaca_lc (merged via arena.ts)
-  for (const [arenaKey, entry] of Object.entries(arenaResult.arena) as [string, ArenaEntry][]) {
-    const vendor = entry.vendor || (arenaKey.includes("/") ? arenaKey.split("/")[0] : "");
-    const cid = canonicalId(vendor, arenaKey);
-    if (!cid) continue;
-    const displayName = displayNameFromRaw(arenaKey);
-    const m = ensureModel(models, cid, cid.split("/")[0], displayName);
-    m.arena = {
-      elo: entry.elo,
-      score: entry.score,
-      rank: entry.rank,
-      leaderboard: entry.leaderboard,
-      ci: entry.ci,
-      votes: entry.votes,
-      confidence: entry.confidence,
-      license: entry.license,
-      sources: entry.sources,
-      last_updated: entry.lastUpdated,
-      fetched_at: entry.fetchedAt,
-    };
-    addSource(m, "arena");
-    if (entry.alpaca_lc) {
-      m.alpaca_lc = entry.alpaca_lc;
-      addSource(m, "alpaca_lc");
-    }
-  }
-
-  // 3. routerai
-  for (const [key, entry] of Object.entries(routeraiResult.models) as [string, RouterAIModelEntry][]) {
-    const slash = key.indexOf("/");
-    const cid = slash < 0 ? canonicalId(null, key) : canonicalId(key.slice(0, slash), key.slice(slash + 1));
-    if (!cid) continue;
-    const m = ensureModel(models, cid, cid.split("/")[0], entry.name);
-    m.routerai = entry;
-    addSource(m, "routerai");
-  }
-
-  // 4. HLE
-  for (const [normKey, entry] of Object.entries(hleResult.hle) as [string, ScoreEntry][]) {
-    const provider = (entry.extras?.provider as string) ?? undefined;
-    const cid = canonicalId(provider, normKey);
-    if (!cid) {
-      unmatched.hle.push({ display_name: entry.raw_name, reason: "unknown_vendor" });
-      continue;
-    }
-    const m = ensureModel(models, cid, cid.split("/")[0], displayNameFromRaw(entry.raw_name));
-    m.hle = {
-      score: entry.score,
-      raw_score: entry.raw_score,
-      date: entry.date,
-      calibration_error: (entry.extras?.calibration_error as number | null) ?? null,
-      provider,
-    };
-    addSource(m, "hle");
-  }
-
-  // 5. SWE-bench Pro (from HLE API)
-  for (const [normKey, entry] of Object.entries(hleResult.swebench_pro) as [string, ScoreEntry][]) {
-    const provider = (entry.extras?.provider as string) ?? undefined;
-    const cid = canonicalId(provider, normKey);
-    if (!cid) {
-      unmatched.swebench_pro.push({ display_name: entry.raw_name, reason: "unknown_vendor" });
-      continue;
-    }
-    const m = ensureModel(models, cid, cid.split("/")[0], displayNameFromRaw(entry.raw_name));
-    m.swebench_pro = { score: entry.score, raw_score: entry.raw_score, date: entry.date };
-    addSource(m, "swebench_pro");
-  }
-
-  // 6. SWE-bench Verified + Lite + Multilingual
-  for (const split of ["swe_bench_verified", "swe_bench_lite", "swe_bench_multilingual"] as const) {
-    for (const [normKey, entry] of Object.entries(sweResult[split]) as [string, ScoreEntry][]) {
-      const cid = canonicalId(null, normKey);
-      if (!cid) {
-        unmatched[split].push({ display_name: entry.raw_name, reason: "unknown_vendor" });
-        continue;
-      }
-      const m = ensureModel(models, cid, cid.split("/")[0], displayNameFromRaw(entry.raw_name));
-      m[split] = { score: entry.score, raw_score: entry.raw_score, date: entry.date };
-      addSource(m, split);
-    }
-  }
-
-  const unified = reconcileModels(models);
-  for (const k of Object.keys(models)) delete models[k];
-  Object.assign(models, unified);
+  const sweStat = sweResult.stats[0];
+  const { models, unmatched, states, currency } = assemble({
+    now: generatedAt,
+    prev,
+    upstream: {
+      models: upstreamResult.models,
+      ok: upstreamResult.live,
+      fallback: upstreamResult.stat.fallback === true,
+      error: upstreamResult.stat.error,
+    },
+    arena: arenaResult,
+    alpaca: alpacaResult,
+    routerai: routeraiResult,
+    hle: {
+      ok: hleResult.stat.ok,
+      records: { hle: hleResult.hle, swebench_pro: hleResult.swebench_pro },
+      error: firstError([hleResult.stat]),
+      stats: [hleResult.stat],
+    },
+    swe: {
+      ok: sweStat.ok,
+      records: {
+        swe_bench_verified: sweResult.swe_bench_verified,
+        swe_bench_lite: sweResult.swe_bench_lite,
+        swe_bench_multilingual: sweResult.swe_bench_multilingual,
+      },
+      error: firstError([sweStat]),
+      stats: sweResult.stats,
+    },
+    urls: SOURCE_URLS,
+  });
 
   const fetchStats: FetchStat[] = [
     upstreamResult.stat,
-    ...arenaResult.fetch_stats,
-    ...routeraiResult.fetch_stats,
+    ...arenaResult.stats,
+    ...alpacaResult.stats,
+    ...routeraiResult.stats,
     hleResult.stat,
     ...sweResult.stats,
   ];
@@ -295,25 +218,18 @@ async function main() {
   const draft: Omit<Supplement, "provenance"> & {
     provenance: Omit<Supplement["provenance"], "output_sha256" | "dry_run">;
   } = {
-    generated_at: new Date().toISOString(),
+    generated_at: generatedAt,
     schema_version: "3.0",
     provenance: { git, env, sources: fetchStats },
-    currency: routeraiResult.currency,
+    currency,
     models,
     unmatched_display_names: unmatched,
-    sources: {
-      upstream: MODELS_DEV_URL,
-      arena: "https://api.wulong.dev/arena-ai-leaderboards/v1/leaderboard",
-      routerai: "https://routerai.ru/api/v1/models",
-      hle: "https://dashboard.safe.ai/api/models",
-      swe_bench_leaderboard: "https://raw.githubusercontent.com/SWE-bench/swe-bench.github.io/master/data/leaderboards.json",
-    },
+    sources: states,
   };
 
   const report = runChecks({
-    arena: arenaResult.arena,
-    routerai: routeraiResult.models,
     currency: draft.currency,
+    sources: states,
     models: draft.models,
     unmatched: draft.unmatched_display_names,
     upstream: {
@@ -364,7 +280,7 @@ async function main() {
   console.log(`\n=== Done in ${buildMs}ms: ${artifactPath} ===`);
   console.log(`  total models:        ${Object.keys(supplement.models).length}`);
   console.log(`  coding manifest:     ${codingManifestPath} (${Object.keys(codingManifest.models).length} models)`);
-  console.log(`  USD/RUB:             ${supplement.currency.usd_rub}`);
+  console.log(`  USD/RUB:             ${supplement.currency?.usd_rub ?? "(none)"}`);
   console.log(`  output sha256:       ${supplement.provenance.output_sha256.slice(0, 16)}...`);
   const totalUnmatched = Object.values(supplement.unmatched_display_names).reduce((s, a) => s + a.length, 0);
   if (totalUnmatched > 0) console.log(`  unmatched:           ${totalUnmatched} (see unmatched_display_names)`);

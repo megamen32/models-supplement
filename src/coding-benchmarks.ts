@@ -45,7 +45,7 @@ type CodingModel = Pick<ModelEntry, "canonical_id" | "display_name"> & Partial<
 export interface CodingSupplementInput {
   generated_at?: string;
   models: Record<string, CodingModel>;
-  sources?: Record<string, string>;
+  sources?: Record<string, string | { url?: string }>;
   provenance?: {
     git?: { commit: string | null; dirty: boolean; branch: string | null };
     sources?: SourceFetch[];
@@ -70,12 +70,14 @@ function hasFiniteScores(value: unknown): value is { score: number; raw_score: n
 
 function sourceUrl(
   key: keyof typeof CODING_BENCHMARK_SOURCES,
-  supplementSources?: Record<string, string>,
+  supplementSources?: Record<string, string | { url?: string }>,
 ): string {
+  const url = (v: string | { url?: string } | undefined): string | undefined =>
+    typeof v === "string" ? v : v?.url;
   // Keep source URLs in sync with supplement.json when a caller has customized
   // them, while retaining authoritative defaults for hand-built fixtures.
-  if (key === "swebench_pro") return supplementSources?.hle ?? CODING_BENCHMARK_SOURCES[key];
-  return supplementSources?.swe_bench_leaderboard ?? CODING_BENCHMARK_SOURCES[key];
+  if (key === "swebench_pro") return url(supplementSources?.hle) ?? CODING_BENCHMARK_SOURCES[key];
+  return url(supplementSources?.swe_bench_leaderboard) ?? CODING_BENCHMARK_SOURCES[key];
 }
 
 /**
