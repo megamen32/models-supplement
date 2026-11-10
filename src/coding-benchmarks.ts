@@ -26,6 +26,11 @@ export const CODING_BENCHMARK_SOURCES = {
     "https://raw.githubusercontent.com/SWE-bench/swe-bench.github.io/master/data/leaderboards.json",
   swe_bench_multilingual:
     "https://raw.githubusercontent.com/SWE-bench/swe-bench.github.io/master/data/leaderboards.json",
+  aider_polyglot:
+    "https://raw.githubusercontent.com/Aider-AI/aider/main/aider/website/_data/polyglot_leaderboard.yml",
+  livebench_coding: "https://livebench.ai/data/20261106/table.csv",
+  terminal_bench:
+    "https://github.com/laude-institute/terminal-bench-leaderboard/tree/main/results/terminal-bench-core@0.1.1",
 } as const;
 
 const PRIMARY_ORDER = [
@@ -42,6 +47,9 @@ type CodingModel = Pick<ModelEntry, "canonical_id" | "display_name"> & Partial<
     | "swe_bench_verified"
     | "swe_bench_lite"
     | "swe_bench_multilingual"
+    | "aider_polyglot"
+    | "livebench"
+    | "terminal_bench"
   >
 >;
 
@@ -79,8 +87,11 @@ function sourceUrl(
     typeof v === "string" ? v : v?.url;
   // Keep source URLs in sync with supplement.json when a caller has customized
   // them, while retaining authoritative defaults for hand-built fixtures.
-  if (key === "swebench_pro") return url(supplementSources?.hle) ?? CODING_BENCHMARK_SOURCES[key];
-  return url(supplementSources?.swe_bench_leaderboard) ?? CODING_BENCHMARK_SOURCES[key];
+  const sourceKey =
+    key === "swebench_pro" ? "hle" :
+    key.startsWith("swe_bench_") ? "swe_bench_leaderboard" :
+    key;
+  return url(supplementSources?.[sourceKey]) ?? CODING_BENCHMARK_SOURCES[key];
 }
 
 /** Benchmarks with fewer ranked models than this do not enter coding.score. */
@@ -126,6 +137,32 @@ function scoresOf(model: CodingModel): Benchmarks {
     if (hasFiniteScores(v)) {
       out[key] = { score: v.score, raw_score: v.raw_score, ...(typeof v.date === "string" && v.date ? { date: v.date } : {}) };
     }
+  }
+
+  // These sources stay as independent slices in benchmarks. They are
+  // intentionally excluded from PRIMARY_ORDER and therefore never alter
+  // coding.score or the SWE-bench Pro threshold used by classifiers.
+  const aider = model.aider_polyglot;
+  if (hasFiniteScores(aider)) {
+    out.aider_polyglot = {
+      score: aider.score,
+      raw_score: aider.raw_score,
+      ...(typeof aider.date === "string" && aider.date ? { date: aider.date } : {}),
+    };
+  }
+  const livebench = model.livebench;
+  if (livebench && Number.isFinite(livebench.coding_score)) {
+    out.livebench_coding = {
+      score: livebench.coding_score / 100,
+      raw_score: livebench.coding_score,
+    };
+  }
+  const terminal = model.terminal_bench;
+  if (hasFiniteScores(terminal)) {
+    out.terminal_bench = {
+      score: terminal.score,
+      raw_score: terminal.raw_score,
+    };
   }
   return out;
 }
@@ -216,7 +253,13 @@ export function buildCodingBenchmarkManifest(
     .filter((entry) =>
       entry.name === "cais_dashboard" ||
       entry.name === "swe_bench_leaderboard" ||
-      entry.name === "hle_api",
+      entry.name === "hle_api" ||
+      entry.name === "aider_polyglot" ||
+      entry.name === "livebench:table" ||
+      entry.name === "livebench:categories" ||
+      entry.name === "terminal_bench:root" ||
+      entry.name === "terminal_bench:listing" ||
+      entry.name === "terminal_bench:metadata",
     )
     .map((entry) => ({ ...entry }));
 

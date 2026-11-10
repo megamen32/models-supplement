@@ -9,6 +9,7 @@ import type { ModelEntry } from "./build-types";
 const SOURCE_FIELDS = [
   "arena", "alpaca_lc", "routerai", "hle", "swebench_pro",
   "swe_bench_verified", "swe_bench_lite", "swe_bench_multilingual",
+  "aider_polyglot", "livebench", "terminal_bench",
 ] as const;
 
 /** Which source sub-records an entry actually holds. */

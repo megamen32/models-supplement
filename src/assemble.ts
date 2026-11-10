@@ -10,6 +10,7 @@ import type { ModelEntry, Unmatched } from "./build-types";
 import type { ArenaEntry } from "./arena";
 import type { AlpacaLcEntry, RouterAIModelEntry } from "./build-types";
 import type { ScoreEntry } from "./scores";
+import type { AiderEntry, LiveBenchEntry, TerminalBenchEntry } from "./coding-sources";
 import type { ModelsDevRecord } from "./upstream";
 import { canonicalId, displayNameFromRaw } from "./canonical";
 import { reconcileModels } from "./merge";
@@ -27,6 +28,9 @@ export interface AssembleInput {
   routerai: SourceResult<{ models: Record<string, RouterAIModelEntry>; currency: { usd_rub: number; source: string; fetched_at: string } | null }>;
   hle: SourceResult<{ hle: Record<string, ScoreEntry>; swebench_pro: Record<string, ScoreEntry> }>;
   swe: SourceResult<Record<"swe_bench_verified" | "swe_bench_lite" | "swe_bench_multilingual", Record<string, ScoreEntry>>>;
+  aider?: SourceResult<Record<string, AiderEntry>>;
+  livebench?: SourceResult<Record<string, LiveBenchEntry>>;
+  terminal?: SourceResult<Record<string, TerminalBenchEntry>>;
   urls: Record<string, string>;
 }
 
@@ -53,6 +57,12 @@ export function assemble(i: AssembleInput): AssembleOutput {
   const unmatched: Unmatched = { hle: [], swebench_pro: [], swe_bench_verified: [], swe_bench_lite: [], swe_bench_multilingual: [] };
   const prevModels = i.prev?.models ?? {};
   const states: Record<string, SourceState> = {};
+  // Keep AssembleInput backwards-compatible for callers that predate the
+  // optional coding-source fetches. A missing source behaves like a failed
+  // fetch and can therefore only carry its own previous fields.
+  const aider = i.aider ?? { ok: false, records: {}, error: "not configured", stats: [] };
+  const livebench = i.livebench ?? { ok: false, records: {}, error: "not configured", stats: [] };
+  const terminal = i.terminal ?? { ok: false, records: {}, error: "not configured", stats: [] };
 
   // models.dev seeds the map under its own (reference) ids.
   for (const [id, up] of Object.entries(i.upstream.models)) {
@@ -66,7 +76,7 @@ export function assemble(i: AssembleInput): AssembleOutput {
   };
 
   const finish = (name: string, r: SourceResult<unknown>, carried: number) => {
-    states[name] = sourceState({ url: i.urls[name], ok: r.ok, error: r.error, carried, prev: i.prev, name, now: i.now });
+    states[name] = sourceState({ url: i.urls[name] ?? "", ok: r.ok, error: r.error, carried, prev: i.prev, name, now: i.now });
   };
   const carry = (name: string, r: SourceResult<unknown>): number => {
     if (r.ok) return 0;
@@ -139,6 +149,21 @@ export function assemble(i: AssembleInput): AssembleOutput {
     }
   }
   finish("swe_bench_leaderboard", i.swe, carry("swe_bench_leaderboard", i.swe));
+
+  if (aider.ok) {
+    for (const [id, e] of Object.entries(aider.records)) ensure(fresh, id, displayNameFromRaw(id)).aider_polyglot = e;
+  }
+  finish("aider_polyglot", aider, carry("aider_polyglot", aider));
+
+  if (livebench.ok) {
+    for (const [id, e] of Object.entries(livebench.records)) ensure(fresh, id, displayNameFromRaw(id)).livebench = e;
+  }
+  finish("livebench", livebench, carry("livebench", livebench));
+
+  if (terminal.ok) {
+    for (const [id, e] of Object.entries(terminal.records)) ensure(fresh, id, displayNameFromRaw(id)).terminal_bench = e;
+  }
+  finish("terminal_bench", terminal, carry("terminal_bench", terminal));
 
   const currency = i.routerai.ok ? i.routerai.records.currency : i.prev?.currency ?? null;
   return { models: reconcileModels(fresh), unmatched, states, currency };

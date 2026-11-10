@@ -33,6 +33,7 @@ import { resolve } from "node:path";
 import { fetchAlpaca, fetchArena } from "./arena";
 import { fetchRouterAI } from "./routerai";
 import { fetchHLE, fetchSWEbench } from "./scores";
+import { fetchAider, fetchLiveBench, fetchTerminalBench } from "./coding-sources";
 import { getEnvFingerprint, getGitInfo, sha256, type FetchStat } from "./provenance";
 import { formatReport, runChecks } from "./checks";
 import { fetchModelsDev, MODELS_DEV_URL } from "./upstream";
@@ -69,6 +70,9 @@ const SOURCE_URLS: Record<string, string> = {
   routerai: "https://routerai.ru/api/v1/models",
   hle: "https://dashboard.safe.ai/api/models",
   swe_bench_leaderboard: "https://raw.githubusercontent.com/SWE-bench/swe-bench.github.io/master/data/leaderboards.json",
+  aider_polyglot: "https://raw.githubusercontent.com/Aider-AI/aider/main/aider/website/_data/polyglot_leaderboard.yml",
+  livebench: "https://livebench.ai/data/20261106/table.csv",
+  terminal_bench: "https://github.com/laude-institute/terminal-bench-leaderboard/tree/main/results/terminal-bench-core@0.1.1",
 };
 
 function parseArgs(argv: string[]): { dryRun: boolean } {
@@ -160,13 +164,16 @@ async function main() {
   try { prevText = readFileSync(artifactPath, "utf8"); } catch { /* first build */ }
   const prev = prevText ? parsePrevious(prevText) : null;
 
-  const [upstreamResult, arenaResult, alpacaResult, routeraiResult, hleResult, sweResult] = await Promise.all([
+  const [upstreamResult, arenaResult, alpacaResult, routeraiResult, hleResult, sweResult, aiderResult, livebenchResult, terminalResult] = await Promise.all([
     fetchModelsDev(artifactPath),
     fetchArena(),
     fetchAlpaca(),
     fetchRouterAI(),
     fetchHLE(),
     fetchSWEbench(),
+    fetchAider(),
+    fetchLiveBench(),
+    fetchTerminalBench(),
   ]);
   const buildMs = Math.round(performance.now() - t0);
 
@@ -203,6 +210,9 @@ async function main() {
       error: firstError([sweStat]),
       stats: sweResult.stats,
     },
+    aider: aiderResult,
+    livebench: livebenchResult,
+    terminal: terminalResult,
     urls: SOURCE_URLS,
   });
 
@@ -213,6 +223,9 @@ async function main() {
     ...routeraiResult.stats,
     hleResult.stat,
     ...sweResult.stats,
+    ...aiderResult.stats,
+    ...livebenchResult.stats,
+    ...terminalResult.stats,
   ];
 
   const draft: Omit<Supplement, "provenance"> & {

@@ -33,6 +33,9 @@ export const SOURCE_FIELDS: Record<string, string[]> = {
   routerai: ["routerai"],
   hle: ["hle", "swebench_pro"],
   swe_bench_leaderboard: ["swe_bench_verified", "swe_bench_lite", "swe_bench_multilingual"],
+  aider_polyglot: ["aider_polyglot"],
+  livebench: ["livebench"],
+  terminal_bench: ["terminal_bench"],
 };
 
 /** Fetch-stat names (provenance.sources) each source is recorded under. */
@@ -42,6 +45,9 @@ export const SOURCE_STAT_NAMES: Record<string, string[]> = {
   routerai: ["routerai:models"],
   hle: ["cais_dashboard"],
   swe_bench_leaderboard: ["swe_bench_leaderboard"],
+  aider_polyglot: ["aider_polyglot"],
+  livebench: ["livebench:table", "livebench:categories"],
+  terminal_bench: ["terminal_bench:root", "terminal_bench:listing", "terminal_bench:metadata"],
 };
 
 export interface PreviousSupplement {
